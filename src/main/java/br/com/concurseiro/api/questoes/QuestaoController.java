@@ -4,10 +4,13 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/questoes")
 public class QuestaoController {
+
+    private static final int MAX_PAGE_SIZE = 50;
 
     private final QuestaoService service;
 
@@ -41,6 +44,28 @@ public class QuestaoController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
+
+        if (page < 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "page não pode ser negativa"
+            );
+        }
+
+        if (size < 1) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "size deve ser maior que zero"
+            );
+        }
+
+        if (size > MAX_PAGE_SIZE) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "size máximo permitido é " + MAX_PAGE_SIZE
+            );
+        }
+
         return service.listarFiltradoPaginado(
                         texto,
                         disciplina,
