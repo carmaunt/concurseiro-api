@@ -9,10 +9,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class QuestaoService {
+
+    private static final Set<String> SORT_FIELDS_ALLOWED = Set.of(
+            "ano",
+            "criadoEm",
+            "disciplina",
+            "banca",
+            "instituicao"
+    );
 
     private final QuestaoRepository repository;
 
@@ -145,6 +154,13 @@ public class QuestaoService {
         // sort=ano,desc | sort=criadoEm,asc
         String[] parts = sort.split(",", 2);
         String property = parts[0].trim();
+
+        if (!SORT_FIELDS_ALLOWED.contains(property)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "sort inválido. Permitidos: " + String.join(", ", SORT_FIELDS_ALLOWED)
+            );
+        }
 
         Sort.Direction direction = Sort.Direction.ASC;
         if (parts.length == 2 && parts[1].trim().equalsIgnoreCase("desc")) {
