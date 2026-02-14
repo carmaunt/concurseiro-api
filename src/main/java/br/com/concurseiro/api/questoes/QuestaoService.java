@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.UUID;
+
 @Service
 public class QuestaoService {
 
@@ -31,6 +33,7 @@ public class QuestaoService {
         String gabaritoNormalizado = normalizarGabarito(modalidade, gabaritoBruto);
 
         Questao questao = new Questao();
+        questao.setIdQuestion(gerarIdQuestion()); // ✅ agora sempre vem preenchido ANTES do INSERT
         questao.setEnunciado(request.enunciado());
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
@@ -44,11 +47,14 @@ public class QuestaoService {
         questao.setModalidade(modalidade);
         questao.setGabarito(gabaritoNormalizado);
 
-        repository.saveAndFlush(questao);
+        return repository.save(questao);
+    }
 
-        questao.setIdQuestion(String.format("Q%04d", questao.getId()));
-
-        return questao;
+    private String gerarIdQuestion() {
+        // Coluna tem length=16. Vamos gerar algo como: Q + 15 chars hex => total 16
+        // Ex: Q4F1A2B3C4D5E6F7
+        String hex = UUID.randomUUID().toString().replace("-", "").toUpperCase();
+        return "Q" + hex.substring(0, 15);
     }
 
     private String normalizarModalidade(String modalidadeBruta, String alternativas) {
