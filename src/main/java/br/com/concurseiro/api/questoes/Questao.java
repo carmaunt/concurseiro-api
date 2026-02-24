@@ -1,5 +1,7 @@
 package br.com.concurseiro.api.questoes;
 
+import br.com.concurseiro.api.catalogo.Disciplina;
+import br.com.concurseiro.api.catalogo.Assunto;
 import jakarta.persistence.*;
 
 import java.text.Normalizer;
@@ -28,6 +30,7 @@ public class Questao {
     @Column(nullable = false)
     private String alternativas;
 
+    // ====== MODELO ATUAL (continua por enquanto) ======
     @Column(nullable = false, length = 160)
     private String disciplina;
 
@@ -58,7 +61,16 @@ public class Questao {
     @Column(nullable = false)
     private OffsetDateTime criadoEm = OffsetDateTime.now();
 
-    // Campo otimizado para busca (sem acento + UPPER), evita problemas de CLOB e melhora performance
+    // ====== NOVO: vínculo com catálogo (migração gradual) ======
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "disciplina_id") // nullable por padrão (migração progressiva)
+    private Disciplina disciplinaCatalogo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assunto_id") // nullable por padrão (migração progressiva)
+    private Assunto assuntoCatalogo;
+
+    // Campo otimizado para busca (sem acento + UPPER)
     @Column(nullable = true, length = 20000)
     private String textoBusca;
 
@@ -74,8 +86,8 @@ public class Questao {
 
     private static String normalizarParaBusca(String s) {
         String n = Normalizer.normalize(s, Normalizer.Form.NFD);
-        n = n.replaceAll("\\p{M}", "");          // remove acentos
-        n = n.replaceAll("\\s+", " ").trim();   // normaliza espaços
+        n = n.replaceAll("\\p{M}", "");
+        n = n.replaceAll("\\s+", " ").trim();
         return n.toUpperCase();
     }
 
@@ -128,4 +140,10 @@ public class Questao {
 
     public String getTextoBusca() { return textoBusca; }
     public void setTextoBusca(String textoBusca) { this.textoBusca = textoBusca; }
+
+    public Disciplina getDisciplinaCatalogo() { return disciplinaCatalogo; }
+    public void setDisciplinaCatalogo(Disciplina disciplinaCatalogo) { this.disciplinaCatalogo = disciplinaCatalogo; }
+
+    public Assunto getAssuntoCatalogo() { return assuntoCatalogo; }
+    public void setAssuntoCatalogo(Assunto assuntoCatalogo) { this.assuntoCatalogo = assuntoCatalogo; }
 }

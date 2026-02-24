@@ -1,5 +1,7 @@
 package br.com.concurseiro.api.questoes;
 
+import br.com.concurseiro.api.catalogo.Disciplina;
+import br.com.concurseiro.api.catalogo.DisciplinaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -8,13 +10,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import br.com.concurseiro.api.catalogo.Assunto;
+import br.com.concurseiro.api.catalogo.AssuntoRepository;
 
 import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class QuestaoService {
-
+    
     private static final Set<String> SORT_FIELDS_ALLOWED = Set.of(
             "ano",
             "criadoEm",
@@ -24,9 +28,17 @@ public class QuestaoService {
     );
 
     private final QuestaoRepository repository;
+    private final DisciplinaRepository disciplinaRepository;
+    private final AssuntoRepository assuntoRepository;
 
-    public QuestaoService(QuestaoRepository repository) {
+    public QuestaoService(
+            QuestaoRepository repository,
+            DisciplinaRepository disciplinaRepository,
+            AssuntoRepository assuntoRepository
+    ) {
         this.repository = repository;
+        this.disciplinaRepository = disciplinaRepository;
+        this.assuntoRepository = assuntoRepository;
     }
 
     @Transactional
@@ -55,6 +67,25 @@ public class QuestaoService {
         questao.setNivel(request.nivel());
         questao.setModalidade(modalidade);
         questao.setGabarito(gabaritoNormalizado);
+
+        // ✅ NOVO: se vier disciplinaId, vincula a questão ao catálogo (migração gradual)
+        if (request.disciplinaId() != null) {
+            Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Disciplina não encontrada no catálogo"
+                    ));
+            questao.setDisciplinaCatalogo(disciplina);
+        }
+
+        if (request.assuntoId() != null) {
+            Assunto assunto = assuntoRepository.findById(request.assuntoId())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Assunto não encontrado no catálogo"
+                    ));
+            questao.setAssuntoCatalogo(assunto);
+        }
 
         return repository.save(questao);
     }
