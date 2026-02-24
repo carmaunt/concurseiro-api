@@ -32,8 +32,13 @@ public class QuestaoController {
     @GetMapping
     public Page<QuestaoResponse> listar(
             @RequestParam(required = false) String texto,
+
             @RequestParam(required = false) String disciplina,
+            @RequestParam(required = false) Long disciplinaId,
+
             @RequestParam(required = false) String assunto,
+            @RequestParam(required = false) Long assuntoId,
+
             @RequestParam(required = false) String banca,
             @RequestParam(required = false) String instituicao,
             @RequestParam(required = false) Integer ano,
@@ -69,7 +74,9 @@ public class QuestaoController {
         return service.listarFiltradoPaginado(
                         texto,
                         disciplina,
+                        disciplinaId,
                         assunto,
+                        assuntoId,
                         banca,
                         instituicao,
                         ano,

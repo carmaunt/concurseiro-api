@@ -58,8 +58,6 @@ public class QuestaoService {
         questao.setEnunciado(request.enunciado());
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
-        questao.setDisciplina(request.disciplina());
-        questao.setAssunto(request.assunto());
         questao.setBanca(request.banca());
         questao.setInstituicao(request.instituicao());
         questao.setAno(request.ano());
@@ -68,7 +66,7 @@ public class QuestaoService {
         questao.setModalidade(modalidade);
         questao.setGabarito(gabaritoNormalizado);
 
-        // ✅ NOVO: se vier disciplinaId, vincula a questão ao catálogo (migração gradual)
+        // ===== Disciplina (fonte de verdade quando vier disciplinaId) =====
         if (request.disciplinaId() != null) {
             Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
                     .orElseThrow(() -> new ResponseStatusException(
@@ -76,8 +74,12 @@ public class QuestaoService {
                             "Disciplina não encontrada no catálogo"
                     ));
             questao.setDisciplinaCatalogo(disciplina);
+            questao.setDisciplina(disciplina.getNome()); // <-- texto passa a ser derivado do catálogo
+        } else {
+            questao.setDisciplina(request.disciplina());
         }
 
+        // ===== Assunto (fonte de verdade quando vier assuntoId) =====
         if (request.assuntoId() != null) {
             Assunto assunto = assuntoRepository.findById(request.assuntoId())
                     .orElseThrow(() -> new ResponseStatusException(
@@ -85,6 +87,9 @@ public class QuestaoService {
                             "Assunto não encontrado no catálogo"
                     ));
             questao.setAssuntoCatalogo(assunto);
+            questao.setAssunto(assunto.getNome()); // <-- texto passa a ser derivado do catálogo
+        } else {
+            questao.setAssunto(request.assunto());
         }
 
         return repository.save(questao);
@@ -150,7 +155,9 @@ public class QuestaoService {
     public Page<Questao> listarFiltradoPaginado(
             String texto,
             String disciplina,
+            Long disciplinaId,
             String assunto,
+            Long assuntoId,
             String banca,
             String instituicao,
             Integer ano,
@@ -164,7 +171,9 @@ public class QuestaoService {
         Specification<Questao> spec = Specification
                 .where(QuestaoSpecifications.textoContains(texto))
                 .and(QuestaoSpecifications.disciplinaEquals(disciplina))
+                .and(QuestaoSpecifications.disciplinaIdEquals(disciplinaId))
                 .and(QuestaoSpecifications.assuntoEquals(assunto))
+                .and(QuestaoSpecifications.assuntoIdEquals(assuntoId))
                 .and(QuestaoSpecifications.bancaEquals(banca))
                 .and(QuestaoSpecifications.instituicaoEquals(instituicao))
                 .and(QuestaoSpecifications.anoEquals(ano))

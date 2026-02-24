@@ -69,4 +69,16 @@ public class QuestaoSpecifications {
             return cb.like(root.get("textoBusca"), "%" + normalizado + "%");
         };
     }
+
+    public static Specification<Questao> disciplinaIdEquals(Long disciplinaId) {
+        return (root, query, cb) ->
+                disciplinaId == null ? null :
+                        cb.equal(root.get("disciplinaCatalogo").get("id"), disciplinaId);
+    }
+
+    public static Specification<Questao> assuntoIdEquals(Long assuntoId) {
+        return (root, query, cb) ->
+                assuntoId == null ? null :
+                        cb.equal(root.get("assuntoCatalogo").get("id"), assuntoId);
+    }
 }
