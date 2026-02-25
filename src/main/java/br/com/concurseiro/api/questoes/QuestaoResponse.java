@@ -15,7 +15,11 @@ public record QuestaoResponse(
         Long assuntoId,
 
         String banca,
+        Long bancaId,
+
         String instituicao,
+        Long instituicaoId,
+
         Integer ano,
         String cargo,
         String nivel,
@@ -26,6 +30,10 @@ public record QuestaoResponse(
     public static QuestaoResponse fromEntity(Questao q) {
         Long disciplinaId = q.getDisciplinaCatalogo() != null ? q.getDisciplinaCatalogo().getId() : null;
         Long assuntoId = q.getAssuntoCatalogo() != null ? q.getAssuntoCatalogo().getId() : null;
+        Long bancaId = q.getBancaCatalogo() != null ? q.getBancaCatalogo().getId() : null;
+        Long instituicaoId = q.getInstituicaoCatalogo() != null
+                ? q.getInstituicaoCatalogo().getId()
+                : null;
 
         return new QuestaoResponse(
                 q.getIdQuestion(),
@@ -40,7 +48,11 @@ public record QuestaoResponse(
                 assuntoId,
 
                 q.getBanca(),
+                bancaId,
+
                 q.getInstituicao(),
+                instituicaoId,
+
                 q.getAno(),
                 q.getCargo(),
                 q.getNivel(),

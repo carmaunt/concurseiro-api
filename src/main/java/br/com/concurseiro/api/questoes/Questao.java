@@ -1,7 +1,9 @@
 package br.com.concurseiro.api.questoes;
 
 import br.com.concurseiro.api.catalogo.Disciplina;
+import br.com.concurseiro.api.catalogo.Instituicao;
 import br.com.concurseiro.api.catalogo.Assunto;
+import br.com.concurseiro.api.catalogo.Banca;
 import jakarta.persistence.*;
 
 import java.text.Normalizer;
@@ -69,6 +71,23 @@ public class Questao {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assunto_id") // nullable por padrão (migração progressiva)
     private Assunto assuntoCatalogo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "banca_id")
+    private Banca bancaCatalogo;
+
+    // ===== NOVO: vínculo com catálogo de instituição =====
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "instituicao_id")
+    private Instituicao instituicaoCatalogo;
+
+    public Instituicao getInstituicaoCatalogo() {
+        return instituicaoCatalogo;
+    }
+
+    public void setInstituicaoCatalogo(Instituicao instituicaoCatalogo) {
+        this.instituicaoCatalogo = instituicaoCatalogo;
+    }
 
     // Campo otimizado para busca (sem acento + UPPER)
     @Column(nullable = true, length = 20000)
@@ -146,4 +165,7 @@ public class Questao {
 
     public Assunto getAssuntoCatalogo() { return assuntoCatalogo; }
     public void setAssuntoCatalogo(Assunto assuntoCatalogo) { this.assuntoCatalogo = assuntoCatalogo; }
+
+    public Banca getBancaCatalogo() { return bancaCatalogo; }
+    public void setBancaCatalogo(Banca bancaCatalogo) { this.bancaCatalogo = bancaCatalogo; }
 }

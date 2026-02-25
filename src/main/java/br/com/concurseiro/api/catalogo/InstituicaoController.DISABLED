@@ -1,0 +1,40 @@
+package br.com.concurseiro.api.catalogo;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/admin/catalogo/instituicoes")
+public class InstituicaoController {
+
+    private final InstituicaoRepository repository;
+
+    public InstituicaoController(InstituicaoRepository repository) {
+        this.repository = repository;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Instituicao criar(@RequestBody Instituicao request) {
+
+        if (repository.existsByNomeIgnoreCase(request.getNome())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Instituição já cadastrada"
+            );
+        }
+
+        Instituicao inst = new Instituicao();
+        inst.setNome(request.getNome().trim());
+
+        return repository.save(inst);
+    }
+
+    @GetMapping
+    public List<Instituicao> listar() {
+        return repository.findAll();
+    }
+}

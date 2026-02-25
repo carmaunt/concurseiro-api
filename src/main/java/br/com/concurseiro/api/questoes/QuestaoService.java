@@ -12,6 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import br.com.concurseiro.api.catalogo.Assunto;
 import br.com.concurseiro.api.catalogo.AssuntoRepository;
+import br.com.concurseiro.api.catalogo.Banca;
+import br.com.concurseiro.api.catalogo.BancaRepository;
+import br.com.concurseiro.api.catalogo.Instituicao;
+import br.com.concurseiro.api.catalogo.InstituicaoRepository;
 
 import java.util.Set;
 import java.util.UUID;
@@ -30,16 +34,22 @@ public class QuestaoService {
     private final QuestaoRepository repository;
     private final DisciplinaRepository disciplinaRepository;
     private final AssuntoRepository assuntoRepository;
+    private final BancaRepository bancaRepository;
+    private final InstituicaoRepository instituicaoRepository;
 
     public QuestaoService(
-            QuestaoRepository repository,
-            DisciplinaRepository disciplinaRepository,
-            AssuntoRepository assuntoRepository
-    ) {
-        this.repository = repository;
-        this.disciplinaRepository = disciplinaRepository;
-        this.assuntoRepository = assuntoRepository;
-    }
+        QuestaoRepository repository,
+        DisciplinaRepository disciplinaRepository,
+        AssuntoRepository assuntoRepository,
+        BancaRepository bancaRepository,
+        InstituicaoRepository instituicaoRepository
+) {
+    this.repository = repository;
+    this.disciplinaRepository = disciplinaRepository;
+    this.assuntoRepository = assuntoRepository;
+    this.bancaRepository = bancaRepository;
+    this.instituicaoRepository = instituicaoRepository;
+}
 
     @Transactional
     public Questao cadastrar(QuestaoRequest request) {
@@ -91,6 +101,37 @@ public class QuestaoService {
         } else {
             questao.setAssunto(request.assunto());
         }
+
+        // ===== Banca (bloco bancaId) =====
+
+        if (request.bancaId() != null) {
+            Banca banca = bancaRepository.findById(request.bancaId())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Banca não encontrada no catálogo"
+                    ));
+            questao.setBancaCatalogo(banca);
+            questao.setBanca(banca.getNome()); // texto deriva do catálogo
+        } else {
+            questao.setBanca(request.banca());
+        }
+
+        // ===== Instituição (fonte de verdade quando vier instituicaoId) =====
+        if (request.instituicaoId() == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "instituicaoId é obrigatório"
+            );
+        }
+
+        Instituicao inst = instituicaoRepository.findById(request.instituicaoId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Instituição não encontrada no catálogo"
+                ));
+
+        questao.setInstituicaoCatalogo(inst);
+        questao.setInstituicao(inst.getNome());
 
         return repository.save(questao);
     }
@@ -159,6 +200,7 @@ public class QuestaoService {
             String assunto,
             Long assuntoId,
             String banca,
+            Long bancaId,
             String instituicao,
             Integer ano,
             String cargo,
@@ -170,11 +212,23 @@ public class QuestaoService {
     ) {
         Specification<Questao> spec = Specification
                 .where(QuestaoSpecifications.textoContains(texto))
-                .and(QuestaoSpecifications.disciplinaEquals(disciplina))
-                .and(QuestaoSpecifications.disciplinaIdEquals(disciplinaId))
-                .and(QuestaoSpecifications.assuntoEquals(assunto))
-                .and(QuestaoSpecifications.assuntoIdEquals(assuntoId))
-                .and(QuestaoSpecifications.bancaEquals(banca))
+
+                // ===== Disciplina =====
+                .and(disciplinaId != null
+                        ? QuestaoSpecifications.disciplinaIdEquals(disciplinaId)
+                        : QuestaoSpecifications.disciplinaEquals(disciplina))
+
+                // ===== Assunto =====
+                .and(assuntoId != null
+                        ? QuestaoSpecifications.assuntoIdEquals(assuntoId)
+                        : QuestaoSpecifications.assuntoEquals(assunto))
+
+                // ===== Banca =====
+                .and(bancaId != null
+                        ? QuestaoSpecifications.bancaIdEquals(bancaId)
+                        : QuestaoSpecifications.bancaEquals(banca))
+
+                // ===== Demais filtros =====
                 .and(QuestaoSpecifications.instituicaoEquals(instituicao))
                 .and(QuestaoSpecifications.anoEquals(ano))
                 .and(QuestaoSpecifications.cargoEquals(cargo))

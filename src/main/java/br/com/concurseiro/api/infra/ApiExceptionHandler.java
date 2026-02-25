@@ -44,6 +44,18 @@ public class ApiExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ProblemDetail handleBadCredentials(org.springframework.security.authentication.BadCredentialsException ex,
+                                            HttpServletRequest req) {
+
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+        pd.setTitle("Credenciais inválidas");
+        pd.setType(URI.create("https://concurseiro.dev/errors/auth"));
+        pd.setInstance(URI.create(req.getRequestURI()));
+        return pd;
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ProblemDetail handleGeneric(Exception ex, HttpServletRequest req) {

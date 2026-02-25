@@ -40,6 +40,7 @@ public class QuestaoController {
             @RequestParam(required = false) Long assuntoId,
 
             @RequestParam(required = false) String banca,
+            @RequestParam(required = false) Long bancaId,
             @RequestParam(required = false) String instituicao,
             @RequestParam(required = false) Integer ano,
             @RequestParam(required = false) String cargo,
@@ -78,6 +79,7 @@ public class QuestaoController {
                         assunto,
                         assuntoId,
                         banca,
+                        bancaId,
                         instituicao,
                         ano,
                         cargo,

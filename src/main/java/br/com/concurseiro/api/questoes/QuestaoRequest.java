@@ -7,14 +7,18 @@ public record QuestaoRequest(
         @NotBlank @Size(max = 10000) String questao,
         @NotBlank @Size(max = 10000) String alternativas,
 
+        // ===== Texto (mantém compatibilidade) =====
         @NotBlank @Size(max = 160) String disciplina,
-        Long disciplinaId,
-
         @NotBlank @Size(max = 200) String assunto,
-        Long assuntoId,
-
         @NotBlank @Size(max = 160) String banca,
         @NotBlank @Size(max = 200) String instituicao,
+
+        // ===== Catálogo (migração gradual) =====
+        Long disciplinaId,
+        Long assuntoId,
+        Long bancaId,
+        Long instituicaoId,
+
         @NotNull @Min(1900) @Max(2100) Integer ano,
         @NotBlank @Size(max = 160) String cargo,
         @NotBlank @Size(max = 80) String nivel,
