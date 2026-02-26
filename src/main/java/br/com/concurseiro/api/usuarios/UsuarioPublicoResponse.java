@@ -1,3 +1,4 @@
+
 package br.com.concurseiro.api.usuarios;
 
 public record UsuarioPublicoResponse(

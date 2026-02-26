@@ -9,6 +9,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.*;
 
+import br.com.concurseiro.api.usuarios.Usuario;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,11 +33,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // libera preflight CORS
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll() // libera /actuator/health e afins (sem JWT)
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/questoes/**").permitAll()
                         .requestMatchers("/api/v1/catalogo/**").permitAll()
-                        .requestMatchers("/api/v1/admin/**").hasAuthority(br.com.concurseiro.api.usuarios.Usuario.Role.ADMIN.authority())
+                        .requestMatchers("/api/v1/admin/**").hasAuthority(Usuario.Role.ADMIN.authority())
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
