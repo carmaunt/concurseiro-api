@@ -1,36 +1,28 @@
 package br.com.concurseiro.api.catalogo;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/admin/catalogo/bancas")
 public class AdminBancaController {
 
-    private final BancaRepository repository;
+    private final BancaService service;
 
-    public AdminBancaController(BancaRepository repository) {
-        this.repository = repository;
+    public AdminBancaController(BancaService service) {
+        this.service = service;
     }
 
-    public record BancaRequest(String nome) {}
+    public record BancaRequest(
+            @NotBlank @Size(max = 160) String nome
+    ) {}
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Banca cadastrar(@RequestBody BancaRequest request) {
-
-        if (request.nome() == null || request.nome().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome é obrigatório");
-        }
-
-        if (repository.existsByNomeIgnoreCase(request.nome().trim())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Banca já cadastrada");
-        }
-
-        Banca banca = new Banca();
-        banca.setNome(request.nome().trim());
-
-        return repository.save(banca);
+    public CatalogoItemResponse cadastrar(@RequestBody @Valid BancaRequest request) {
+        return service.cadastrar(request.nome());
     }
 }

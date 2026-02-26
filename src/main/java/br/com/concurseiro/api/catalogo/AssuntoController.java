@@ -8,20 +8,14 @@ import java.util.List;
 @RequestMapping("/catalogo/disciplinas/{disciplinaId}/assuntos")
 public class AssuntoController {
 
-    private final AssuntoRepository assuntoRepository;
+    private final AssuntoService service;
 
-    public AssuntoController(AssuntoRepository assuntoRepository) {
-        this.assuntoRepository = assuntoRepository;
+    public AssuntoController(AssuntoService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<AssuntoResponse> listar(@PathVariable Long disciplinaId) {
-        return assuntoRepository
-                .findByDisciplinaIdAndAtivoTrueOrderByNomeAsc(disciplinaId)
-                .stream()
-                .map(a -> new AssuntoResponse(a.getId(), a.getNome()))
-                .toList();
+    public List<CatalogoItemResponse> listar(@PathVariable Long disciplinaId) {
+        return service.listarPorDisciplina(disciplinaId);
     }
-
-    public record AssuntoResponse(Long id, String nome) {}
 }

@@ -8,19 +8,14 @@ import java.util.List;
 @RequestMapping("/catalogo/disciplinas")
 public class DisciplinaController {
 
-    private final DisciplinaRepository repository;
+    private final DisciplinaService service;
 
-    public DisciplinaController(DisciplinaRepository repository) {
-        this.repository = repository;
+    public DisciplinaController(DisciplinaService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<DisciplinaResponse> listar() {
-        return repository.findAll().stream()
-                .filter(Disciplina::isAtivo)
-                .map(d -> new DisciplinaResponse(d.getId(), d.getNome()))
-                .toList();
+    public List<CatalogoItemResponse> listar() {
+        return service.listar();
     }
-
-    public record DisciplinaResponse(Long id, String nome) {}
 }

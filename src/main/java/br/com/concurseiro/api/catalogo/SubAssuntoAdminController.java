@@ -1,25 +1,20 @@
 package br.com.concurseiro.api.catalogo;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/admin/catalogo/subassuntos")
 public class SubAssuntoAdminController {
 
-    private final SubAssuntoRepository subAssuntoRepository;
-    private final AssuntoRepository assuntoRepository;
+    private final SubAssuntoService service;
 
-    public SubAssuntoAdminController(
-            SubAssuntoRepository subAssuntoRepository,
-            AssuntoRepository assuntoRepository
-    ) {
-        this.subAssuntoRepository = subAssuntoRepository;
-        this.assuntoRepository = assuntoRepository;
+    public SubAssuntoAdminController(SubAssuntoService service) {
+        this.service = service;
     }
 
     public record SubAssuntoRequest(
@@ -29,25 +24,7 @@ public class SubAssuntoAdminController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void cadastrar(@RequestBody SubAssuntoRequest request) {
-
-        var assunto = assuntoRepository.findById(request.assuntoId())
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Assunto não encontrado")
-                );
-
-        if (subAssuntoRepository.existsByAssuntoIdAndNomeIgnoreCase(
-                request.assuntoId(), request.nome())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Subassunto já cadastrado para este assunto"
-            );
-        }
-
-        SubAssunto sub = new SubAssunto();
-        sub.setAssunto(assunto);
-        sub.setNome(request.nome().trim());
-
-        subAssuntoRepository.save(sub);
+    public CatalogoItemResponse cadastrar(@RequestBody @Valid SubAssuntoRequest request) {
+        return service.cadastrar(request.assuntoId(), request.nome());
     }
 }

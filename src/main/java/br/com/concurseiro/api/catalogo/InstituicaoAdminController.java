@@ -1,11 +1,10 @@
-// src/main/java/br/com/concurseiro/api/catalogo/InstituicaoAdminController.java
 package br.com.concurseiro.api.catalogo;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -13,10 +12,10 @@ import java.util.List;
 @RequestMapping("/admin/catalogo/instituicoes")
 public class InstituicaoAdminController {
 
-    private final InstituicaoRepository repository;
+    private final InstituicaoService service;
 
-    public InstituicaoAdminController(InstituicaoRepository repository) {
-        this.repository = repository;
+    public InstituicaoAdminController(InstituicaoService service) {
+        this.service = service;
     }
 
     public record InstituicaoRequest(
@@ -25,25 +24,12 @@ public class InstituicaoAdminController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void cadastrar(@RequestBody InstituicaoRequest request) {
-
-        String nome = request.nome().trim();
-
-        if (repository.existsByNomeIgnoreCase(nome)) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Instituição já cadastrada"
-            );
-        }
-
-        Instituicao inst = new Instituicao();
-        inst.setNome(nome);
-
-        repository.save(inst);
+    public CatalogoItemResponse cadastrar(@RequestBody @Valid InstituicaoRequest request) {
+        return service.cadastrar(request.nome());
     }
 
     @GetMapping
-    public List<Instituicao> listar() {
-        return repository.findAll();
+    public List<CatalogoItemResponse> listar() {
+        return service.listar();
     }
 }

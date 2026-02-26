@@ -1,25 +1,20 @@
 package br.com.concurseiro.api.catalogo;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/admin/catalogo/assuntos")
 public class AssuntoAdminController {
 
-    private final AssuntoRepository assuntoRepository;
-    private final DisciplinaRepository disciplinaRepository;
+    private final AssuntoService service;
 
-    public AssuntoAdminController(
-            AssuntoRepository assuntoRepository,
-            DisciplinaRepository disciplinaRepository
-    ) {
-        this.assuntoRepository = assuntoRepository;
-        this.disciplinaRepository = disciplinaRepository;
+    public AssuntoAdminController(AssuntoService service) {
+        this.service = service;
     }
 
     public record AssuntoRequest(
@@ -29,25 +24,7 @@ public class AssuntoAdminController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void cadastrar(@RequestBody AssuntoRequest request) {
-
-        var disciplina = disciplinaRepository.findById(request.disciplinaId())
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Disciplina não encontrada")
-                );
-
-        if (assuntoRepository.existsByDisciplinaIdAndNomeIgnoreCase(
-                request.disciplinaId(), request.nome())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Assunto já cadastrado para esta disciplina"
-            );
-        }
-
-        Assunto assunto = new Assunto();
-        assunto.setDisciplina(disciplina);
-        assunto.setNome(request.nome().trim());
-
-        assuntoRepository.save(assunto);
+    public CatalogoItemResponse cadastrar(@RequestBody @Valid AssuntoRequest request) {
+        return service.cadastrar(request.disciplinaId(), request.nome());
     }
 }

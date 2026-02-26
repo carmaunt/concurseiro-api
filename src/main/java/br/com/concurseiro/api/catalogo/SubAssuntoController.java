@@ -8,20 +8,14 @@ import java.util.List;
 @RequestMapping("/catalogo/assuntos/{assuntoId}/subassuntos")
 public class SubAssuntoController {
 
-    private final SubAssuntoRepository repository;
+    private final SubAssuntoService service;
 
-    public SubAssuntoController(SubAssuntoRepository repository) {
-        this.repository = repository;
+    public SubAssuntoController(SubAssuntoService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<SubAssuntoResponse> listar(@PathVariable Long assuntoId) {
-        return repository
-                .findByAssuntoIdAndAtivoTrueOrderByNomeAsc(assuntoId)
-                .stream()
-                .map(s -> new SubAssuntoResponse(s.getId(), s.getNome()))
-                .toList();
+    public List<CatalogoItemResponse> listar(@PathVariable Long assuntoId) {
+        return service.listarPorAssunto(assuntoId);
     }
-
-    public record SubAssuntoResponse(Long id, String nome) {}
 }

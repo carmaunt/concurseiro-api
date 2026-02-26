@@ -8,14 +8,14 @@ import java.util.List;
 @RequestMapping("/catalogo/bancas")
 public class CatalogoBancaController {
 
-    private final BancaRepository repository;
+    private final BancaService service;
 
-    public CatalogoBancaController(BancaRepository repository) {
-        this.repository = repository;
+    public CatalogoBancaController(BancaService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<Banca> listar() {
-        return repository.findAll();
+    public List<CatalogoItemResponse> listar() {
+        return service.listar();
     }
 }
