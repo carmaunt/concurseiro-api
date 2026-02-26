@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @Service
 public class QuestaoService {
-    
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(QuestaoService.class);
     private static final Set<String> SORT_FIELDS_ALLOWED = Set.of(
             "ano",
             "criadoEm",
@@ -202,6 +202,7 @@ public class QuestaoService {
             String banca,
             Long bancaId,
             String instituicao,
+            Long instituicaoId,
             Integer ano,
             String cargo,
             String nivel,
@@ -210,6 +211,19 @@ public class QuestaoService {
             int size,
             String sort
     ) {
+
+        if (disciplinaId == null && disciplina != null && !disciplina.isBlank()) {
+            log.warn("Filtro por texto usado: disciplina='{}' (prefira disciplinaId)", disciplina);
+        }
+        if (assuntoId == null && assunto != null && !assunto.isBlank()) {
+            log.warn("Filtro por texto usado: assunto='{}' (prefira assuntoId)", assunto);
+        }
+        if (bancaId == null && banca != null && !banca.isBlank()) {
+            log.warn("Filtro por texto usado: banca='{}' (prefira bancaId)", banca);
+        }
+        if (instituicaoId == null && instituicao != null && !instituicao.isBlank()) {
+            log.warn("Filtro por texto usado: instituicao='{}' (prefira instituicaoId)", instituicao);
+        }
         Specification<Questao> spec = Specification
                 .where(QuestaoSpecifications.textoContains(texto))
 
@@ -229,7 +243,9 @@ public class QuestaoService {
                         : QuestaoSpecifications.bancaEquals(banca))
 
                 // ===== Demais filtros =====
-                .and(QuestaoSpecifications.instituicaoEquals(instituicao))
+                .and(instituicaoId != null
+                        ? QuestaoSpecifications.instituicaoIdEquals(instituicaoId)
+                        : QuestaoSpecifications.instituicaoEquals(instituicao))
                 .and(QuestaoSpecifications.anoEquals(ano))
                 .and(QuestaoSpecifications.cargoEquals(cargo))
                 .and(QuestaoSpecifications.nivelEquals(nivel))
