@@ -47,12 +47,37 @@ public class ApiExceptionHandler {
     @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ProblemDetail handleBadCredentials(org.springframework.security.authentication.BadCredentialsException ex,
-                                            HttpServletRequest req) {
+                                              HttpServletRequest req) {
 
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
         pd.setTitle("Credenciais inválidas");
         pd.setType(URI.create("https://concurseiro.dev/errors/auth"));
         pd.setInstance(URI.create(req.getRequestURI()));
+        return pd;
+    }
+
+    @ExceptionHandler(org.springframework.security.authentication.DisabledException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ProblemDetail handleDisabled(org.springframework.security.authentication.DisabledException ex,
+                                        HttpServletRequest req) {
+
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        pd.setTitle("Usuário desabilitado");
+        pd.setType(URI.create("https://concurseiro.dev/errors/forbidden"));
+        pd.setInstance(URI.create(req.getRequestURI()));
+        return pd;
+    }
+
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    public ProblemDetail handleMethodNotAllowed(org.springframework.web.HttpRequestMethodNotSupportedException ex,
+                                                HttpServletRequest req) {
+
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.METHOD_NOT_ALLOWED);
+        pd.setTitle("Método não permitido");
+        pd.setType(URI.create("https://concurseiro.dev/errors/method-not-allowed"));
+        pd.setInstance(URI.create(req.getRequestURI()));
+        pd.setProperty("allowedMethods", ex.getSupportedHttpMethods());
         return pd;
     }
 

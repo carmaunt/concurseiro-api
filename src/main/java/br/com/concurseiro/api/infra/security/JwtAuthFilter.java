@@ -1,5 +1,6 @@
 package br.com.concurseiro.api.infra.security;
 
+import br.com.concurseiro.api.usuarios.Usuario;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,12 +42,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         try {
             String email = jwtService.extractEmail(token);
-            String role = jwtService.extractRole(token);
+            String roleStr = jwtService.extractRole(token);
+
+            // ✅ Role forte: só aceita roles que existirem no enum
+            Usuario.Role role = Usuario.Role.valueOf(roleStr);
 
             var auth = new UsernamePasswordAuthenticationToken(
                     email,
                     null,
-                    List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                    List.of(new SimpleGrantedAuthority(role.authority()))
             );
 
             SecurityContextHolder.getContext().setAuthentication(auth);

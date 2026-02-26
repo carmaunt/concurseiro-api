@@ -3,27 +3,36 @@ package br.com.concurseiro.api.infra.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import br.com.concurseiro.api.usuarios.Usuario;
+
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Service
 public class JwtService {
 
-    // depois vamos mover isso para application.properties
-    private static final String SECRET = "CONCURSEIRO_SUPER_SECRET_KEY_1234567890";
-    private static final long EXPIRATION = 1000 * 60 * 60 * 4; // 4 horas
+    private final SecretKey key;
+    private final long expirationMs;
 
-    private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
+    public JwtService(
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.expiration-ms}") long expirationMs
+    ) {
+        // IMPORTANTE: segredo precisa ter tamanho mínimo para HMAC-SHA (ideal 32+ chars)
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.expirationMs = expirationMs;
+    }
 
-    public String generateToken(String email, String role) {
-
+    public String generateToken(String email, Usuario.Role role) {
         return Jwts.builder()
                 .subject(email)
-                .claim("role", role)
+                .claim("role", role.name()) // sempre o nome do enum
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key)
                 .compact();
     }

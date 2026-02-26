@@ -9,7 +9,12 @@ public class Usuario {
 
     public enum Role {
         ADMIN,
-        VISITANTE
+        VISITANTE;
+
+        // Autoridade no padrão do Spring Security (ROLE_ADMIN, ROLE_VISITANTE)
+        public String authority() {
+            return "ROLE_" + this.name();
+        }
     }
 
     public enum Status {
@@ -41,57 +46,23 @@ public class Usuario {
     @Column(nullable = false)
     private OffsetDateTime criadoEm = OffsetDateTime.now();
 
-    // ===== GETTERS E SETTERS =====
+    public Long getId() { return id; }
 
-    public Long getId() {
-        return id;
-    }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
 
-    public String getNome() {
-        return nome;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
+    public String getSenhaHash() { return senhaHash; }
+    public void setSenhaHash(String senhaHash) { this.senhaHash = senhaHash; }
 
-    public String getEmail() {
-        return email;
-    }
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
 
-    public String getSenhaHash() {
-        return senhaHash;
-    }
-
-    public void setSenhaHash(String senhaHash) {
-        this.senhaHash = senhaHash;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public OffsetDateTime getCriadoEm() {
-        return criadoEm;
-    }
-
-    public void setCriadoEm(OffsetDateTime criadoEm) {
-        this.criadoEm = criadoEm;
-    }
+    public OffsetDateTime getCriadoEm() { return criadoEm; }
+    public void setCriadoEm(OffsetDateTime criadoEm) { this.criadoEm = criadoEm; }
 }
