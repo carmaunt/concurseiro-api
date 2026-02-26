@@ -313,4 +313,39 @@ service = new QuestaoService(
         verify(questaoRepository, never()).save(any());
     }
 
+    @Test
+    void cadastrar_deveFalhar_quandoModalidadeForDesconhecida() {
+        // arrange
+        var inst = new br.com.concurseiro.api.catalogo.instituicao.model.Instituicao();
+        inst.setNome("PC-BA");
+        when(instituicaoRepository.findById(1L)).thenReturn(Optional.of(inst));
+
+        QuestaoRequest req = new QuestaoRequest(
+                "Enunciado teste",
+                "Texto da questão",
+                "A) A\nB) B\nC) C\nD) D",
+                "Direito Constitucional",
+                "Direitos Fundamentais",
+                "CEBRASPE",
+                "PC-BA",
+                null,
+                null,
+                null,
+                1L,
+                2024,
+                "Agente",
+                "Médio",
+                "DISCURSIVA", // modalidade inválida (fora do domínio)
+                "C"
+        );
+
+        // act + assert
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> service.cadastrar(req));
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+        assertTrue(ex.getReason().contains("Modalidade inválida"));
+
+        // garante que não tentou persistir nada
+        verify(questaoRepository, never()).save(any());
+    }
+
 }
