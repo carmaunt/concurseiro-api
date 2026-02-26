@@ -247,4 +247,37 @@ service = new QuestaoService(
         verify(questaoRepository).save(any());
     }
 
+    @Test
+    void cadastrar_deveFalhar_quandoModalidadeAD_eGabaritoForE() {
+        // arrange (instituição existe pra não cair em NOT_FOUND)
+        var inst = new br.com.concurseiro.api.catalogo.instituicao.model.Instituicao();
+        inst.setNome("PC-BA");
+        when(instituicaoRepository.findById(1L)).thenReturn(Optional.of(inst));
+
+        QuestaoRequest req = new QuestaoRequest(
+                "Enunciado teste",
+                "Texto da questão",
+                "A) A\nB) B\nC) C\nD) D", // sem E) => normaliza para A_D
+                "Direito Constitucional",
+                "Direitos Fundamentais",
+                "CEBRASPE",
+                "PC-BA",
+                null,
+                null,
+                null,
+                1L,
+                2024,
+                "Agente",
+                "Médio",
+                "MÚLTIPLA ESCOLHA",
+                "E" // inválido pra A_D
+        );
+
+        // act + assert
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> service.cadastrar(req));
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+        assertTrue(ex.getReason().contains("gabarito incompatível"));
+        verify(questaoRepository, never()).save(any());
+    }
+
 }
