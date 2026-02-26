@@ -1,8 +1,8 @@
 // src/main/java/br/com/concurseiro/api/admin/AdminQuestaoController.java
 package br.com.concurseiro.api.admin;
 
-import br.com.concurseiro.api.questoes.Questao;
-import br.com.concurseiro.api.questoes.QuestaoService;
+import br.com.concurseiro.api.questoes.model.Questao;
+import br.com.concurseiro.api.questoes.service.QuestaoService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

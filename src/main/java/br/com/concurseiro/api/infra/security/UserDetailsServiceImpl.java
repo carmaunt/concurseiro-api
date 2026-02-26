@@ -1,7 +1,7 @@
 package br.com.concurseiro.api.infra.security;
 
-import br.com.concurseiro.api.usuarios.Usuario;
-import br.com.concurseiro.api.usuarios.UsuarioRepository;
+import br.com.concurseiro.api.usuarios.model.Usuario;
+import br.com.concurseiro.api.usuarios.repository.UsuarioRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;

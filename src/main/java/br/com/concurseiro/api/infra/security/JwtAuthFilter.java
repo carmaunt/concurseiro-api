@@ -1,6 +1,6 @@
 package br.com.concurseiro.api.infra.security;
 
-import br.com.concurseiro.api.usuarios.Usuario;
+import br.com.concurseiro.api.usuarios.model.Usuario;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
