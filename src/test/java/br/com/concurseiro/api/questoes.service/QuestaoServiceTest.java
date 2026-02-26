@@ -280,4 +280,37 @@ service = new QuestaoService(
         verify(questaoRepository, never()).save(any());
     }
 
+    @Test
+    void cadastrar_deveFalhar_quandoCertoErrado_comGabaritoInvalido() {
+        // arrange
+        var inst = new br.com.concurseiro.api.catalogo.instituicao.model.Instituicao();
+        inst.setNome("PC-BA");
+        when(instituicaoRepository.findById(1L)).thenReturn(Optional.of(inst));
+
+        QuestaoRequest req = new QuestaoRequest(
+                "Enunciado teste",
+                "Texto da questão",
+                "A) A\nB) B", // alternativas não importam aqui
+                "Direito Constitucional",
+                "Direitos Fundamentais",
+                "CEBRASPE",
+                "PC-BA",
+                null,
+                null,
+                null,
+                1L,                 // instituicaoId OK
+                2024,
+                "Agente",
+                "Médio",
+                "CERTO E ERRADO",   // vai normalizar pra CERTO_ERRADO
+                "A"                 // inválido para CERTO_ERRADO
+        );
+
+        // act + assert
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> service.cadastrar(req));
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+        assertTrue(ex.getReason().contains("gabarito incompatível"));
+        verify(questaoRepository, never()).save(any());
+    }
+
 }
