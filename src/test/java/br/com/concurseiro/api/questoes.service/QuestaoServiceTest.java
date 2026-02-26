@@ -210,5 +210,41 @@ service = new QuestaoService(
         assertEquals("C", salvo.getGabarito());
         verify(questaoRepository).save(any());
     }
+    @Test
+    void cadastrar_deveNormalizarParaAE_quandoMultEscolhaComAlternativaE() {
+        // arrange
+        var inst = new br.com.concurseiro.api.catalogo.instituicao.model.Instituicao();
+        inst.setNome("PC-BA");
+
+        when(instituicaoRepository.findById(1L)).thenReturn(Optional.of(inst));
+        when(questaoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        QuestaoRequest req = new QuestaoRequest(
+                "Enunciado teste",
+                "Texto da questão",
+                "A) A\nB) B\nC) C\nD) D\nE) E", // com E)
+                "Direito Constitucional",
+                "Direitos Fundamentais",
+                "CEBRASPE",
+                "PC-BA",
+                null,
+                null,
+                null,
+                1L,
+                2024,
+                "Agente",
+                "Médio",
+                "MÚLTIPLA ESCOLHA",
+                "E" // em A_E, E é válido
+        );
+
+        // act
+        var salvo = service.cadastrar(req);
+
+        // assert
+        assertEquals("A_E", salvo.getModalidade());
+        assertEquals("E", salvo.getGabarito());
+        verify(questaoRepository).save(any());
+    }
 
 }
