@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/catalogo/instituicoes")
+@RequestMapping("/api/v1/catalogo/instituicoes")
 public class CatalogoInstituicaoController {
 
     private final InstituicaoRepository repository;

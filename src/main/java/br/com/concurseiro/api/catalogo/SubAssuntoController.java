@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/catalogo/assuntos/{assuntoId}/subassuntos")
+@RequestMapping("/api/v1/catalogo/assuntos/{assuntoId}/subassuntos")
 public class SubAssuntoController {
 
     private final SubAssuntoService service;

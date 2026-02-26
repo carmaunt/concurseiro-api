@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/questoes")
+@RequestMapping("/api/v1/questoes")
 public class QuestaoController {
 
     private static final int MAX_PAGE_SIZE = 50;

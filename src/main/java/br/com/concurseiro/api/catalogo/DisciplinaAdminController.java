@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/catalogo/disciplinas")
+@RequestMapping("/api/v1/admin/catalogo/disciplinas")
 public class DisciplinaAdminController {
 
     private final DisciplinaService service;

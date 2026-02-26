@@ -6,7 +6,7 @@ import br.com.concurseiro.api.questoes.QuestaoService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/questoes")
+@RequestMapping("/api/v1/admin/questoes")
 public class AdminQuestaoController {
 
     private final QuestaoService service;

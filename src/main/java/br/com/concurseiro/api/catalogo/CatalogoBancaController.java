@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/catalogo/bancas")
+@RequestMapping("/api/v1/catalogo/bancas")
 public class CatalogoBancaController {
 
     private final BancaService service;

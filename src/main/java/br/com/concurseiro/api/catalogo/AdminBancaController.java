@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/catalogo/bancas")
+@RequestMapping("/api/v1/admin/catalogo/bancas")
 public class AdminBancaController {
 
     private final BancaService service;

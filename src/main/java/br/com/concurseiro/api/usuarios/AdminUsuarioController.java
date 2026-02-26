@@ -3,7 +3,7 @@ package br.com.concurseiro.api.usuarios;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/usuarios")
+@RequestMapping("/api/v1/admin/usuarios")
 public class AdminUsuarioController {
 
     private final UsuarioService service;

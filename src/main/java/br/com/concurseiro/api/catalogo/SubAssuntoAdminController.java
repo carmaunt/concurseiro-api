@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/catalogo/subassuntos")
+@RequestMapping("/api/v1/admin/catalogo/subassuntos")
 public class SubAssuntoAdminController {
 
     private final SubAssuntoService service;
