@@ -22,12 +22,12 @@ name = "Start application"
 author = "agent"
 
 [workflows.workflow.metadata]
-outputType = "webview"
+outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "./mvnw spring-boot:run"
-waitForPort = 5000
+waitForPort = 8080
 
 [[ports]]
 localPort = 5000
@@ -35,12 +35,11 @@ externalPort = 80
 
 [[ports]]
 localPort = 8080
-externalPort = 80
+externalPort = 8080
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "java -jar target/concurseiro-api-0.0.1-SNAPSHOT.jar --server.port=5000"]
-build = ["sh", "-c", "./mvnw package -DskipTests -q"]
+run = ["sh", "-c", "bash -c ./mvnw spring-boot:run"]
 
 [userenv]
 
