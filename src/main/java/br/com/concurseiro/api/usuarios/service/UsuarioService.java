@@ -60,6 +60,20 @@ public class UsuarioService {
         return repository.findAll(pageable).map(UsuarioPublicoResponse::from);
     }
 
+    @Transactional
+    public void excluirVisitante(Long id) {
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado")
+                );
+
+        if (usuario.getRole() == Usuario.Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Não é permitido excluir um administrador");
+        }
+
+        repository.delete(usuario);
+    }
+
     public Usuario autenticar(String email, String senha) {
         Usuario usuario = repository.findByEmail(email)
                 .orElseThrow(() ->

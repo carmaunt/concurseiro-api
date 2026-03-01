@@ -144,4 +144,34 @@ class UsuarioServiceTest {
         assertEquals(1, result.getTotalElements());
         assertEquals("test@test.com", result.getContent().get(0).email());
     }
+
+    @Test
+    void excluirVisitante_deveDeletar_quandoVisitante() {
+        usuario.setRole(Usuario.Role.VISITANTE);
+        when(repository.findById(1L)).thenReturn(java.util.Optional.of(usuario));
+
+        service.excluirVisitante(1L);
+
+        verify(repository).delete(usuario);
+    }
+
+    @Test
+    void excluirVisitante_deveFalhar_quandoAdmin() {
+        usuario.setRole(Usuario.Role.ADMIN);
+        when(repository.findById(1L)).thenReturn(java.util.Optional.of(usuario));
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> service.excluirVisitante(1L));
+        assertEquals(403, ex.getStatusCode().value());
+        verify(repository, never()).delete(any(Usuario.class));
+    }
+
+    @Test
+    void excluirVisitante_deveFalhar_quandoNaoEncontrado() {
+        when(repository.findById(99L)).thenReturn(java.util.Optional.empty());
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> service.excluirVisitante(99L));
+        assertEquals(404, ex.getStatusCode().value());
+    }
 }

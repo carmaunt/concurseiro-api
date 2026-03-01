@@ -6,6 +6,7 @@ import br.com.concurseiro.api.usuarios.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Admin - Usuarios", description = "Gerenciamento administrativo de usuarios")
@@ -32,5 +33,12 @@ public class AdminUsuarioController {
     public UsuarioPublicoResponse ativar(@PathVariable Long id) {
         Usuario u = service.ativarUsuario(id);
         return UsuarioPublicoResponse.from(u);
+    }
+
+    @Operation(summary = "Excluir usuario visitante")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void excluir(@PathVariable Long id) {
+        service.excluirVisitante(id);
     }
 }
