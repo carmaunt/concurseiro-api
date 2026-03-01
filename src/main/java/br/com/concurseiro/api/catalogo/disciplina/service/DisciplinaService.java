@@ -38,10 +38,27 @@ public class DisciplinaService {
     }
 
     public List<CatalogoItemResponse> listar() {
-        return repository.findAll()
+        return repository.findAllByOrderByNomeAsc()
                 .stream()
-                .sorted((a, b) -> a.getNome().compareToIgnoreCase(b.getNome()))
                 .map(d -> new CatalogoItemResponse(d.getId(), d.getNome()))
                 .toList();
+    }
+
+    public CatalogoItemResponse atualizar(Long id, String nomeBruto) {
+        Disciplina d = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disciplina não encontrada"));
+        String nome = nomeBruto.trim();
+        if (repository.existsByNomeIgnoreCase(nome) && !d.getNome().equalsIgnoreCase(nome)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Disciplina já cadastrada");
+        }
+        d.setNome(nome);
+        Disciplina salva = repository.save(d);
+        return new CatalogoItemResponse(salva.getId(), salva.getNome());
+    }
+
+    public void excluir(Long id) {
+        Disciplina d = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disciplina não encontrada"));
+        repository.delete(d);
     }
 }

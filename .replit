@@ -36,3 +36,8 @@ externalPort = 80
 [deployment]
 deploymentTarget = "autoscale"
 run = ["bash", "-c", "./mvnw spring-boot:run"]
+
+[userenv]
+
+[userenv.shared]
+JWT_SECRET = "z14j+69sMjY4196l3miXHuSwJAoEKk5juYuyGfAg9Urkv1n7jsa2YsIrRTtcqVWW"

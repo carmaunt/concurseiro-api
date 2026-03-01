@@ -22,12 +22,14 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final br.com.concurseiro.api.infra.security.RateLimitFilter rateLimitFilter;
 
     @Value("${cors.allowed-origins}")
     private String corsAllowedOrigins;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, br.com.concurseiro.api.infra.security.RateLimitFilter rateLimitFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean
@@ -66,6 +68,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/admin/**").hasAuthority(Usuario.Role.ADMIN.authority())
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(rateLimitFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -79,10 +82,18 @@ public class SecurityConfig {
                 .filter(s -> !s.isBlank())
                 .toList();
 
-        cfg.setAllowedOrigins(origins);
+        boolean isWildcard = origins.size() == 1 && origins.get(0).equals("*");
+
+        if (isWildcard) {
+            cfg.setAllowedOriginPatterns(List.of("*"));
+            cfg.setAllowCredentials(false);
+        } else {
+            cfg.setAllowedOrigins(origins);
+            cfg.setAllowCredentials(true);
+        }
+
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
-        cfg.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);

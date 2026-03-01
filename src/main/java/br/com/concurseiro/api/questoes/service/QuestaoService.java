@@ -190,6 +190,72 @@ public class QuestaoService {
         };
     }
 
+    @Transactional
+    public Questao atualizar(String idQuestion, QuestaoRequest request) {
+        Questao questao = repository.findByIdQuestion(idQuestion)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Questão não encontrada"));
+
+        String modalidadeBruta = request.modalidade().trim();
+        String gabaritoBruto = request.gabarito().trim().toUpperCase();
+        String modalidade = normalizarModalidade(modalidadeBruta, request.alternativas());
+        validarGabaritoPorModalidade(modalidade, gabaritoBruto);
+        String gabaritoNormalizado = normalizarGabarito(modalidade, gabaritoBruto);
+
+        questao.setEnunciado(request.enunciado());
+        questao.setQuestao(request.questao());
+        questao.setAlternativas(request.alternativas());
+        questao.setAno(request.ano());
+        questao.setCargo(request.cargo());
+        questao.setNivel(request.nivel());
+        questao.setModalidade(modalidade);
+        questao.setGabarito(gabaritoNormalizado);
+
+        if (request.disciplinaId() != null) {
+            Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disciplina não encontrada no catálogo"));
+            questao.setDisciplinaCatalogo(disciplina);
+            questao.setDisciplina(disciplina.getNome());
+        } else {
+            questao.setDisciplina(request.disciplina());
+        }
+
+        if (request.assuntoId() != null) {
+            Assunto assunto = assuntoRepository.findById(request.assuntoId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assunto não encontrado no catálogo"));
+            questao.setAssuntoCatalogo(assunto);
+            questao.setAssunto(assunto.getNome());
+        } else {
+            questao.setAssunto(request.assunto());
+        }
+
+        if (request.bancaId() != null) {
+            Banca banca = bancaRepository.findById(request.bancaId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Banca não encontrada no catálogo"));
+            questao.setBancaCatalogo(banca);
+            questao.setBanca(banca.getNome());
+        } else {
+            questao.setBanca(request.banca());
+        }
+
+        if (request.instituicaoId() != null) {
+            Instituicao inst = instituicaoRepository.findById(request.instituicaoId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instituição não encontrada no catálogo"));
+            questao.setInstituicaoCatalogo(inst);
+            questao.setInstituicao(inst.getNome());
+        } else {
+            questao.setInstituicao(request.instituicao());
+        }
+
+        return repository.save(questao);
+    }
+
+    @Transactional
+    public void excluir(String idQuestion) {
+        Questao questao = repository.findByIdQuestion(idQuestion)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Questão não encontrada"));
+        repository.delete(questao);
+    }
+
     @Transactional(readOnly = true)
     public Questao buscarPorIdQuestion(String idQuestion) {
         return repository.findByIdQuestion(idQuestion)

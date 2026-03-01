@@ -3,12 +3,15 @@ package br.com.concurseiro.api.questoes.controller;
 import br.com.concurseiro.api.questoes.dto.QuestaoRequest;
 import br.com.concurseiro.api.questoes.dto.QuestaoResponse;
 import br.com.concurseiro.api.questoes.service.QuestaoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+@Tag(name = "Questoes", description = "Consulta e cadastro de questoes de concursos")
 @RestController
 @RequestMapping("/api/v1/questoes")
 public class QuestaoController {
@@ -21,17 +24,20 @@ public class QuestaoController {
         this.service = service;
     }
 
+    @Operation(summary = "Cadastrar nova questao")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public QuestaoResponse cadastrar(@RequestBody @Valid QuestaoRequest request) {
         return QuestaoResponse.fromEntity(service.cadastrar(request));
     }
 
+    @Operation(summary = "Buscar questao por ID")
     @GetMapping("/{idQuestion}")
     public QuestaoResponse buscar(@PathVariable String idQuestion) {
         return QuestaoResponse.fromEntity(service.buscarPorIdQuestion(idQuestion));
     }
 
+    @Operation(summary = "Listar questoes com filtros e paginacao")
     @GetMapping
     public Page<QuestaoResponse> listar(
             @RequestParam(required = false) String texto,

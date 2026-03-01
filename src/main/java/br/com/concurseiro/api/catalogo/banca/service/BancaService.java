@@ -38,10 +38,27 @@ public class BancaService {
     }
 
     public List<CatalogoItemResponse> listar() {
-        return repository.findAll()
+        return repository.findAllByOrderByNomeAsc()
                 .stream()
-                .sorted((a, b) -> a.getNome().compareToIgnoreCase(b.getNome()))
                 .map(b -> new CatalogoItemResponse(b.getId(), b.getNome()))
                 .toList();
+    }
+
+    public CatalogoItemResponse atualizar(Long id, String nomeBruto) {
+        Banca b = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Banca não encontrada"));
+        String nome = nomeBruto.trim();
+        if (repository.existsByNomeIgnoreCase(nome) && !b.getNome().equalsIgnoreCase(nome)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Banca já cadastrada");
+        }
+        b.setNome(nome);
+        Banca salva = repository.save(b);
+        return new CatalogoItemResponse(salva.getId(), salva.getNome());
+    }
+
+    public void excluir(Long id) {
+        Banca b = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Banca não encontrada"));
+        repository.delete(b);
     }
 }

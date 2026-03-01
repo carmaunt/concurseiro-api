@@ -10,7 +10,11 @@ import java.text.Normalizer;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "questoes")
+@Table(name = "questoes", indexes = {
+        @Index(name = "idx_questao_ano", columnList = "ano"),
+        @Index(name = "idx_questao_id_question", columnList = "id_question"),
+        @Index(name = "idx_questao_texto_busca", columnList = "textoBusca")
+})
 public class Questao {
 
     @Id

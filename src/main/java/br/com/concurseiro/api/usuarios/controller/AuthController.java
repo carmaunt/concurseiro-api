@@ -4,6 +4,10 @@ import br.com.concurseiro.api.infra.security.JwtService;
 import br.com.concurseiro.api.usuarios.model.Usuario;
 import br.com.concurseiro.api.usuarios.repository.UsuarioRepository;
 import br.com.concurseiro.api.usuarios.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -12,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Autenticacao", description = "Registro e login de usuarios")
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
@@ -50,14 +55,18 @@ public class AuthController {
             String role
     ) {}
 
+    @Operation(summary = "Registrar novo usuario")
+    @SecurityRequirements
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void register(@RequestBody RegisterRequest req) {
+    public void register(@RequestBody @Valid RegisterRequest req) {
         usuarioService.cadastrarVisitante(req.nome(), req.email(), req.senha());
     }
 
+    @Operation(summary = "Autenticar e obter token JWT")
+    @SecurityRequirements
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody @jakarta.validation.Valid LoginRequest req) {
+    public AuthResponse login(@RequestBody @Valid LoginRequest req) {
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.email(), req.senha())

@@ -38,10 +38,27 @@ public class InstituicaoService {
     }
 
     public List<CatalogoItemResponse> listar() {
-        return repository.findAll()
+        return repository.findAllByOrderByNomeAsc()
                 .stream()
-                .sorted((a, b) -> a.getNome().compareToIgnoreCase(b.getNome()))
                 .map(i -> new CatalogoItemResponse(i.getId(), i.getNome()))
                 .toList();
+    }
+
+    public CatalogoItemResponse atualizar(Long id, String nomeBruto) {
+        Instituicao inst = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instituição não encontrada"));
+        String nome = nomeBruto.trim();
+        if (repository.existsByNomeIgnoreCase(nome) && !inst.getNome().equalsIgnoreCase(nome)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Instituição já cadastrada");
+        }
+        inst.setNome(nome);
+        Instituicao salva = repository.save(inst);
+        return new CatalogoItemResponse(salva.getId(), salva.getNome());
+    }
+
+    public void excluir(Long id) {
+        Instituicao inst = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instituição não encontrada"));
+        repository.delete(inst);
     }
 }

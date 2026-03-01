@@ -1,9 +1,13 @@
 package br.com.concurseiro.api.usuarios.service;
 
+import br.com.concurseiro.api.usuarios.dto.UsuarioPublicoResponse;
 import br.com.concurseiro.api.usuarios.model.Usuario;
 import br.com.concurseiro.api.usuarios.repository.UsuarioRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -12,10 +16,11 @@ import org.springframework.web.server.ResponseStatusException;
 public class UsuarioService {
 
     private final UsuarioRepository repository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository repository) {
+    public UsuarioService(UsuarioRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -47,6 +52,12 @@ public class UsuarioService {
 
         usuario.setStatus(Usuario.Status.ATIVO);
         return repository.save(usuario);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UsuarioPublicoResponse> listarPaginado(int page, int size) {
+        PageRequest pageable = PageRequest.of(page, Math.min(size, 50), Sort.by("criadoEm").descending());
+        return repository.findAll(pageable).map(UsuarioPublicoResponse::from);
     }
 
     public Usuario autenticar(String email, String senha) {

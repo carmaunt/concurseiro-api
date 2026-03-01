@@ -2,19 +2,25 @@
 package br.com.concurseiro.api.infra.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -92,6 +98,57 @@ public class ApiExceptionHandler {
         pd.setType(URI.create("https://concurseiro.dev/errors/method-not-allowed"));
         pd.setInstance(URI.create(req.getRequestURI()));
         pd.setProperty("allowedMethods", ex.getSupportedHttpMethods());
+        return pd;
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ProblemDetail handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest req) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        pd.setTitle("Conflito de integridade de dados");
+        pd.setType(URI.create("https://concurseiro.dev/errors/data-integrity"));
+        pd.setInstance(URI.create(req.getRequestURI()));
+        pd.setDetail("A operação viola uma restrição de integridade do banco de dados.");
+        return pd;
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest req) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("JSON malformado");
+        pd.setType(URI.create("https://concurseiro.dev/errors/malformed-json"));
+        pd.setInstance(URI.create(req.getRequestURI()));
+        pd.setDetail("O corpo da requisição não pôde ser lido. Verifique se o JSON está bem formado.");
+        return pd;
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleMissingParam(MissingServletRequestParameterException ex, HttpServletRequest req) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Parâmetro obrigatório ausente");
+        pd.setType(URI.create("https://concurseiro.dev/errors/missing-param"));
+        pd.setInstance(URI.create(req.getRequestURI()));
+        pd.setDetail("O parâmetro '" + ex.getParameterName() + "' do tipo " + ex.getParameterType() + " é obrigatório.");
+        return pd;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest req) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Falha de validação de parâmetros");
+        pd.setType(URI.create("https://concurseiro.dev/errors/constraint-violation"));
+        pd.setInstance(URI.create(req.getRequestURI()));
+
+        Map<String, String> violations = new LinkedHashMap<>();
+        for (ConstraintViolation<?> cv : ex.getConstraintViolations()) {
+            String field = cv.getPropertyPath().toString();
+            violations.put(field, cv.getMessage());
+        }
+        pd.setProperty("fields", violations);
+
         return pd;
     }
 
