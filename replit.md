@@ -67,8 +67,9 @@ It listens on port **8080**.
 - `GET /api/v1/catalogo/disciplinas/{id}/assuntos` - List subjects
 - `GET /api/v1/catalogo/assuntos/{id}/subassuntos` - List sub-subjects
 
-### Admin (requires JWT + ADMIN role or API key)
-- `POST/PUT/DELETE /api/v1/admin/questoes/{idQuestion}` - CRUD questions
+### Admin (requires JWT + ADMIN role)
+- `POST/PUT /api/v1/admin/questoes/{idQuestion}` - Create/update questions
+- `DELETE /api/v1/admin/questoes/{idQuestion}` - Delete question (keeps catalog entries intact)
 - `POST/PUT/DELETE /api/v1/admin/catalogo/disciplinas/{id}` - CRUD disciplines
 - `POST/PUT/DELETE /api/v1/admin/catalogo/bancas/{id}` - CRUD exam boards
 - `POST/PUT/DELETE /api/v1/admin/catalogo/instituicoes/{id}` - CRUD institutions
@@ -76,6 +77,7 @@ It listens on port **8080**.
 - `POST /api/v1/admin/catalogo/subassuntos` - Create sub-subject
 - `GET /api/v1/admin/usuarios` - List users (paginated)
 - `PATCH /api/v1/admin/usuarios/{id}/ativar` - Activate user
+- `DELETE /api/v1/admin/usuarios/{id}` - Delete visitor user (cannot delete admins)
 
 ### Infrastructure
 - `GET /swagger-ui.html` - API documentation
@@ -89,9 +91,9 @@ Run tests with:
 ./mvnw test
 ```
 
-**59 unit tests** across 7 test classes (+ 1 disabled context test):
+**62 unit tests** across 7 test classes (+ 1 disabled context test):
 - `QuestaoServiceTest` (15 tests) - question CRUD, update/delete, modality normalization, gabarito validation, search
-- `UsuarioServiceTest` (9 tests) - registration, authentication, activation, pagination
+- `UsuarioServiceTest` (12 tests) - registration, authentication, activation, pagination, visitor deletion (incl. admin protection)
 - `JwtServiceTest` (7 tests) - token generation, validation, expiration, constructor guards
 - `RateLimitFilterTest` (4 tests) - rate limiting, IP extraction, window reset
 - `DisciplinaServiceTest` (8 tests) - discipline CRUD, duplicate detection
