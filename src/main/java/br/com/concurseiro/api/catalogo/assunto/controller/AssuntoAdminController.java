@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class AssuntoAdminController {
 
     private final AssuntoService service;
+    
 
     public AssuntoAdminController(AssuntoService service) {
         this.service = service;
@@ -23,6 +24,8 @@ public class AssuntoAdminController {
             @NotNull Long disciplinaId,
             @NotBlank @Size(max = 200) String nome
     ) {}
+
+    
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
