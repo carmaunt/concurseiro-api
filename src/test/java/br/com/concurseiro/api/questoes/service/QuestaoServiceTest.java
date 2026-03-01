@@ -5,6 +5,7 @@ import br.com.concurseiro.api.catalogo.banca.repository.BancaRepository;
 import br.com.concurseiro.api.catalogo.disciplina.repository.DisciplinaRepository;
 import br.com.concurseiro.api.catalogo.instituicao.repository.InstituicaoRepository;
 import br.com.concurseiro.api.questoes.dto.QuestaoRequest;
+import br.com.concurseiro.api.questoes.model.Questao;
 import br.com.concurseiro.api.questoes.repository.QuestaoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -346,6 +347,94 @@ service = new QuestaoService(
 
         // garante que não tentou persistir nada
         verify(questaoRepository, never()).save(any());
+    }
+
+    @Test
+    void buscarPorIdQuestion_deveRetornarQuestao_quandoExiste() {
+        Questao q = new Questao();
+        q.setIdQuestion("Q123456789012345");
+        when(questaoRepository.findByIdQuestion("Q123456789012345")).thenReturn(Optional.of(q));
+
+        Questao result = service.buscarPorIdQuestion("Q123456789012345");
+        assertEquals("Q123456789012345", result.getIdQuestion());
+    }
+
+    @Test
+    void buscarPorIdQuestion_deveFalhar_quandoNaoExiste() {
+        when(questaoRepository.findByIdQuestion("QNOTFOUND")).thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> service.buscarPorIdQuestion("QNOTFOUND"));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+    }
+
+    @Test
+    void excluir_deveDeletar_quandoExiste() {
+        Questao q = new Questao();
+        q.setIdQuestion("Q123456789012345");
+        when(questaoRepository.findByIdQuestion("Q123456789012345")).thenReturn(Optional.of(q));
+
+        service.excluir("Q123456789012345");
+        verify(questaoRepository).delete(q);
+    }
+
+    @Test
+    void excluir_deveFalhar_quandoNaoExiste() {
+        when(questaoRepository.findByIdQuestion("QNOTFOUND")).thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> service.excluir("QNOTFOUND"));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+        verify(questaoRepository, never()).delete(any(Questao.class));
+    }
+
+    @Test
+    void atualizar_deveAtualizarQuestao_quandoExiste() {
+        Questao existente = new Questao();
+        existente.setIdQuestion("Q123456789012345");
+
+        var inst = new br.com.concurseiro.api.catalogo.instituicao.model.Instituicao();
+        inst.setNome("PC-BA");
+
+        when(questaoRepository.findByIdQuestion("Q123456789012345")).thenReturn(Optional.of(existente));
+        when(instituicaoRepository.findById(1L)).thenReturn(Optional.of(inst));
+        when(questaoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        QuestaoRequest req = new QuestaoRequest(
+                "Enunciado atualizado",
+                "Texto atualizado",
+                "A) A\nB) B\nC) C\nD) D\nE) E",
+                "Direito Penal",
+                "Crimes",
+                "CEBRASPE",
+                "PC-BA",
+                null, null, null, 1L,
+                2025, "Delegado", "Superior",
+                "MÚLTIPLA ESCOLHA", "B"
+        );
+
+        Questao result = service.atualizar("Q123456789012345", req);
+        assertEquals("Enunciado atualizado", result.getEnunciado());
+        assertEquals("A_E", result.getModalidade());
+        assertEquals("B", result.getGabarito());
+        verify(questaoRepository).save(any());
+    }
+
+    @Test
+    void atualizar_deveFalhar_quandoNaoExiste() {
+        when(questaoRepository.findByIdQuestion("QNOTFOUND")).thenReturn(Optional.empty());
+
+        QuestaoRequest req = new QuestaoRequest(
+                "Enunciado", "Texto", "A) A\nB) B\nC) C\nD) D",
+                "Disc", "Assunto", "Banca", "Inst",
+                null, null, null, 1L,
+                2024, "Cargo", "Nivel",
+                "A_D", "A"
+        );
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> service.atualizar("QNOTFOUND", req));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
     }
 
 }

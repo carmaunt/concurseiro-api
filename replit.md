@@ -82,12 +82,31 @@ It listens on port **8080**.
 - `GET /actuator/health` - Health check
 - `GET /actuator/info` - App info (version, DB status, runtime)
 
+## Testing
+
+Run tests with:
+```
+./mvnw test
+```
+
+**59 unit tests** across 7 test classes (+ 1 disabled context test):
+- `QuestaoServiceTest` (15 tests) - question CRUD, update/delete, modality normalization, gabarito validation, search
+- `UsuarioServiceTest` (9 tests) - registration, authentication, activation, pagination
+- `JwtServiceTest` (7 tests) - token generation, validation, expiration, constructor guards
+- `RateLimitFilterTest` (4 tests) - rate limiting, IP extraction, window reset
+- `DisciplinaServiceTest` (8 tests) - discipline CRUD, duplicate detection
+- `BancaServiceTest` (8 tests) - exam board CRUD, duplicate detection
+- `InstituicaoServiceTest` (8 tests) - institution CRUD, duplicate detection
+
+All tests use **JUnit 5 + Mockito** (pure unit tests, no database needed).
+
 ## Security Features
 
-- JWT authentication with configurable secret
-- Rate limiting on login endpoint (brute-force protection)
+- JWT authentication with configurable secret (validated at startup: min 32 chars)
+- Rate limiting on login endpoint (brute-force protection, in-memory with eviction)
 - Request logging with MDC (requestId, X-Request-Id response header)
 - Bean-injected PasswordEncoder (BCrypt)
 - Input validation with `@Valid` on all request bodies
 - RFC 7807 error responses for validation, constraint, auth, and parse errors
+- CORS: wildcard disables credentials, explicit origins enable credentials
 - Database indexes on frequently queried fields
