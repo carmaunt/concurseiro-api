@@ -1,6 +1,6 @@
 # concurseiro-api
 
-A Java Spring Boot REST API for managing exam questions (concursos) in Brazil. Provides endpoints for cataloging disciplines, subjects, examining boards, institutions, and questions with full JWT-based authentication. Includes a web frontend served from Spring Boot's static resources.
+A Java Spring Boot REST API for managing exam questions (concursos) in Brazil. Provides endpoints for cataloging disciplines, subjects, examining boards, institutions, and questions with full JWT-based authentication. Includes an admin panel frontend served from Spring Boot's static resources.
 
 ## Architecture
 
@@ -33,10 +33,9 @@ src/main/java/br/com/concurseiro/api/
 src/main/resources/
 ├── application.properties      - Dev configuration
 ├── application-prod.properties - Production overrides (ddl-auto=validate, swagger disabled)
-└── static/                     - Frontend web pages
-    ├── index.html              - Landing page
+└── static/                     - Admin panel frontend
+    ├── index.html              - Panel dashboard (requires login)
     ├── login.html              - Login page
-    ├── register.html           - Registration page
     ├── css/style.css           - Global styles
     └── js/api.js               - API client (fetch wrapper + JWT management)
 ```

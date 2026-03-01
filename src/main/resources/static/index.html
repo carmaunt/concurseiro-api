@@ -3,121 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Concurseiro - Questões de Concursos</title>
+    <title>Concurseiro - Painel Administrativo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <nav class="navbar">
         <a href="/" class="navbar-brand">
-            Concurseiro<span>.</span>
+            Concurseiro<span>.</span> <small class="navbar-tag">Painel</small>
         </a>
-        <ul class="navbar-nav" id="navLinks">
-            <li><a href="/login.html" class="nav-link">Entrar</a></li>
-            <li><a href="/register.html" class="btn btn-primary">Criar conta</a></li>
-        </ul>
+        <ul class="navbar-nav" id="navLinks"></ul>
     </nav>
 
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Sua aprovação começa <span>aqui</span></h1>
-            <p>Acesse milhares de questões de concursos públicos organizadas por disciplina, banca e instituição.</p>
-            <div class="hero-actions">
-                <a href="/register.html" class="btn btn-accent btn-lg">Comece gratuitamente</a>
-                <a href="/login.html" class="btn btn-outline btn-lg" style="border-color:white;color:white;">Já tenho conta</a>
-            </div>
-        </div>
-    </section>
-
-    <section class="features">
-        <h2 class="features-title">Tudo que você precisa para estudar</h2>
-        <p class="features-subtitle">Ferramentas pensadas para otimizar seus estudos e acelerar sua aprovação</p>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">&#128218;</div>
-                <h3>Banco de Questões</h3>
-                <p>Questões organizadas por disciplina, assunto e sub-assunto para estudo direcionado.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">&#127891;</div>
-                <h3>Todas as Bancas</h3>
-                <p>Questões das principais bancas organizadoras: CESPE, FCC, FGV, VUNESP e muitas outras.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">&#128269;</div>
-                <h3>Filtros Avançados</h3>
-                <p>Encontre exatamente o que precisa com filtros por ano, modalidade, nível e muito mais.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">&#128202;</div>
-                <h3>Gabarito Imediato</h3>
-                <p>Confira a resposta correta de cada questão para medir seu desempenho em tempo real.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">&#128187;</div>
-                <h3>API Completa</h3>
-                <p>API REST documentada com Swagger para integração com seus próprios projetos e ferramentas.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">&#128274;</div>
-                <h3>Acesso Seguro</h3>
-                <p>Autenticação JWT com proteção contra ataques, garantindo a segurança dos seus dados.</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="stats">
-        <div class="stats-grid">
-            <div class="stat-item">
-                <h3>100%</h3>
-                <p>Gratuito</p>
-            </div>
-            <div class="stat-item">
-                <h3>REST</h3>
-                <p>API documentada</p>
-            </div>
-            <div class="stat-item">
-                <h3>JWT</h3>
-                <p>Autenticação segura</p>
-            </div>
-            <div class="stat-item">
-                <h3>24/7</h3>
-                <p>Disponível sempre</p>
-            </div>
-        </div>
-    </section>
-
-    <footer class="footer">
-        <p>Concurseiro &copy; 2026 &mdash; Plataforma de questões de concursos | <a href="/swagger-ui.html">Documentação da API</a></p>
-    </footer>
+    <main class="panel-home" id="mainContent"></main>
 
     <script src="/js/api.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            if (api.isAuthenticated()) {
-                var user = api.getUser();
-                var nav = document.getElementById('navLinks');
-                nav.textContent = '';
+            var nav = document.getElementById('navLinks');
+            var main = document.getElementById('mainContent');
 
-                var emailLi = document.createElement('li');
-                var emailSpan = document.createElement('span');
-                emailSpan.className = 'nav-link';
-                emailSpan.style.cursor = 'default';
-                emailSpan.textContent = user ? user.email : '';
-                emailLi.appendChild(emailSpan);
-
-                var btnLi = document.createElement('li');
-                var logoutBtn = document.createElement('button');
-                logoutBtn.className = 'btn btn-outline';
-                logoutBtn.style.fontSize = '0.85rem';
-                logoutBtn.textContent = 'Sair';
-                logoutBtn.addEventListener('click', function() { api.logout(); });
-                btnLi.appendChild(logoutBtn);
-
-                nav.appendChild(emailLi);
-                nav.appendChild(btnLi);
+            if (!api.isAuthenticated()) {
+                window.location.href = '/login.html';
+                return;
             }
+
+            var user = api.getUser();
+
+            var roleLi = document.createElement('li');
+            var roleSpan = document.createElement('span');
+            roleSpan.className = 'nav-link badge-role';
+            roleSpan.textContent = user ? user.role : '';
+            roleLi.appendChild(roleSpan);
+
+            var emailLi = document.createElement('li');
+            var emailSpan = document.createElement('span');
+            emailSpan.className = 'nav-link';
+            emailSpan.style.cursor = 'default';
+            emailSpan.textContent = user ? user.email : '';
+            emailLi.appendChild(emailSpan);
+
+            var btnLi = document.createElement('li');
+            var logoutBtn = document.createElement('button');
+            logoutBtn.className = 'btn btn-outline';
+            logoutBtn.style.fontSize = '0.85rem';
+            logoutBtn.textContent = 'Sair';
+            logoutBtn.addEventListener('click', function() { api.logout(); });
+            btnLi.appendChild(logoutBtn);
+
+            nav.appendChild(roleLi);
+            nav.appendChild(emailLi);
+            nav.appendChild(btnLi);
+
+            main.innerHTML = '';
+            var heading = document.createElement('h1');
+            heading.className = 'panel-title';
+            heading.textContent = 'Painel Administrativo';
+            main.appendChild(heading);
+
+            var subtitle = document.createElement('p');
+            subtitle.className = 'panel-subtitle';
+            subtitle.textContent = 'Gerencie questões, catálogo e usuários da plataforma.';
+            main.appendChild(subtitle);
+
+            var grid = document.createElement('div');
+            grid.className = 'panel-grid';
+
+            var cards = [
+                { title: 'Questões', desc: 'Cadastrar, editar e excluir questões de concursos.', href: '#' },
+                { title: 'Disciplinas', desc: 'Gerenciar disciplinas do catálogo.', href: '#' },
+                { title: 'Bancas', desc: 'Gerenciar bancas organizadoras.', href: '#' },
+                { title: 'Instituições', desc: 'Gerenciar instituições.', href: '#' },
+                { title: 'Usuários', desc: 'Listar, ativar e remover usuários.', href: '#' }
+            ];
+
+            cards.forEach(function(c) {
+                var card = document.createElement('a');
+                card.className = 'panel-card';
+                card.href = c.href;
+
+                var h3 = document.createElement('h3');
+                h3.textContent = c.title;
+                var p = document.createElement('p');
+                p.textContent = c.desc;
+
+                card.appendChild(h3);
+                card.appendChild(p);
+                grid.appendChild(card);
+            });
+
+            main.appendChild(grid);
         });
     </script>
 </body>
