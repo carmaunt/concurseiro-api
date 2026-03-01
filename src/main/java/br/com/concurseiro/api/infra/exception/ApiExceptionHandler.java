@@ -152,6 +152,17 @@ public class ApiExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ProblemDetail handleNoResource(org.springframework.web.servlet.resource.NoResourceFoundException ex,
+                                          HttpServletRequest req) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setTitle("Recurso não encontrado");
+        pd.setType(URI.create("https://concurseiro.dev/errors/not-found"));
+        pd.setInstance(URI.create(req.getRequestURI()));
+        return pd;
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ProblemDetail handleGeneric(Exception ex, HttpServletRequest req) {

@@ -1,6 +1,6 @@
 # concurseiro-api
 
-A Java Spring Boot REST API for managing exam questions (concursos) in Brazil. Provides endpoints for cataloging disciplines, subjects, examining boards, institutions, and questions with full JWT-based authentication.
+A Java Spring Boot REST API for managing exam questions (concursos) in Brazil. Provides endpoints for cataloging disciplines, subjects, examining boards, institutions, and questions with full JWT-based authentication. Includes a web frontend served from Spring Boot's static resources.
 
 ## Architecture
 
@@ -32,7 +32,13 @@ src/main/java/br/com/concurseiro/api/
 └── usuarios/           - User management (model, DTO, service, controller, repository)
 src/main/resources/
 ├── application.properties      - Dev configuration
-└── application-prod.properties - Production overrides (ddl-auto=validate, swagger disabled)
+├── application-prod.properties - Production overrides (ddl-auto=validate, swagger disabled)
+└── static/                     - Frontend web pages
+    ├── index.html              - Landing page
+    ├── login.html              - Login page
+    ├── register.html           - Registration page
+    ├── css/style.css           - Global styles
+    └── js/api.js               - API client (fetch wrapper + JWT management)
 ```
 
 ## Running
@@ -41,7 +47,7 @@ The application starts via:
 ```
 ./mvnw spring-boot:run
 ```
-It listens on port **8080**.
+It listens on port **5000** (required for Replit webview).
 
 ## Configuration
 
