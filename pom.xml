@@ -140,7 +140,14 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
-        </dependency></dependencies>
+        </dependency>
+        <!-- OpenAPI/Swagger UI (Spring Boot 4.x) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

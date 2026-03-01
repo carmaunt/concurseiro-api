@@ -69,6 +69,19 @@ public class ApiExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ProblemDetail handleAccessDenied(
+            org.springframework.security.access.AccessDeniedException ex,
+            HttpServletRequest req
+    ) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        pd.setTitle("Acesso negado");
+        pd.setType(URI.create("https://concurseiro.dev/errors/forbidden"));
+        pd.setInstance(URI.create(req.getRequestURI()));
+        return pd;
+    }
+
     @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public ProblemDetail handleMethodNotAllowed(org.springframework.web.HttpRequestMethodNotSupportedException ex,

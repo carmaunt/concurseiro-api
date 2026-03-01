@@ -57,26 +57,16 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody LoginRequest req) {
+    public AuthResponse login(@RequestBody @jakarta.validation.Valid LoginRequest req) {
 
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        req.email(),
-                        req.senha()
-                )
+                new UsernamePasswordAuthenticationToken(req.email(), req.senha())
         );
 
         Usuario usuario = usuarioRepository.findByEmail(req.email()).orElseThrow();
 
-        String token = jwtService.generateToken(
-                usuario.getEmail(),
-                usuario.getRole()
-        );
+        String token = jwtService.generateToken(usuario.getEmail(), usuario.getRole());
 
-        return new AuthResponse(
-                token,
-                usuario.getEmail(),
-                usuario.getRole().name()
-        );
+        return new AuthResponse(token, usuario.getEmail(), usuario.getRole().name());
     }
 }

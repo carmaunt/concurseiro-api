@@ -4,6 +4,8 @@ import br.com.concurseiro.api.infra.security.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -12,6 +14,7 @@ import org.springframework.web.cors.*;
 
 import br.com.concurseiro.api.usuarios.model.Usuario;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,9 +36,30 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                    .authenticationEntryPoint((req, res, authEx) -> {
+                        res.setStatus(HttpStatus.UNAUTHORIZED.value());
+                        res.setContentType("application/problem+json");
+                        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+                        pd.setTitle("Não autenticado");
+                        pd.setType(URI.create("https://concurseiro.dev/errors/auth"));
+                        pd.setInstance(URI.create(req.getRequestURI()));
+                        new com.fasterxml.jackson.databind.ObjectMapper().writeValue(res.getOutputStream(), pd);
+                    })
+                    .accessDeniedHandler((req, res, deniedEx) -> {
+                        res.setStatus(HttpStatus.FORBIDDEN.value());
+                        res.setContentType("application/problem+json");
+                        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+                        pd.setTitle("Acesso negado");
+                        pd.setType(URI.create("https://concurseiro.dev/errors/forbidden"));
+                        pd.setInstance(URI.create(req.getRequestURI()));
+                        new com.fasterxml.jackson.databind.ObjectMapper().writeValue(res.getOutputStream(), pd);
+                    })
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll() // libera /actuator/health e afins (sem JWT)
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/questoes/**").permitAll()
                         .requestMatchers("/api/v1/catalogo/**").permitAll()

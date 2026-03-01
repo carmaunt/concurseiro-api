@@ -20,11 +20,11 @@ public class ApiResponseEnvelopeAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object body,
-                                  MethodParameter returnType,
-                                  MediaType selectedContentType,
-                                  Class<? extends HttpMessageConverter<?>> selectedConverterType,
-                                  ServerHttpRequest request,
-                                  ServerHttpResponse response) {
+                                 MethodParameter returnType,
+                                 MediaType selectedContentType,
+                                 Class<? extends HttpMessageConverter<?>> selectedConverterType,
+                                 ServerHttpRequest request,
+                                 ServerHttpResponse response) {
 
         // Só padroniza a API versionada
         String path = null;
@@ -34,16 +34,12 @@ public class ApiResponseEnvelopeAdvice implements ResponseBodyAdvice<Object> {
         }
         if (path == null || !path.startsWith("/api/v1/")) return body;
 
-        // Não embrulha erros (ProblemDetail) nem respostas já embrulhadas
-        if (body == null) return ApiResponse.of(null);
+        // Não embrulha erros nem respostas já embrulhadas no padrão oficial
+        if (body == null) return ApiResponse.success(null, path);
         if (body instanceof ProblemDetail) return body;
-        if (body instanceof ApiResponse<?>) return body;
+        if (body instanceof br.com.concurseiro.api.infra.response.ApiResponse<?>) return body;
 
-        return ApiResponse.of(body);
-    }
-
-    // Envelope padrão: {"data": ...}
-    record ApiResponse<T>(T data) {
-        static <T> ApiResponse<T> of(T data) { return new ApiResponse<>(data); }
+        // Embrulha qualquer resposta "crua" no padrão {success,data,timestamp,path}
+        return ApiResponse.success(body, path);
     }
 }
