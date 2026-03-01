@@ -39,7 +39,8 @@ externalPort = 80
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "bash -c ./mvnw spring-boot:run"]
+run = ["sh", "-c", "java -jar target/concurseiro-api-0.0.1-SNAPSHOT.jar --server.port=5000"]
+build = ["sh", "-c", "./mvnw package -DskipTests -q"]
 
 [userenv]
 
