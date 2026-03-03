@@ -20,7 +20,6 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
