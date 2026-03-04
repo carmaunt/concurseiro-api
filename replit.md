@@ -28,6 +28,7 @@ src/main/java/br/com/concurseiro/api/
 │   ├── exception/      - ApiExceptionHandler (RFC 7807 error responses)
 │   ├── response/       - ApiResponse wrapper
 │   └── security/       - JwtAuthFilter, JwtService, RateLimitFilter, UserDetailsServiceImpl
+├── comentario/         - Comment system (model, DTO, repository, controller)
 ├── questoes/           - Core question management (model, DTO, service, controller, repository, specification)
 └── usuarios/           - User management (model, DTO, service, controller, repository)
 src/main/resources/
@@ -66,6 +67,10 @@ It listens on port **8080**.
 - `GET /api/v1/catalogo/instituicoes` - List institutions
 - `GET /api/v1/catalogo/disciplinas/{id}/assuntos` - List subjects
 - `GET /api/v1/catalogo/assuntos/{id}/subassuntos` - List sub-subjects
+- `GET /api/v1/questoes/{questaoId}/comentarios` - List comments (paginated, param `ordenar`: curtidas|recentes)
+- `POST /api/v1/questoes/{questaoId}/comentarios` - Add comment (autor, texto)
+- `POST /api/v1/comentarios/{id}/curtir` - Like a comment
+- `POST /api/v1/comentarios/{id}/descurtir` - Dislike a comment
 
 ### Admin (requires JWT + ADMIN role)
 - `POST/PUT /api/v1/admin/questoes/{idQuestion}` - Create/update questions
