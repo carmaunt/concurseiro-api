@@ -1,0 +1,12 @@
+mauricio@fedora:~/concurseiro-api$ curl -s -X POST http://localhost:8080/api/v1/questoes/Q123/comentarios \
+  -H "Content-Type: application/json" \
+  -d '{"autor":"João","texto":"Ótima questão!"}'
+{"instance":"/api/v1/questoes/Q123/comentarios","status":404,"title":"Recurso não encontrado","type":"https://concurseiro.dev/errors/not-found"}mauricio@fedora:~/concurseiro-curl -s "http://localhost:8080/api/v1/questoes/Q123/comentarios?page=0&size=10&ordenar=recentes"ntes"
+{"instance":"/api/v1/questoes/Q123/comentarios","status":404,"title":"Recurso não encontrado","type":"https://concurseiro.dev/errors/not-found"}mauricio@fedora:~/concurseiro-curl -s "http://localhost:8080/api/v1/questoes/Q123/comentarios?page=0&size=10&ordenar=curtidas"idas"
+{"instance":"/api/v1/questoes/Q123/comentarios","status":404,"title":"Recurso não encontrado","type":"https://concurseiro.dev/errors/not-found"}mauricio@fedora:~/concurseiro-curl -s -X POST http://localhost:8080/api/v1/comentarios/1/curtirurtir
+{"type":"https://concurseiro.dev/errors/auth","title":"Não autenticado","status":401,"detail":null,"instance":"/api/v1/comentarios/1/curtir","properties":null}mauricio@fedoracurl -s -X POST http://localhost:8080/api/v1/comentarios/1/descurtirentarios/1/descurtir
+{"type":"https://concurseiro.dev/errors/auth","title":"Não autenticado","status":401,"detail":null,"instance":"/api/v1/comentarios/1/descurmauricio@fedora:~/concurseiro-api$ curl -s -X POST http://localhost:8080/api/v1/questoes/Q123/comentarios \toes/Q123/comentarios \
+  -H "Content-Type: application/json" \
+  -d '{"autor":"","texto":""}'
+{"instance":"/api/v1/questoes/Q123/comentarios","status":404,"title":"Recurso não encontrado","type":"https://concurseiro.dev/errors/not-found"}mauricio@fedora:~/concurseiro-curl -s -X POST http://localhost:8080/api/v1/comentarios/9999/curtirurtir
+{"type":"https://concurseiro.dev/errors/auth","title":"Não autenticado","status":401,"detail":null,"instance":"/api/v1/comentarios/9999/curtir","properties":null}mauricio@fedora:~/concurseiro-api$
