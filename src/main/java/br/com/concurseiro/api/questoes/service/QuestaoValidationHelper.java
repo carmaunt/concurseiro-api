@@ -17,6 +17,16 @@ public final class QuestaoValidationHelper {
     public static String normalizarModalidade(String modalidadeBruta, String alternativas) {
         String m = modalidadeBruta.trim().toUpperCase();
 
+        if (m.equals("MÚLTIPLA ESCOLHA A-E") || m.equals("MULTIPLA ESCOLHA A-E")
+                || m.equals("MÚLTIPLA ESCOLHA A_E") || m.equals("MULTIPLA ESCOLHA A_E")) {
+            return "A_E";
+        }
+
+        if (m.equals("MÚLTIPLA ESCOLHA A-D") || m.equals("MULTIPLA ESCOLHA A-D")
+                || m.equals("MÚLTIPLA ESCOLHA A_D") || m.equals("MULTIPLA ESCOLHA A_D")) {
+            return "A_D";
+        }
+
         if (m.equals("MÚLTIPLA ESCOLHA") || m.equals("MULTIPLA ESCOLHA")) {
             return alternativas != null && alternativas.toUpperCase().contains("E)")
                     ? "A_E"
