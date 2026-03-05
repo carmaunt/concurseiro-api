@@ -22,7 +22,6 @@ import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
 import br.com.concurseiro.api.catalogo.instituicao.repository.InstituicaoRepository;
 
 import java.util.Set;
-import java.util.UUID;
 
 @Service
 public class QuestaoService {
@@ -61,14 +60,14 @@ public class QuestaoService {
         String modalidadeBruta = request.modalidade().trim();
         String gabaritoBruto = request.gabarito().trim().toUpperCase();
 
-        String modalidade = normalizarModalidade(modalidadeBruta, request.alternativas());
+        String modalidade = QuestaoValidationHelper.normalizarModalidade(modalidadeBruta, request.alternativas());
 
-        validarGabaritoPorModalidade(modalidade, gabaritoBruto);
+        QuestaoValidationHelper.validarGabaritoPorModalidade(modalidade, gabaritoBruto);
 
-        String gabaritoNormalizado = normalizarGabarito(modalidade, gabaritoBruto);
+        String gabaritoNormalizado = QuestaoValidationHelper.normalizarGabarito(modalidade, gabaritoBruto);
 
         Questao questao = new Questao();
-        questao.setIdQuestion(gerarIdQuestion()); // ✅ agora sempre vem preenchido ANTES do INSERT
+        questao.setIdQuestion(QuestaoValidationHelper.gerarIdQuestion()); // ✅ agora sempre vem preenchido ANTES do INSERT
         questao.setEnunciado(request.enunciado());
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
@@ -140,56 +139,6 @@ public class QuestaoService {
         return repository.save(questao);
     }
 
-    private String gerarIdQuestion() {
-        // Coluna tem length=16. Vamos gerar algo como: Q + 15 chars hex => total 16
-        // Ex: Q4F1A2B3C4D5E6F7
-        String hex = UUID.randomUUID().toString().replace("-", "").toUpperCase();
-        return "Q" + hex.substring(0, 15);
-    }
-
-    private String normalizarModalidade(String modalidadeBruta, String alternativas) {
-        String m = modalidadeBruta.trim().toUpperCase();
-
-        if (m.equals("MÚLTIPLA ESCOLHA") || m.equals("MULTIPLA ESCOLHA")) {
-            return alternativas != null && alternativas.toUpperCase().contains("E)")
-                    ? "A_E"
-                    : "A_D";
-        }
-
-        if (m.equals("CERTO E ERRADO") || m.equals("CERTO/ERRADO")) {
-            return "CERTO_ERRADO";
-        }
-
-        return m;
-    }
-
-    private void validarGabaritoPorModalidade(String modalidade, String gabarito) {
-        boolean ok = switch (modalidade) {
-            case "A_E" -> gabarito.matches("^[A-E]$");
-            case "A_D" -> gabarito.matches("^[A-D]$");
-            case "CERTO_ERRADO" -> gabarito.equals("C") || gabarito.equals("E")
-                    || gabarito.equals("CERTO") || gabarito.equals("ERRADO");
-            default -> false;
-        };
-
-        if (!ok) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Modalidade inválida ou gabarito incompatível (modalidade=" + modalidade + ")"
-            );
-        }
-    }
-
-    private String normalizarGabarito(String modalidade, String gabarito) {
-        if (!"CERTO_ERRADO".equals(modalidade)) return gabarito;
-
-        return switch (gabarito) {
-            case "CERTO" -> "C";
-            case "ERRADO" -> "E";
-            default -> gabarito;
-        };
-    }
-
     @Transactional
     public Questao atualizar(String idQuestion, QuestaoRequest request) {
         Questao questao = repository.findByIdQuestion(idQuestion)
@@ -197,9 +146,9 @@ public class QuestaoService {
 
         String modalidadeBruta = request.modalidade().trim();
         String gabaritoBruto = request.gabarito().trim().toUpperCase();
-        String modalidade = normalizarModalidade(modalidadeBruta, request.alternativas());
-        validarGabaritoPorModalidade(modalidade, gabaritoBruto);
-        String gabaritoNormalizado = normalizarGabarito(modalidade, gabaritoBruto);
+        String modalidade = QuestaoValidationHelper.normalizarModalidade(modalidadeBruta, request.alternativas());
+        QuestaoValidationHelper.validarGabaritoPorModalidade(modalidade, gabaritoBruto);
+        String gabaritoNormalizado = QuestaoValidationHelper.normalizarGabarito(modalidade, gabaritoBruto);
 
         questao.setEnunciado(request.enunciado());
         questao.setQuestao(request.questao());

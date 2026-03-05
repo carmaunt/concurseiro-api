@@ -64,6 +64,9 @@ public class Questao {
     @Column(length = 8)
     private String gabarito;
 
+    @Column(name = "prova_id")
+    private Long provaId;
+
     @Column(nullable = false)
     private OffsetDateTime criadoEm = OffsetDateTime.now();
 
@@ -172,4 +175,7 @@ public class Questao {
 
     public Banca getBancaCatalogo() { return bancaCatalogo; }
     public void setBancaCatalogo(Banca bancaCatalogo) { this.bancaCatalogo = bancaCatalogo; }
+
+    public Long getProvaId() { return provaId; }
+    public void setProvaId(Long provaId) { this.provaId = provaId; }
 }

@@ -10,4 +10,5 @@ public interface QuestaoRepository extends JpaRepository<Questao, Long>, JpaSpec
 
     Optional<Questao> findByIdQuestion(String idQuestion);
 
+    long countByProvaId(Long provaId);
 }

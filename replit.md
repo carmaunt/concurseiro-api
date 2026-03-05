@@ -29,6 +29,7 @@ src/main/java/br/com/concurseiro/api/
 │   ├── response/       - ApiResponse wrapper
 │   └── security/       - JwtAuthFilter, JwtService, RateLimitFilter, UserDetailsServiceImpl
 ├── comentario/         - Comment system (model, DTO, repository, controller)
+├── prova/              - Exam header system (model, DTO, service, repository, controller)
 ├── questoes/           - Core question management (model, DTO, service, controller, repository, specification)
 └── usuarios/           - User management (model, DTO, service, controller, repository)
 src/main/resources/
@@ -71,6 +72,10 @@ It listens on port **8080**.
 - `POST /api/v1/questoes/{questaoId}/comentarios` - Add comment (autor, texto)
 - `POST /api/v1/comentarios/{id}/curtir` - Like a comment
 - `POST /api/v1/comentarios/{id}/descurtir` - Dislike a comment
+- `POST /api/v1/provas` - Create exam header (banca, instituicaoId, ano, cargo, nivel, modalidade)
+- `GET /api/v1/provas` - List exams (paginated)
+- `GET /api/v1/provas/{id}` - Get exam details with question count
+- `POST /api/v1/provas/{provaId}/questoes` - Add question to exam (only question-specific fields needed)
 
 ### Admin (requires JWT + ADMIN role)
 - `POST/PUT /api/v1/admin/questoes/{idQuestion}` - Create/update questions

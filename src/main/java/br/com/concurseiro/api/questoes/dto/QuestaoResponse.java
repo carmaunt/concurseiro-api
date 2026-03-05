@@ -27,6 +27,7 @@ public record QuestaoResponse(
         String nivel,
         String modalidade,
         String gabarito,
+        Long provaId,
         OffsetDateTime criadoEm
 ) {
     public static QuestaoResponse fromEntity(Questao q) {
@@ -60,6 +61,7 @@ public record QuestaoResponse(
                 q.getNivel(),
                 q.getModalidade(),
                 q.getGabarito(),
+                q.getProvaId(),
                 q.getCriadoEm()
         );
     }

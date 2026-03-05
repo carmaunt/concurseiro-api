@@ -66,6 +66,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/questoes/**").permitAll()
                         .requestMatchers("/api/v1/catalogo/**").permitAll()
                         .requestMatchers("/api/v1/comentarios/**").permitAll()
+                        .requestMatchers("/api/v1/provas/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasAuthority(Usuario.Role.ADMIN.authority())
                         .anyRequest().authenticated()
                 )
