@@ -32,3 +32,16 @@ build/
 ### VS Code ###
 .vscode/
 data/
+
+# logs
+logs/
+*.log
+
+# arquivos temporarios
+tmp/
+
+# anexos locais
+attached_assets/
+
+# build
+target/
