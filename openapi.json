@@ -1,1 +1,3820 @@
-{"openapi":"3.1.0","info":{"title":"Concurseiro API","description":"API para gerenciamento e consulta de questões de concursos públicos brasileiros. Permite cadastro, busca avançada com filtros, e gestão de catálogos de disciplinas, assuntos, bancas e instituições.","contact":{"name":"Concurseiro Dev","url":"https://concurseiro.dev"},"version":"1.0.0"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"security":[{"bearerAuth":[]}],"tags":[{"name":"Provas","description":"Gerenciamento de provas de concursos"},{"name":"Autenticacao","description":"Registro e login de usuarios"},{"name":"Admin - Questoes","description":"Gerenciamento administrativo de questoes"},{"name":"Catalogo","description":"Consulta publica de disciplinas, assuntos, bancas e instituicoes"},{"name":"Admin - Disciplinas","description":"CRUD administrativo de disciplinas"},{"name":"Comentarios","description":"Comentários em questões de concursos"},{"name":"Admin - Assuntos","description":"CRUD administrativo de assuntos"},{"name":"Admin - Bancas","description":"CRUD administrativo de bancas examinadoras"},{"name":"Admin - Subassuntos","description":"CRUD administrativo de subassuntos"},{"name":"Admin - Instituicoes","description":"CRUD administrativo de instituicoes"},{"name":"Questoes","description":"Consulta e cadastro de questoes de concursos"},{"name":"Admin - Usuarios","description":"Gerenciamento administrativo de usuarios"}],"paths":{"/api/v1/admin/questoes/{idQuestion}":{"put":{"tags":["Admin - Questoes"],"summary":"Atualizar uma questao existente","operationId":"atualizar","parameters":[{"name":"idQuestion","in":"path","required":true,"schema":{"type":"string"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/QuestaoRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/QuestaoResponse"}}}}}},"delete":{"tags":["Admin - Questoes"],"summary":"Excluir uma questao","operationId":"excluir","parameters":[{"name":"idQuestion","in":"path","required":true,"schema":{"type":"string"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"204":{"description":"No Content"}}}},"/api/v1/admin/catalogo/instituicoes/{id}":{"put":{"tags":["Admin - Instituicoes"],"summary":"Atualizar instituicao existente","operationId":"atualizar_1","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/InstituicaoRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}},"delete":{"tags":["Admin - Instituicoes"],"summary":"Excluir instituicao","operationId":"excluir_1","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"204":{"description":"No Content"}}}},"/api/v1/admin/catalogo/disciplinas/{id}":{"put":{"tags":["Admin - Disciplinas"],"summary":"Atualizar disciplina existente","operationId":"atualizar_2","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DisciplinaRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}},"delete":{"tags":["Admin - Disciplinas"],"summary":"Excluir disciplina","operationId":"excluir_2","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"204":{"description":"No Content"}}}},"/api/v1/admin/catalogo/bancas/{id}":{"put":{"tags":["Admin - Bancas"],"summary":"Atualizar banca existente","operationId":"atualizar_3","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/BancaRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}},"delete":{"tags":["Admin - Bancas"],"summary":"Excluir banca","operationId":"excluir_3","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"204":{"description":"No Content"}}}},"/api/v1/questoes":{"get":{"tags":["Questoes"],"summary":"Listar questoes com filtros e paginacao","operationId":"listar","parameters":[{"name":"texto","in":"query","required":false,"schema":{"type":"string"}},{"name":"disciplina","in":"query","required":false,"schema":{"type":"string"}},{"name":"disciplinaId","in":"query","required":false,"schema":{"type":"integer","format":"int64"}},{"name":"assunto","in":"query","required":false,"schema":{"type":"string"}},{"name":"assuntoId","in":"query","required":false,"schema":{"type":"integer","format":"int64"}},{"name":"banca","in":"query","required":false,"schema":{"type":"string"}},{"name":"bancaId","in":"query","required":false,"schema":{"type":"integer","format":"int64"}},{"name":"instituicao","in":"query","required":false,"schema":{"type":"string"}},{"name":"instituicaoId","in":"query","required":false,"schema":{"type":"integer","format":"int64"}},{"name":"ano","in":"query","required":false,"schema":{"type":"integer","format":"int32"}},{"name":"cargo","in":"query","required":false,"schema":{"type":"string"}},{"name":"nivel","in":"query","required":false,"schema":{"type":"string"}},{"name":"modalidade","in":"query","required":false,"schema":{"type":"string"}},{"name":"sort","in":"query","required":false,"schema":{"type":"string"}},{"name":"page","in":"query","required":false,"schema":{"type":"integer","format":"int32","default":0}},{"name":"size","in":"query","required":false,"schema":{"type":"integer","format":"int32","default":10}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/PagedModelQuestaoResponse"}}}}}},"post":{"tags":["Questoes"],"summary":"Cadastrar nova questao","operationId":"cadastrar","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/QuestaoRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"201":{"description":"Created","content":{"*/*":{"schema":{"$ref":"#/components/schemas/QuestaoResponse"}}}}}}},"/api/v1/questoes/{questaoId}/comentarios":{"get":{"tags":["Comentarios"],"summary":"Listar comentários de uma questão","operationId":"listar_1","parameters":[{"name":"questaoId","in":"path","required":true,"schema":{"type":"string"}},{"name":"page","in":"query","required":false,"schema":{"type":"integer","format":"int32","default":0}},{"name":"size","in":"query","required":false,"schema":{"type":"integer","format":"int32","default":20}},{"name":"ordenar","in":"query","required":false,"schema":{"type":"string","default":"recentes"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/PagedModelComentarioResponse"}}}}}},"post":{"tags":["Comentarios"],"summary":"Adicionar comentário em uma questão","operationId":"criar","parameters":[{"name":"questaoId","in":"path","required":true,"schema":{"type":"string"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ComentarioRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"201":{"description":"Created","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ComentarioResponse"}}}}}}},"/api/v1/provas":{"get":{"tags":["Provas"],"summary":"Listar provas cadastradas","operationId":"listar_2","parameters":[{"name":"page","in":"query","required":false,"schema":{"type":"integer","format":"int32","default":0}},{"name":"size","in":"query","required":false,"schema":{"type":"integer","format":"int32","default":20}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/PagedModelProvaResponse"}}}}}},"post":{"tags":["Provas"],"summary":"Criar cabeçalho de prova","operationId":"criar_1","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ProvaRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"201":{"description":"Created","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ProvaResponse"}}}}}}},"/api/v1/provas/{provaId}/questoes":{"post":{"tags":["Provas"],"summary":"Lançar questão em uma prova","operationId":"lancarQuestao","parameters":[{"name":"provaId","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ProvaQuestaoRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"201":{"description":"Created","content":{"*/*":{"schema":{"$ref":"#/components/schemas/QuestaoResponse"}}}}}}},"/api/v1/comentarios/{id}/descurtir":{"post":{"tags":["Comentarios"],"summary":"Descurtir um comentário","operationId":"descurtir","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ComentarioResponse"}}}}}}},"/api/v1/comentarios/{id}/curtir":{"post":{"tags":["Comentarios"],"summary":"Curtir um comentário","operationId":"curtir","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ComentarioResponse"}}}}}}},"/api/v1/auth/register":{"post":{"tags":["Autenticacao"],"summary":"Registrar novo usuario","operationId":"register","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RegisterRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"201":{"description":"Created"}},"security":[]}},"/api/v1/auth/login":{"post":{"tags":["Autenticacao"],"summary":"Autenticar e obter token JWT","operationId":"login","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/LoginRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/AuthResponse"}}}}},"security":[]}},"/api/v1/admin/catalogo/subassuntos":{"post":{"tags":["Admin - Subassuntos"],"summary":"Cadastrar novo subassunto vinculado a um assunto","operationId":"cadastrar_1","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SubAssuntoRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"201":{"description":"Created","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}}},"/api/v1/admin/catalogo/instituicoes":{"get":{"tags":["Admin - Instituicoes"],"summary":"Listar todas as instituicoes","operationId":"listar_3","responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}}},"post":{"tags":["Admin - Instituicoes"],"summary":"Cadastrar nova instituicao","operationId":"cadastrar_2","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/InstituicaoRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"201":{"description":"Created","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}}},"/api/v1/admin/catalogo/disciplinas":{"post":{"tags":["Admin - Disciplinas"],"summary":"Cadastrar nova disciplina","operationId":"cadastrar_3","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DisciplinaRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"201":{"description":"Created","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}}},"/api/v1/admin/catalogo/bancas":{"post":{"tags":["Admin - Bancas"],"summary":"Cadastrar nova banca","operationId":"cadastrar_4","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/BancaRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"201":{"description":"Created","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}}},"/api/v1/admin/catalogo/assuntos":{"post":{"tags":["Admin - Assuntos"],"summary":"Cadastrar novo assunto vinculado a uma disciplina","operationId":"cadastrar_5","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AssuntoRequest"}}},"required":true},"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"201":{"description":"Created","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}}},"/api/v1/admin/usuarios/{id}/ativar":{"patch":{"tags":["Admin - Usuarios"],"summary":"Ativar um usuario pendente","operationId":"ativar","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/UsuarioPublicoResponse"}}}}}}},"/api/v1/questoes/{idQuestion}":{"get":{"tags":["Questoes"],"summary":"Buscar questao por ID","operationId":"buscar","parameters":[{"name":"idQuestion","in":"path","required":true,"schema":{"type":"string"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/QuestaoResponse"}}}}}}},"/api/v1/provas/{id}":{"get":{"tags":["Provas"],"summary":"Buscar prova por ID","operationId":"buscar_1","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ProvaResponse"}}}}}}},"/api/v1/catalogo/instituicoes":{"get":{"tags":["Catalogo"],"summary":"Listar todas as instituicoes","operationId":"listar_4","responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}}}},"/api/v1/catalogo/disciplinas":{"get":{"tags":["Catalogo"],"summary":"Listar todas as disciplinas","operationId":"listar_5","responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}}}},"/api/v1/catalogo/disciplinas/{disciplinaId}/assuntos":{"get":{"tags":["Catalogo"],"summary":"Listar assuntos de uma disciplina","operationId":"listar_6","parameters":[{"name":"disciplinaId","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}}}},"/api/v1/catalogo/bancas":{"get":{"tags":["Catalogo"],"summary":"Listar todas as bancas examinadoras","operationId":"listar_7","responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}}}},"/api/v1/catalogo/assuntos/{assuntoId}/subassuntos":{"get":{"tags":["Catalogo"],"summary":"Listar subassuntos de um assunto","operationId":"listar_8","parameters":[{"name":"assuntoId","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/CatalogoItemResponse"}}}}}}}},"/api/v1/admin/usuarios":{"get":{"tags":["Admin - Usuarios"],"summary":"Listar todos os usuarios (paginado)","operationId":"listar_9","parameters":[{"name":"page","in":"query","required":false,"schema":{"type":"integer","format":"int32","default":0}},{"name":"size","in":"query","required":false,"schema":{"type":"integer","format":"int32","default":20}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/PagedModelUsuarioPublicoResponse"}}}}}}},"/api/v1/admin/questoes/{idQuestion}/gabarito":{"get":{"tags":["Admin - Questoes"],"summary":"Consultar gabarito de uma questao","operationId":"buscarGabarito","parameters":[{"name":"idQuestion","in":"path","required":true,"schema":{"type":"string"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/GabaritoResponse"}}}}}}},"/api/v1/admin/usuarios/{id}":{"delete":{"tags":["Admin - Usuarios"],"summary":"Excluir usuario visitante","operationId":"excluir_4","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"401":{"description":"Unauthorized","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"403":{"description":"Forbidden","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"409":{"description":"Conflict","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"400":{"description":"Bad Request","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"500":{"description":"Internal Server Error","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/ProblemDetail"}}}},"204":{"description":"No Content"}}}}},"components":{"schemas":{"ProblemDetail":{"type":"object","properties":{"type":{"type":"string","format":"uri"},"title":{"type":"string"},"status":{"type":"integer","format":"int32"},"detail":{"type":"string"},"instance":{"type":"string","format":"uri"},"properties":{"type":"object","additionalProperties":{}}}},"QuestaoRequest":{"type":"object","properties":{"enunciado":{"type":"string","maxLength":10000,"minLength":0},"questao":{"type":"string","maxLength":10000,"minLength":0},"alternativas":{"type":"string","maxLength":10000,"minLength":0},"disciplina":{"type":"string","maxLength":160,"minLength":0},"assunto":{"type":"string","maxLength":200,"minLength":0},"banca":{"type":"string","maxLength":160,"minLength":0},"instituicao":{"type":"string","maxLength":200,"minLength":0},"disciplinaId":{"type":"integer","format":"int64"},"assuntoId":{"type":"integer","format":"int64"},"bancaId":{"type":"integer","format":"int64"},"instituicaoId":{"type":"integer","format":"int64"},"ano":{"type":"integer","format":"int32","maximum":2100,"minimum":1900},"cargo":{"type":"string","maxLength":160,"minLength":0},"nivel":{"type":"string","maxLength":80,"minLength":0},"modalidade":{"type":"string","minLength":1,"pattern":"^(A_E|A_D|CERTO_ERRADO)$"},"gabarito":{"type":"string","minLength":1}},"required":["alternativas","ano","assunto","banca","cargo","disciplina","enunciado","gabarito","instituicao","modalidade","nivel","questao"]},"QuestaoResponse":{"type":"object","properties":{"idQuestion":{"type":"string"},"enunciado":{"type":"string"},"questao":{"type":"string"},"alternativas":{"type":"string"},"disciplina":{"type":"string"},"disciplinaId":{"type":"integer","format":"int64"},"assunto":{"type":"string"},"assuntoId":{"type":"integer","format":"int64"},"banca":{"type":"string"},"bancaId":{"type":"integer","format":"int64"},"instituicao":{"type":"string"},"instituicaoId":{"type":"integer","format":"int64"},"ano":{"type":"integer","format":"int32"},"cargo":{"type":"string"},"nivel":{"type":"string"},"modalidade":{"type":"string"},"gabarito":{"type":"string"},"provaId":{"type":"integer","format":"int64"},"criadoEm":{"type":"string","format":"date-time"}}},"InstituicaoRequest":{"type":"object","properties":{"nome":{"type":"string","maxLength":200,"minLength":0}},"required":["nome"]},"CatalogoItemResponse":{"type":"object","properties":{"id":{"type":"integer","format":"int64"},"nome":{"type":"string"}}},"DisciplinaRequest":{"type":"object","properties":{"nome":{"type":"string","maxLength":200,"minLength":0}},"required":["nome"]},"BancaRequest":{"type":"object","properties":{"nome":{"type":"string","maxLength":160,"minLength":0}},"required":["nome"]},"ComentarioRequest":{"type":"object","properties":{"autor":{"type":"string","maxLength":100,"minLength":0},"texto":{"type":"string","maxLength":5000,"minLength":0}},"required":["autor","texto"]},"ComentarioResponse":{"type":"object","properties":{"id":{"type":"integer","format":"int64"},"questaoId":{"type":"string"},"autor":{"type":"string"},"texto":{"type":"string"},"curtidas":{"type":"integer","format":"int32"},"descurtidas":{"type":"integer","format":"int32"},"criadoEm":{"type":"string","format":"date-time"}}},"ProvaRequest":{"type":"object","properties":{"banca":{"type":"string","maxLength":160,"minLength":0},"instituicaoId":{"type":"integer","format":"int64"},"ano":{"type":"integer","format":"int32","maximum":2100,"minimum":1900},"cargo":{"type":"string","maxLength":160,"minLength":0},"nivel":{"type":"string","maxLength":80,"minLength":0},"modalidade":{"type":"string","minLength":1,"pattern":"^(A_E|A_D|CERTO_ERRADO|MULTIPLA ESCOLHA|MÚLTIPLA ESCOLHA|MULTIPLA ESCOLHA A[_-][DE]|MÚLTIPLA ESCOLHA A[_-][DE]|CERTO E ERRADO|CERTO/ERRADO)$"}},"required":["ano","banca","cargo","instituicaoId","modalidade","nivel"]},"ProvaResponse":{"type":"object","properties":{"id":{"type":"integer","format":"int64"},"banca":{"type":"string"},"instituicao":{"type":"string"},"instituicaoId":{"type":"integer","format":"int64"},"ano":{"type":"integer","format":"int32"},"cargo":{"type":"string"},"nivel":{"type":"string"},"modalidade":{"type":"string"},"totalQuestoes":{"type":"integer","format":"int64"},"criadoEm":{"type":"string","format":"date-time"}}},"ProvaQuestaoRequest":{"type":"object","properties":{"enunciado":{"type":"string","maxLength":10000,"minLength":0},"questao":{"type":"string","maxLength":10000,"minLength":0},"alternativas":{"type":"string","maxLength":10000,"minLength":0},"disciplina":{"type":"string","maxLength":160,"minLength":0},"assunto":{"type":"string","maxLength":200,"minLength":0},"disciplinaId":{"type":"integer","format":"int64"},"assuntoId":{"type":"integer","format":"int64"},"subassunto":{"type":"string"},"gabarito":{"type":"string","minLength":1}},"required":["assunto","disciplina","enunciado","gabarito","questao"]},"RegisterRequest":{"type":"object","properties":{"nome":{"type":"string","maxLength":160,"minLength":0},"email":{"type":"string","format":"email","maxLength":200,"minLength":0},"senha":{"type":"string","maxLength":200,"minLength":6}},"required":["email","nome","senha"]},"LoginRequest":{"type":"object","properties":{"email":{"type":"string","format":"email","maxLength":200,"minLength":0},"senha":{"type":"string","maxLength":200,"minLength":6}},"required":["email","senha"]},"AuthResponse":{"type":"object","properties":{"token":{"type":"string"},"email":{"type":"string"},"role":{"type":"string"}}},"SubAssuntoRequest":{"type":"object","properties":{"assuntoId":{"type":"integer","format":"int64"},"nome":{"type":"string","maxLength":200,"minLength":0}},"required":["assuntoId","nome"]},"AssuntoRequest":{"type":"object","properties":{"disciplinaId":{"type":"integer","format":"int64"},"nome":{"type":"string","maxLength":200,"minLength":0}},"required":["disciplinaId","nome"]},"UsuarioPublicoResponse":{"type":"object","properties":{"id":{"type":"integer","format":"int64"},"nome":{"type":"string"},"email":{"type":"string"},"role":{"type":"string","enum":["ADMIN","VISITANTE"]},"status":{"type":"string","enum":["PENDENTE","ATIVO"]}}},"PageMetadata":{"type":"object","properties":{"size":{"type":"integer","format":"int64"},"number":{"type":"integer","format":"int64"},"totalElements":{"type":"integer","format":"int64"},"totalPages":{"type":"integer","format":"int64"}}},"PagedModelQuestaoResponse":{"type":"object","properties":{"content":{"type":"array","items":{"$ref":"#/components/schemas/QuestaoResponse"}},"page":{"$ref":"#/components/schemas/PageMetadata"}}},"PagedModelComentarioResponse":{"type":"object","properties":{"content":{"type":"array","items":{"$ref":"#/components/schemas/ComentarioResponse"}},"page":{"$ref":"#/components/schemas/PageMetadata"}}},"PagedModelProvaResponse":{"type":"object","properties":{"content":{"type":"array","items":{"$ref":"#/components/schemas/ProvaResponse"}},"page":{"$ref":"#/components/schemas/PageMetadata"}}},"PagedModelUsuarioPublicoResponse":{"type":"object","properties":{"content":{"type":"array","items":{"$ref":"#/components/schemas/UsuarioPublicoResponse"}},"page":{"$ref":"#/components/schemas/PageMetadata"}}},"GabaritoResponse":{"type":"object","properties":{"idQuestion":{"type":"string"},"gabarito":{"type":"string"}}}},"securitySchemes":{"bearerAuth":{"type":"http","description":"Token JWT obtido via POST /api/v1/auth/login","scheme":"bearer","bearerFormat":"JWT"}}}}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Concurseiro API",
+    "description": "API para gerenciamento e consulta de questões de concursos públicos brasileiros. Permite cadastro, busca avançada com filtros, e gestão de catálogos de disciplinas, assuntos, bancas e instituições.",
+    "contact": {
+      "name": "Concurseiro Dev",
+      "url": "https://concurseiro.dev"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Provas",
+      "description": "Gerenciamento de provas de concursos"
+    },
+    {
+      "name": "Autenticacao",
+      "description": "Registro e login de usuarios"
+    },
+    {
+      "name": "Admin - Questoes",
+      "description": "Gerenciamento administrativo de questoes"
+    },
+    {
+      "name": "Catalogo",
+      "description": "Consulta publica de disciplinas, assuntos, bancas e instituicoes"
+    },
+    {
+      "name": "Admin - Disciplinas",
+      "description": "CRUD administrativo de disciplinas"
+    },
+    {
+      "name": "Comentarios",
+      "description": "Comentários em questões de concursos"
+    },
+    {
+      "name": "Admin - Assuntos",
+      "description": "CRUD administrativo de assuntos"
+    },
+    {
+      "name": "Admin - Bancas",
+      "description": "CRUD administrativo de bancas examinadoras"
+    },
+    {
+      "name": "Admin - Subassuntos",
+      "description": "CRUD administrativo de subassuntos"
+    },
+    {
+      "name": "Admin - Instituicoes",
+      "description": "CRUD administrativo de instituicoes"
+    },
+    {
+      "name": "Questoes",
+      "description": "Consulta e cadastro de questoes de concursos"
+    },
+    {
+      "name": "Admin - Usuarios",
+      "description": "Gerenciamento administrativo de usuarios"
+    }
+  ],
+  "paths": {
+    "/api/v1/admin/questoes/{idQuestion}": {
+      "put": {
+        "tags": [
+          "Admin - Questoes"
+        ],
+        "summary": "Atualizar uma questao existente",
+        "operationId": "atualizar",
+        "parameters": [
+          {
+            "name": "idQuestion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestaoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestaoResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin - Questoes"
+        ],
+        "summary": "Excluir uma questao",
+        "operationId": "excluir",
+        "parameters": [
+          {
+            "name": "idQuestion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalogo/instituicoes/{id}": {
+      "put": {
+        "tags": [
+          "Admin - Instituicoes"
+        ],
+        "summary": "Atualizar instituicao existente",
+        "operationId": "atualizar_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstituicaoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogoItemResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin - Instituicoes"
+        ],
+        "summary": "Excluir instituicao",
+        "operationId": "excluir_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalogo/disciplinas/{id}": {
+      "put": {
+        "tags": [
+          "Admin - Disciplinas"
+        ],
+        "summary": "Atualizar disciplina existente",
+        "operationId": "atualizar_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisciplinaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogoItemResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin - Disciplinas"
+        ],
+        "summary": "Excluir disciplina",
+        "operationId": "excluir_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalogo/bancas/{id}": {
+      "put": {
+        "tags": [
+          "Admin - Bancas"
+        ],
+        "summary": "Atualizar banca existente",
+        "operationId": "atualizar_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BancaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogoItemResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin - Bancas"
+        ],
+        "summary": "Excluir banca",
+        "operationId": "excluir_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/questoes": {
+      "get": {
+        "tags": [
+          "Questoes"
+        ],
+        "summary": "Listar questoes com filtros e paginacao",
+        "operationId": "listar",
+        "parameters": [
+          {
+            "name": "texto",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "disciplina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "disciplinaId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "assunto",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assuntoId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "banca",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bancaId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "instituicao",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "instituicaoId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "ano",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "cargo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nivel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "modalidade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelQuestaoResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Questoes"
+        ],
+        "summary": "Cadastrar nova questao",
+        "operationId": "cadastrar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestaoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestaoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/questoes/{questaoId}/comentarios": {
+      "get": {
+        "tags": [
+          "Comentarios"
+        ],
+        "summary": "Listar comentários de uma questão",
+        "operationId": "listar_1",
+        "parameters": [
+          {
+            "name": "questaoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          },
+          {
+            "name": "ordenar",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "recentes"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelComentarioResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Comentarios"
+        ],
+        "summary": "Adicionar comentário em uma questão",
+        "operationId": "criar",
+        "parameters": [
+          {
+            "name": "questaoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComentarioRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComentarioResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/provas": {
+      "get": {
+        "tags": [
+          "Provas"
+        ],
+        "summary": "Listar provas cadastradas",
+        "operationId": "listar_2",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelProvaResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Provas"
+        ],
+        "summary": "Criar cabeçalho de prova",
+        "operationId": "criar_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProvaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/provas/{provaId}/questoes": {
+      "post": {
+        "tags": [
+          "Provas"
+        ],
+        "summary": "Lançar questão em uma prova",
+        "operationId": "lancarQuestao",
+        "parameters": [
+          {
+            "name": "provaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProvaQuestaoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestaoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comentarios/{id}/descurtir": {
+      "post": {
+        "tags": [
+          "Comentarios"
+        ],
+        "summary": "Descurtir um comentário",
+        "operationId": "descurtir",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComentarioResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comentarios/{id}/curtir": {
+      "post": {
+        "tags": [
+          "Comentarios"
+        ],
+        "summary": "Curtir um comentário",
+        "operationId": "curtir",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComentarioResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "Autenticacao"
+        ],
+        "summary": "Registrar novo usuario",
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Autenticacao"
+        ],
+        "summary": "Autenticar e obter token JWT",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/admin/catalogo/subassuntos": {
+      "post": {
+        "tags": [
+          "Admin - Subassuntos"
+        ],
+        "summary": "Cadastrar novo subassunto vinculado a um assunto",
+        "operationId": "cadastrar_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubAssuntoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogoItemResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalogo/instituicoes": {
+      "get": {
+        "tags": [
+          "Admin - Instituicoes"
+        ],
+        "summary": "Listar todas as instituicoes",
+        "operationId": "listar_3",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogoItemResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin - Instituicoes"
+        ],
+        "summary": "Cadastrar nova instituicao",
+        "operationId": "cadastrar_2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstituicaoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogoItemResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalogo/disciplinas": {
+      "post": {
+        "tags": [
+          "Admin - Disciplinas"
+        ],
+        "summary": "Cadastrar nova disciplina",
+        "operationId": "cadastrar_3",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisciplinaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogoItemResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalogo/bancas": {
+      "post": {
+        "tags": [
+          "Admin - Bancas"
+        ],
+        "summary": "Cadastrar nova banca",
+        "operationId": "cadastrar_4",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BancaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogoItemResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalogo/assuntos": {
+      "post": {
+        "tags": [
+          "Admin - Assuntos"
+        ],
+        "summary": "Cadastrar novo assunto vinculado a uma disciplina",
+        "operationId": "cadastrar_5",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssuntoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogoItemResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/usuarios/{id}/ativar": {
+      "patch": {
+        "tags": [
+          "Admin - Usuarios"
+        ],
+        "summary": "Ativar um usuario pendente",
+        "operationId": "ativar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioPublicoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/questoes/{idQuestion}": {
+      "get": {
+        "tags": [
+          "Questoes"
+        ],
+        "summary": "Buscar questao por ID",
+        "operationId": "buscar",
+        "parameters": [
+          {
+            "name": "idQuestion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestaoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/provas/{id}": {
+      "get": {
+        "tags": [
+          "Provas"
+        ],
+        "summary": "Buscar prova por ID",
+        "operationId": "buscar_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalogo/instituicoes": {
+      "get": {
+        "tags": [
+          "Catalogo"
+        ],
+        "summary": "Listar todas as instituicoes",
+        "operationId": "listar_4",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogoItemResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalogo/disciplinas": {
+      "get": {
+        "tags": [
+          "Catalogo"
+        ],
+        "summary": "Listar todas as disciplinas",
+        "operationId": "listar_5",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogoItemResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalogo/disciplinas/{disciplinaId}/assuntos": {
+      "get": {
+        "tags": [
+          "Catalogo"
+        ],
+        "summary": "Listar assuntos de uma disciplina",
+        "operationId": "listar_6",
+        "parameters": [
+          {
+            "name": "disciplinaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogoItemResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalogo/bancas": {
+      "get": {
+        "tags": [
+          "Catalogo"
+        ],
+        "summary": "Listar todas as bancas examinadoras",
+        "operationId": "listar_7",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogoItemResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalogo/assuntos/{assuntoId}/subassuntos": {
+      "get": {
+        "tags": [
+          "Catalogo"
+        ],
+        "summary": "Listar subassuntos de um assunto",
+        "operationId": "listar_8",
+        "parameters": [
+          {
+            "name": "assuntoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogoItemResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/usuarios": {
+      "get": {
+        "tags": [
+          "Admin - Usuarios"
+        ],
+        "summary": "Listar todos os usuarios (paginado)",
+        "operationId": "listar_9",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelUsuarioPublicoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/questoes/{idQuestion}/gabarito": {
+      "get": {
+        "tags": [
+          "Admin - Questoes"
+        ],
+        "summary": "Consultar gabarito de uma questao",
+        "operationId": "buscarGabarito",
+        "parameters": [
+          {
+            "name": "idQuestion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GabaritoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/usuarios/{id}": {
+      "delete": {
+        "tags": [
+          "Admin - Usuarios"
+        ],
+        "summary": "Excluir usuario visitante",
+        "operationId": "excluir_4",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ProblemDetail": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "format": "uri"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "instance": {
+            "type": "string",
+            "format": "uri"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {}
+          }
+        }
+      },
+      "QuestaoRequest": {
+        "type": "object",
+        "properties": {
+          "enunciado": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 0
+          },
+          "questao": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 0
+          },
+          "alternativas": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 0
+          },
+          "disciplina": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 0
+          },
+          "assunto": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "banca": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 0
+          },
+          "instituicao": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "disciplinaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "assuntoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "bancaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instituicaoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ano": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2100,
+            "minimum": 1900
+          },
+          "cargo": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 0
+          },
+          "nivel": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 0
+          },
+          "modalidade": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(A_E|A_D|CERTO_ERRADO)$"
+          },
+          "gabarito": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "alternativas",
+          "ano",
+          "assunto",
+          "banca",
+          "cargo",
+          "disciplina",
+          "enunciado",
+          "gabarito",
+          "instituicao",
+          "modalidade",
+          "nivel",
+          "questao"
+        ]
+      },
+      "QuestaoResponse": {
+        "type": "object",
+        "properties": {
+          "idQuestion": {
+            "type": "string"
+          },
+          "enunciado": {
+            "type": "string"
+          },
+          "questao": {
+            "type": "string"
+          },
+          "alternativas": {
+            "type": "string"
+          },
+          "disciplina": {
+            "type": "string"
+          },
+          "disciplinaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "assunto": {
+            "type": "string"
+          },
+          "assuntoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "banca": {
+            "type": "string"
+          },
+          "bancaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "instituicao": {
+            "type": "string"
+          },
+          "instituicaoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ano": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cargo": {
+            "type": "string"
+          },
+          "nivel": {
+            "type": "string"
+          },
+          "modalidade": {
+            "type": "string"
+          },
+          "gabarito": {
+            "type": "string"
+          },
+          "provaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "InstituicaoRequest": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "nome"
+        ]
+      },
+      "CatalogoItemResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          }
+        }
+      },
+      "DisciplinaRequest": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "nome"
+        ]
+      },
+      "BancaRequest": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "nome"
+        ]
+      },
+      "ComentarioRequest": {
+        "type": "object",
+        "properties": {
+          "autor": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "texto": {
+            "type": "string",
+            "maxLength": 5000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "autor",
+          "texto"
+        ]
+      },
+      "ComentarioResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "questaoId": {
+            "type": "string"
+          },
+          "autor": {
+            "type": "string"
+          },
+          "texto": {
+            "type": "string"
+          },
+          "curtidas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "descurtidas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ProvaRequest": {
+        "type": "object",
+        "properties": {
+          "banca": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 0
+          },
+          "instituicaoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ano": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2100,
+            "minimum": 1900
+          },
+          "cargo": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 0
+          },
+          "nivel": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 0
+          },
+          "modalidade": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(A_E|A_D|CERTO_ERRADO|MULTIPLA ESCOLHA|MÚLTIPLA ESCOLHA|MULTIPLA ESCOLHA A[_-][DE]|MÚLTIPLA ESCOLHA A[_-][DE]|CERTO E ERRADO|CERTO/ERRADO)$"
+          }
+        },
+        "required": [
+          "ano",
+          "banca",
+          "cargo",
+          "instituicaoId",
+          "modalidade",
+          "nivel"
+        ]
+      },
+      "ProvaResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "banca": {
+            "type": "string"
+          },
+          "instituicao": {
+            "type": "string"
+          },
+          "instituicaoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ano": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cargo": {
+            "type": "string"
+          },
+          "nivel": {
+            "type": "string"
+          },
+          "modalidade": {
+            "type": "string"
+          },
+          "totalQuestoes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ProvaQuestaoRequest": {
+        "type": "object",
+        "properties": {
+          "enunciado": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 0
+          },
+          "questao": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 0
+          },
+          "alternativas": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 0
+          },
+          "disciplina": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 0
+          },
+          "assunto": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "disciplinaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "assuntoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "subassunto": {
+            "type": "string"
+          },
+          "gabarito": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "assunto",
+          "disciplina",
+          "enunciado",
+          "gabarito",
+          "questao"
+        ]
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 0
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "senha": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 6
+          }
+        },
+        "required": [
+          "email",
+          "nome",
+          "senha"
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "senha": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 6
+          }
+        },
+        "required": [
+          "email",
+          "senha"
+        ]
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      },
+      "SubAssuntoRequest": {
+        "type": "object",
+        "properties": {
+          "assuntoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "assuntoId",
+          "nome"
+        ]
+      },
+      "AssuntoRequest": {
+        "type": "object",
+        "properties": {
+          "disciplinaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "disciplinaId",
+          "nome"
+        ]
+      },
+      "UsuarioPublicoResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "VISITANTE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDENTE",
+              "ATIVO"
+            ]
+          }
+        }
+      },
+      "PageMetadata": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PagedModelQuestaoResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestaoResponse"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMetadata"
+          }
+        }
+      },
+      "PagedModelComentarioResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComentarioResponse"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMetadata"
+          }
+        }
+      },
+      "PagedModelProvaResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProvaResponse"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMetadata"
+          }
+        }
+      },
+      "PagedModelUsuarioPublicoResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UsuarioPublicoResponse"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMetadata"
+          }
+        }
+      },
+      "GabaritoResponse": {
+        "type": "object",
+        "properties": {
+          "idQuestion": {
+            "type": "string"
+          },
+          "gabarito": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "description": "Token JWT obtido via POST /api/v1/auth/login",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
