@@ -14,12 +14,18 @@ import br.com.concurseiro.api.prova.repository.ProvaRepository;
 import br.com.concurseiro.api.questoes.model.Questao;
 import br.com.concurseiro.api.questoes.repository.QuestaoRepository;
 import br.com.concurseiro.api.questoes.service.QuestaoValidationHelper;
+
+import java.net.URI;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.ErrorResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -32,11 +38,11 @@ public class ProvaService {
     private final AssuntoRepository assuntoRepository;
 
     public ProvaService(
-            ProvaRepository provaRepository,
-            QuestaoRepository questaoRepository,
-            InstituicaoRepository instituicaoRepository,
-            DisciplinaRepository disciplinaRepository,
-            AssuntoRepository assuntoRepository
+        ProvaRepository provaRepository,
+        QuestaoRepository questaoRepository,
+        InstituicaoRepository instituicaoRepository,
+        DisciplinaRepository disciplinaRepository,
+        AssuntoRepository assuntoRepository
     ) {
         this.provaRepository = provaRepository;
         this.questaoRepository = questaoRepository;
@@ -48,28 +54,61 @@ public class ProvaService {
     @Transactional
     public ProvaResponse criarProva(ProvaRequest request) {
         Instituicao inst = instituicaoRepository.findById(request.instituicaoId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Instituição não encontrada no catálogo"));
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Instituição não encontrada no catálogo"
+            ));
 
+        String banca = normalizarTextoLivre(request.banca());
+        String cargo = normalizarTextoLivre(request.cargo());
+        String nivel = normalizarTextoLivre(request.nivel());
         String modalidade = QuestaoValidationHelper.normalizarModalidade(request.modalidade().trim(), null);
 
+        boolean jaExiste = provaRepository
+            .existsByBancaIgnoreCaseAndInstituicaoIdAndAnoAndCargoIgnoreCaseAndNivelIgnoreCaseAndModalidadeIgnoreCase(
+                banca,
+                inst.getId(),
+                request.ano(),
+                cargo,
+                nivel,
+                modalidade
+            );
+
+        if (jaExiste) {
+            ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+            pd.setTitle("Prova duplicada");
+            pd.setType(URI.create("https://concurseiro.dev/errors/prova-duplicada"));
+            pd.setDetail("Já existe uma prova cadastrada com esse cabeçalho");
+            throw new ErrorResponseException(HttpStatus.CONFLICT, pd, null);
+        }
+
         Prova prova = new Prova();
-        prova.setBanca(request.banca().trim());
+        prova.setBanca(banca);
         prova.setInstituicao(inst.getNome());
         prova.setInstituicaoId(inst.getId());
         prova.setAno(request.ano());
-        prova.setCargo(request.cargo().trim());
-        prova.setNivel(request.nivel().trim());
+        prova.setCargo(cargo);
+        prova.setNivel(nivel);
         prova.setModalidade(modalidade);
 
-        prova = provaRepository.save(prova);
+        try {
+            prova = provaRepository.save(prova);
+        } catch (DataIntegrityViolationException ex) {
+            ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+            pd.setTitle("Prova duplicada");
+            pd.setType(URI.create("https://concurseiro.dev/errors/prova-duplicada"));
+            pd.setDetail("Já existe uma prova cadastrada com esse cabeçalho");
+            throw new ErrorResponseException(HttpStatus.CONFLICT, pd, ex);
+        }
+
         return ProvaResponse.fromEntity(prova, 0L);
     }
 
     @Transactional(readOnly = true)
     public ProvaResponse buscarPorId(Long id) {
         Prova prova = provaRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Prova não encontrada"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Prova não encontrada"));
+
         long total = questaoRepository.countByProvaId(id);
         return ProvaResponse.fromEntity(prova, total);
     }
@@ -77,18 +116,16 @@ public class ProvaService {
     @Transactional(readOnly = true)
     public Page<ProvaResponse> listar(int page, int size) {
         return provaRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "criadoEm")))
-                .map(p -> ProvaResponse.fromEntity(p, questaoRepository.countByProvaId(p.getId())));
+            .map(p -> ProvaResponse.fromEntity(p, questaoRepository.countByProvaId(p.getId())));
     }
 
     @Transactional
     public Questao cadastrarQuestao(Long provaId, ProvaQuestaoRequest request) {
         Prova prova = provaRepository.findById(provaId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Prova não encontrada"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Prova não encontrada"));
 
         String gabaritoBruto = request.gabarito().trim().toUpperCase();
-
         QuestaoValidationHelper.validarGabaritoPorModalidade(prova.getModalidade(), gabaritoBruto);
-
         String gabaritoNormalizado = QuestaoValidationHelper.normalizarGabarito(prova.getModalidade(), gabaritoBruto);
 
         Questao questao = new Questao();
@@ -105,16 +142,17 @@ public class ProvaService {
         questao.setModalidade(prova.getModalidade());
         questao.setGabarito(gabaritoNormalizado);
 
-        Instituicao inst = instituicaoRepository.findById(prova.getInstituicaoId())
-                .orElse(null);
+        Instituicao inst = instituicaoRepository.findById(prova.getInstituicaoId()).orElse(null);
         if (inst != null) {
             questao.setInstituicaoCatalogo(inst);
         }
 
         if (request.disciplinaId() != null) {
             Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND, "Disciplina não encontrada no catálogo"));
+                .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Disciplina não encontrada no catálogo"
+                ));
             questao.setDisciplinaCatalogo(disciplina);
             questao.setDisciplina(disciplina.getNome());
         } else {
@@ -123,8 +161,10 @@ public class ProvaService {
 
         if (request.assuntoId() != null) {
             Assunto assunto = assuntoRepository.findById(request.assuntoId())
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND, "Assunto não encontrado no catálogo"));
+                .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Assunto não encontrado no catálogo"
+                ));
             questao.setAssuntoCatalogo(assunto);
             questao.setAssunto(assunto.getNome());
         } else {
@@ -132,5 +172,10 @@ public class ProvaService {
         }
 
         return questaoRepository.save(questao);
+    }
+
+    private String normalizarTextoLivre(String valor) {
+        if (valor == null) return null;
+        return valor.trim().replaceAll("\\s+", " ");
     }
 }

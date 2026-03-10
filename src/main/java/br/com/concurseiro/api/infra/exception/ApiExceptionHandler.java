@@ -104,9 +104,48 @@ public class ApiExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ProblemDetail handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest req) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        pd.setInstance(URI.create(req.getRequestURI()));
+
+        StringBuilder sb = new StringBuilder();
+
+        if (ex.getMessage() != null) {
+            sb.append(ex.getMessage()).append(' ');
+        }
+
+        Throwable cause = ex.getCause();
+        while (cause != null) {
+            if (cause.getMessage() != null) {
+                sb.append(cause.getMessage()).append(' ');
+            }
+            cause = cause.getCause();
+        }
+
+        String msgLower = sb.toString().toLowerCase();
+
+        log.error("DATA_INTEGRITY uri={} aggregatedMessage={}",
+                req.getRequestURI(),
+                sb.toString()
+        );
+
+        boolean provaDuplicada =
+                req.getRequestURI().equals("/api/v1/provas")
+                        && (msgLower.contains("uk_provas_cabecalho")
+                        || msgLower.contains("chave (banca, instituicao_id, ano, cargo, nivel, modalidade)")
+                        || msgLower.contains("duplicate key value")
+                        || msgLower.contains("violates unique constraint")
+                        || msgLower.contains("violação de unicidade")
+                        || msgLower.contains("restrição de unicidade"));
+
+        if (provaDuplicada) {
+            pd.setTitle("Prova duplicada");
+            pd.setType(URI.create("https://concurseiro.dev/errors/prova-duplicada"));
+            pd.setDetail("Já existe uma prova cadastrada com esse cabeçalho.");
+            pd.setStatus(HttpStatus.CONFLICT.value());
+            return pd;
+        }
+
         pd.setTitle("Conflito de integridade de dados");
         pd.setType(URI.create("https://concurseiro.dev/errors/data-integrity"));
-        pd.setInstance(URI.create(req.getRequestURI()));
         pd.setDetail("A operação viola uma restrição de integridade do banco de dados.");
         return pd;
     }

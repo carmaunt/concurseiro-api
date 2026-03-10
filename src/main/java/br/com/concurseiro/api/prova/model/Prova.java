@@ -4,7 +4,22 @@ import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "provas")
+@Table(
+    name = "provas",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uk_provas_cabecalho",
+            columnNames = {
+                "banca",
+                "instituicao_id",
+                "ano",
+                "cargo",
+                "nivel",
+                "modalidade"
+            }
+        )
+    }
+)
 public class Prova {
 
     @Id

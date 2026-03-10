@@ -11,10 +11,13 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ProblemDetail;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.ErrorResponseException;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -28,6 +31,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.springframework.http.HttpStatus;
 
 @WebMvcTest(ProvaController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -161,6 +166,36 @@ class ProvaControllerTest {
         verify(service).cadastrarQuestao(provaIdCaptor.capture(), org.mockito.ArgumentMatchers.any());
         assertEquals(1L, provaIdCaptor.getValue());
     }
+
+        @Test
+        void criar_deveRetornar409_quandoProvaDuplicada() throws Exception {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        pd.setTitle("Prova duplicada");
+        pd.setType(URI.create("https://concurseiro.dev/errors/prova-duplicada"));
+        pd.setDetail("Já existe uma prova cadastrada com esse cabeçalho");
+
+        when(service.criarProva(org.mockito.ArgumentMatchers.any()))
+                .thenThrow(new ErrorResponseException(HttpStatus.CONFLICT, pd, null));
+
+        mockMvc.perform(post("/api/v1/provas")
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                "banca": "TESTE",
+                                "instituicaoId": 1,
+                                "ano": 2030,
+                                "cargo": "Cargo Teste",
+                                "nivel": "SUPERIOR",
+                                "modalidade": "A_E"
+                                }
+                                """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.title").value("Prova duplicada"))
+                .andExpect(jsonPath("$.detail").value("Já existe uma prova cadastrada com esse cabeçalho"))
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.type").value("https://concurseiro.dev/errors/prova-duplicada"))
+                .andExpect(jsonPath("$.instance").value("/api/v1/provas"));
+        }
 
     @Test
     void criar_deveRetornar400_quandoPayloadInvalido() throws Exception {
