@@ -10,6 +10,19 @@ A Concurseiro API utiliza **JWT** para autenticar requisições.
 
 Isso significa que, após realizar login, o cliente recebe um **token de acesso** que deve ser enviado em todas as requisições protegidas.
 
+A API possui dois tipos de usuários:
+
+VISITANTE  
+ADMIN
+
+Todo usuário criado inicia com status **PENDENTE**.
+
+Usuários com status **PENDENTE** não podem realizar login.
+
+Um administrador deve aprovar o usuário, alterando seu status para **ATIVO**.
+
+Somente usuários **ATIVOS** podem autenticar e utilizar endpoints protegidos da API.
+
 Esse modelo é **stateless**, ou seja, o servidor não precisa manter sessão do usuário.
 
 ---
@@ -18,12 +31,15 @@ Esse modelo é **stateless**, ou seja, o servidor não precisa manter sessão do
 
 Fluxo completo:
 
-1. Cliente envia credenciais (email e senha)
-2. A API valida o usuário
-3. A API gera um token JWT
-4. O token é retornado ao cliente
-5. O cliente envia o token em requisições futuras
-6. O Spring Security valida o token
+1. Usuário realiza cadastro na API
+2. O usuário é criado com status **PENDENTE**
+3. Um administrador aprova o usuário
+4. O usuário realiza login com email e senha
+5. A API valida as credenciais
+6. A API gera um token JWT
+7. O token é retornado ao cliente
+8. O cliente envia o token nas requisições autenticadas
+9. O Spring Security valida o token em cada requisição
 
 ---
 
@@ -59,9 +75,12 @@ Quando as credenciais são válidas, a API retorna um token JWT.
 
 ```json
 {
-  "token": "jwt_token",
-  "email": "usuario@email.com",
-  "role": "USER"
+  "success": true,
+  "data": {
+    "token": "jwt_token",
+    "email": "usuario@email.com",
+    "role": "VISITANTE"
+  }
 }
 ```
 
@@ -71,7 +90,7 @@ Quando as credenciais são válidas, a API retorna um token JWT.
 | ----- | ------ | ----------------- |
 | token | string | token JWT         |
 | email | string | email autenticado |
-| role  | string | papel do usuário  |
+| role  | string | papel do usuário (VISITANTE ou ADMIN) |
 
 ---
 
@@ -104,6 +123,9 @@ Durante cada requisição:
 2. O token JWT é extraído
 3. A assinatura do token é validada
 4. O usuário é carregado no contexto de segurança
+5. O sistema verifica se o usuário ainda existe no banco de dados
+6. O sistema verifica se o usuário está com status **ATIVO**
+7. O sistema valida se a role atual do usuário corresponde à role do token
 
 Se o token for inválido ou expirado, a requisição é rejeitada.
 
@@ -137,7 +159,9 @@ Essas rotas são utilizadas para acesso inicial ao sistema.
 
 # Rotas protegidas
 
-A maioria da API exige autenticação.
+A maioria das operações de escrita exige autenticação.
+
+Usuários autenticados e **ATIVOS** podem acessar endpoints protegidos.
 
 Exemplo:
 
@@ -151,9 +175,38 @@ Se o token não for enviado ou for inválido, a API retorna:
 
 ```
 401 Unauthorized
+
+403 Forbidden
 ```
 
+403 pode ocorrer quando:
+
+- o usuário não está ativo
+- o usuário não possui permissão para acessar o recurso
+
 ---
+
+# Controle de acesso
+
+A API utiliza autorização baseada em roles.
+
+VISITANTE
+
+Pode:
+
+- criar provas
+- comentar em questões
+- curtir ou descurtir comentários
+- acessar endpoints autenticados comuns
+
+ADMIN
+
+Pode:
+
+- aprovar usuários visitantes
+- excluir usuários visitantes
+- excluir questões
+- acessar endpoints administrativos
 
 # Segurança
 

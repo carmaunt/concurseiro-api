@@ -4,6 +4,8 @@ import br.com.concurseiro.api.infra.security.JwtService;
 import br.com.concurseiro.api.prova.dto.ProvaResponse;
 import br.com.concurseiro.api.prova.service.ProvaService;
 import br.com.concurseiro.api.questoes.model.Questao;
+import br.com.concurseiro.api.usuarios.repository.UsuarioRepository;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,9 @@ class ProvaControllerTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private UsuarioRepository usuarioRepository;
 
     @Test
     void criar_deveRetornar201_quandoPayloadValido() throws Exception {

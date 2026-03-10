@@ -45,3 +45,6 @@ attached_assets/
 
 # build
 target/
+
+# arquivos de configuração local
+.env

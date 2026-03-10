@@ -2,7 +2,9 @@
 
 Este documento descreve os endpoints do módulo de **questões** da Concurseiro API.
 
-Esse módulo é o núcleo funcional do sistema e concentra o cadastro, consulta e listagem paginada de questões de concursos públicos. As operações administrativas de atualização, exclusão e consulta de gabarito ficam em um módulo separado, documentado em `docs/endpoints/admin-questoes.md`.
+Esse módulo é o núcleo funcional do sistema e concentra o cadastro, consulta e listagem paginada de questões de concursos públicos.
+
+As operações administrativas de atualização, exclusão e consulta de gabarito utilizam rotas sob `/api/v1/admin/questoes` e são documentadas neste mesmo arquivo.
 
 ---
 
@@ -26,11 +28,15 @@ O domínio de questões está dividido em dois grupos de rotas:
 
 # Visão geral
 
-As rotas públicas/autenticadas de questões permitem:
+As rotas principais de questões permitem:
 
 * cadastrar uma nova questão
 * buscar uma questão pelo identificador `idQuestion`
 * listar questões com filtros e paginação
+
+As operações de leitura são públicas.
+
+A operação de cadastro exige usuário autenticado e com status **ATIVO**.
 
 As rotas administrativas permitem:
 
@@ -68,23 +74,31 @@ Recebe um `QuestaoRequest`, valida o corpo da requisição e retorna a questão 
 
 ```json
 {
-  "texto": "Enunciado da questão",
+  "enunciado": "Leia o enunciado com atenção",
+  "questao": "Quanto é 2 + 2?",
+  "alternativas": "A) 1\nB) 2\nC) 3\nD) 4\nE) 5",
+  "disciplina": "Matemática",
+  "assunto": "Aritmética",
+  "banca": "CESPE",
+  "instituicao": "PC-BA",
   "disciplinaId": 1,
-  "assuntoId": 2,
-  "bancaId": 3,
-  "instituicaoId": 4,
+  "assuntoId": 1,
+  "bancaId": 1,
+  "instituicaoId": 1,
   "ano": 2024,
   "cargo": "Analista",
   "nivel": "SUPERIOR",
-  "modalidade": "MULTIPLA_ESCOLHA"
+  "modalidade": "A_E",
+  "gabarito": "D"
 }
 ```
 
 ## Observações
 
-* o payload exato depende da estrutura de `QuestaoRequest`
-* o controller valida o corpo com `@Valid`
-* a resposta é convertida por `QuestaoResponse.fromEntity(...)` ([raw.githubusercontent.com](https://raw.githubusercontent.com/carmaunt/concurseiro-api/main/src/main/java/br/com/concurseiro/api/questoes/controller/QuestaoController.java))
+* o corpo da requisição é validado com `@Valid`
+* o campo `instituicaoId` é obrigatório no cadastro
+* o sistema pode utilizar nomes textuais e identificadores de catálogo, com preferência pelos IDs quando informados
+* a resposta é convertida para `QuestaoResponse`
 
 ## Respostas
 
@@ -98,7 +112,11 @@ Dados inválidos enviados na requisição.
 
 ### 401 — Unauthorized
 
-Requisição sem autenticação válida, caso a segurança da rota exija token.
+Requisição sem token JWT válido.
+
+### 403 — Forbidden
+
+Usuário autenticado, porém sem permissão ou sem status ativo para executar a operação.
 
 ### 500 — Internal Server Error
 
@@ -130,10 +148,20 @@ GET /api/v1/questoes/Q123
 
 ```json
 {
-  "idQuestion": "Q123",
-  "texto": "Enunciado da questão",
-  "ano": 2024,
-  "cargo": "Analista"
+  "success": true,
+  "data": {
+    "idQuestion": "Q123",
+    "enunciado": "Leia o enunciado com atenção",
+    "questao": "Quanto é 2 + 2?",
+    "disciplina": "Matemática",
+    "assunto": "Aritmética",
+    "banca": "CESPE",
+    "instituicao": "PC-BA",
+    "ano": 2024,
+    "cargo": "Analista",
+    "nivel": "SUPERIOR",
+    "modalidade": "A_E"
+  }
 }
 ```
 
@@ -220,18 +248,28 @@ GET /api/v1/questoes?banca=FGV&sort=ano,desc&page=0&size=20
 
 ```json
 {
-  "content": [
-    {
-      "idQuestion": "Q123",
-      "texto": "Enunciado da questão",
-      "ano": 2024,
-      "cargo": "Analista"
+  "success": true,
+  "data": {
+    "content": [
+      {
+        "idQuestion": "Q123",
+        "enunciado": "Leia o enunciado com atenção",
+        "questao": "Quanto é 2 + 2?",
+        "disciplina": "Matemática",
+        "assunto": "Aritmética",
+        "banca": "CESPE",
+        "instituicao": "PC-BA",
+        "ano": 2024,
+        "cargo": "Analista"
+      }
+    ],
+    "page": {
+      "size": 10,
+      "number": 0,
+      "totalElements": 120,
+      "totalPages": 12
     }
-  ],
-  "page": 0,
-  "size": 10,
-  "totalElements": 120,
-  "totalPages": 12
+  }
 }
 ```
 
@@ -250,6 +288,8 @@ Parâmetros de paginação inválidos. Exemplos confirmados no código: `page` n
 # GET /api/v1/admin/questoes/{idQuestion}/gabarito
 
 Consulta o gabarito de uma questão.
+
+Esse endpoint é administrativo e exige usuário com role **ADMIN**.
 
 ## Descrição
 
@@ -294,13 +334,18 @@ Recebe um `QuestaoRequest`, valida o corpo da requisição e retorna o recurso a
 
 ```json
 {
-  "texto": "Novo enunciado da questão",
+  "enunciado": "Novo enunciado da questão",
+  "questao": "Novo texto da questão",
+  "alternativas": "A) 1\nB) 2\nC) 3\nD) 4\nE) 5",
   "disciplinaId": 1,
-  "assuntoId": 2,
-  "bancaId": 3,
-  "instituicaoId": 4,
+  "assuntoId": 1,
+  "bancaId": 1,
+  "instituicaoId": 1,
   "ano": 2024,
-  "cargo": "Analista"
+  "cargo": "Analista",
+  "nivel": "SUPERIOR",
+  "modalidade": "A_E",
+  "gabarito": "D"
 }
 ```
 
@@ -348,7 +393,16 @@ Questão não encontrada.
 
 # Segurança e permissões
 
-O código dos controllers de questões não explicita anotações de autorização por método, mas as rotas administrativas estão separadas sob `/api/v1/admin/questoes`, o que sugere restrição por configuração de segurança da aplicação. Isso precisa ser confirmado no documento de segurança ou na configuração do Spring Security antes de afirmar regras mais específicas. ([raw.githubusercontent.com](https://raw.githubusercontent.com/carmaunt/concurseiro-api/main/src/main/java/br/com/concurseiro/api/admin/AdminQuestaoController.java))
+As permissões do módulo de questões são definidas pela configuração global do Spring Security.
+
+Regras atuais:
+
+* `GET /api/v1/questoes` é público
+* `GET /api/v1/questoes/{idQuestion}` é público
+* `POST /api/v1/questoes` exige usuário autenticado e com status **ATIVO**
+* `GET /api/v1/admin/questoes/{idQuestion}/gabarito` exige role **ADMIN**
+* `PUT /api/v1/admin/questoes/{idQuestion}` exige role **ADMIN**
+* `DELETE /api/v1/admin/questoes/{idQuestion}` exige role **ADMIN**
 
 ---
 
@@ -369,7 +423,3 @@ docs/modelos/questao.md
 ```
 
 ---
-
-# Observação importante
-
-Os nomes exatos dos campos de `QuestaoRequest` e `QuestaoResponse` não aparecem nos trechos de controller consultados. Por isso, os exemplos de payload acima servem como modelo editorial da documentação e devem ser refinados quando os DTOs forem documentados diretamente a partir do código.

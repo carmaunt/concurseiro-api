@@ -133,8 +133,9 @@ Principais módulos:
 
 Responsável por:
 
-* cadastro de usuários
-* autenticação
+* cadastro de usuários visitantes
+* autenticação baseada em JWT
+* aprovação administrativa de usuários
 * administração de contas
 
 Controllers relacionados:
@@ -202,22 +203,65 @@ Contém endpoints administrativos utilizados para gerenciamento avançado do sis
 
 # Segurança da aplicação
 
-A segurança é baseada em **JWT (JSON Web Token)**.
+A segurança da API é baseada em **JWT (JSON Web Token)** integrado ao **Spring Security**.
 
-Fluxo de autenticação:
-
-1. usuário envia email e senha
-2. API valida as credenciais
-3. API gera um token JWT
-4. cliente utiliza o token nas próximas requisições
+A aplicação utiliza autenticação stateless, onde cada requisição autenticada deve enviar um token JWT válido.
 
 Header utilizado:
 
-```
 Authorization: Bearer <token>
-```
 
-Spring Security intercepta as requisições e valida o token antes de permitir acesso aos endpoints protegidos.
+O fluxo de autenticação funciona da seguinte forma:
+
+1. o usuário realiza cadastro na API
+2. o usuário é criado com status **PENDENTE**
+3. um administrador aprova o usuário
+4. o usuário realiza login com email e senha
+5. a API gera um token JWT
+6. o cliente envia o token nas requisições autenticadas
+
+---
+
+## Validação de token
+
+Durante cada requisição autenticada:
+
+1. o header Authorization é interceptado
+2. o token JWT é extraído
+3. a assinatura do token é validada
+4. o email do usuário é extraído do token
+5. o usuário é carregado do banco de dados
+6. o sistema verifica se o usuário está com status **ATIVO**
+7. o sistema valida se a role atual corresponde à role do token
+
+Somente após essas verificações o usuário é inserido no **SecurityContext** do Spring Security.
+
+---
+
+## Controle de acesso
+
+A API utiliza autorização baseada em roles.
+
+Roles existentes:
+
+VISITANTE  
+ADMIN
+
+Usuários VISITANTE podem:
+
+* criar provas
+* comentar em questões
+* curtir ou descurtir comentários
+* acessar endpoints autenticados comuns
+
+Usuários ADMIN podem:
+
+* aprovar usuários visitantes
+* excluir usuários visitantes
+* excluir questões
+* acessar endpoints administrativos
+
+Alguns endpoints de leitura permanecem públicos, como busca de questões e listagem de provas.
 
 ---
 

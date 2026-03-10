@@ -10,7 +10,8 @@ O projeto foi desenvolvido com **Spring Boot** e possui arquitetura modular, aut
 
 A Concurseiro API permite:
 
-* cadastro e autenticação de usuários
+* cadastro de usuários visitantes com aprovação administrativa
+* autenticação baseada em JWT para usuários ativos
 * gerenciamento de questões de concursos
 * organização de provas
 * comentários em questões
@@ -160,11 +161,14 @@ comentario.md
 
 A API utiliza autenticação baseada em **JWT**.
 
-Fluxo básico:
+Fluxo de autenticação:
 
-1. usuário realiza login
-2. a API gera um token JWT
-3. o cliente envia o token nas requisições
+1. usuário realiza cadastro
+2. o usuário é criado com status **PENDENTE**
+3. um administrador aprova o usuário
+4. o usuário realiza login
+5. a API gera um token JWT
+6. o cliente envia o token nas requisições autenticadas
 
 Header utilizado:
 
@@ -173,6 +177,19 @@ Authorization: Bearer <token>
 ```
 
 ---
+
+A API utiliza autorização baseada em roles.
+
+VISITANTE  
+- pode realizar ações autenticadas comuns como criar provas e comentar questões
+
+ADMIN  
+- possui acesso administrativo
+- pode aprovar usuários
+- pode excluir usuários visitantes
+- pode excluir questões
+
+Alguns endpoints de leitura da API permanecem públicos, como busca de questões e listagem de provas.
 
 # Exemplo de uso
 
@@ -209,12 +226,18 @@ Resposta:
 
 ```json
 {
-  "token": "jwt_token",
-  "email": "maria@email.com",
-  "role": "VISITANTE"
+  "success": true,
+  "data": {
+    "token": "jwt_token",
+    "email": "maria@email.com",
+    "role": "VISITANTE"
+  }
 }
 ```
 
+Observação:
+
+Usuários com status **PENDENTE** não podem realizar login e receberão resposta HTTP 403.
 ---
 
 ## Buscar questões
@@ -296,3 +319,18 @@ Este projeto é disponibilizado para fins educacionais e de estudo sobre desenvo
 # Autor
 
 Projeto desenvolvido por **Carmaunt**.
+
+## Modelo de acesso
+
+A API possui dois tipos de usuários:
+
+VISITANTE  
+ADMIN
+
+Todo usuário registrado inicia com status **PENDENTE**.
+
+Usuários pendentes não podem se autenticar na API.
+
+Um administrador deve aprovar o usuário, alterando seu status para **ATIVO**.
+
+Somente usuários **ATIVOS** podem utilizar endpoints autenticados da API.

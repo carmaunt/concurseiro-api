@@ -28,13 +28,13 @@ Esses recursos permitem adicionar contexto colaborativo às questões cadastrada
 
 ---
 
-# POST /api/v1/comentarios
+# POST /api/v1/questoes/{questaoId}/comentarios
 
 Cria um novo comentário.
 
 ## Descrição
 
-Esse endpoint recebe um objeto `ComentarioRequest` contendo o texto do comentário e a referência da entidade relacionada.
+Esse endpoint cria um comentário associado a uma questão específica.
 
 ---
 
@@ -42,8 +42,7 @@ Esse endpoint recebe um objeto `ComentarioRequest` contendo o texto do comentár
 
 ```json
 {
-  "texto": "Essa questão costuma aparecer em provas da FGV",
-  "questaoId": "Q123"
+  "texto": "Essa questão costuma aparecer em provas da FGV"
 }
 ```
 
@@ -52,7 +51,6 @@ Esse endpoint recebe um objeto `ComentarioRequest` contendo o texto do comentár
 | Campo     | Tipo   | Obrigatório | Descrição                            |
 | --------- | ------ | ----------- | ------------------------------------ |
 | texto     | string | sim         | conteúdo do comentário               |
-| questaoId | string | sim         | identificador da questão relacionada |
 
 ---
 
@@ -119,7 +117,7 @@ GET /api/v1/comentarios?page=0&size=10
 
 ---
 
-# GET /api/v1/comentarios/questao/{questaoId}
+# GET /api/v1/questoes/{questaoId}/comentarios
 
 Lista comentários associados a uma questão.
 
@@ -134,7 +132,7 @@ Lista comentários associados a uma questão.
 ## Exemplo
 
 ```
-GET /api/v1/comentarios/questao/Q123
+GET /api/v1/questoes/Q123/comentarios
 ```
 
 ---
@@ -144,9 +142,12 @@ GET /api/v1/comentarios/questao/Q123
 ```json
 [
   {
-    "id": 1,
-    "texto": "Comentário exemplo",
-    "questaoId": "Q123"
+    "success": true,
+    "data": {
+      "id": 1,
+      "texto": "Essa questão costuma aparecer em provas da FGV",
+      "questaoId": "Q123"
+    }
   }
 ]
 ```
@@ -189,7 +190,11 @@ Comentário não encontrado.
 
 # Segurança
 
-Dependendo da configuração de segurança da aplicação, a criação ou remoção de comentários pode exigir autenticação do usuário.
+A criação de comentários exige que o usuário esteja **autenticado e com status ATIVO**.
+
+Usuários visitantes autenticados podem comentar em questões.
+
+A listagem de comentários pode ser pública dependendo da configuração da API.
 
 Essas regras são controladas pelo **Spring Security**.
 

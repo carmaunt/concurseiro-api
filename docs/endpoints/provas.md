@@ -43,16 +43,18 @@ Esse endpoint recebe um `ProvaRequest`, valida o corpo da requisição com `@Val
 
 ```json
 {
-  "nome": "TRF 1 - Analista Judiciário",
+  "banca": "CESPE",
+  "instituicaoId": 1,
   "ano": 2024,
-  "bancaId": 1,
-  "instituicaoId": 2
+  "cargo": "Analista Judiciário",
+  "nivel": "SUPERIOR",
+  "modalidade": "A_E"
 }
 ```
 
 ## Observações
 
-* o payload exato depende da estrutura de `ProvaRequest`
+O payload deve seguir a estrutura de `ProvaRequest`, incluindo os campos obrigatórios de identificação da prova e classificação.
 * o controller valida o corpo com `@Valid`
 * a resposta é serializada como `ProvaResponse` ([raw.githubusercontent.com](https://raw.githubusercontent.com/carmaunt/concurseiro-api/main/src/main/java/br/com/concurseiro/api/prova/controller/ProvaController.java))
 
@@ -68,7 +70,11 @@ Dados inválidos enviados na requisição.
 
 ### 401 — Unauthorized
 
-Requisição sem autenticação válida, caso a segurança da rota exija token.
+Requisição sem token JWT válido.
+
+### 403 — Forbidden
+
+Usuário autenticado, porém sem permissão ou sem status ativo para executar a operação.
 
 ### 500 — Internal Server Error
 
@@ -100,9 +106,18 @@ GET /api/v1/provas/1
 
 ```json
 {
-  "id": 1,
-  "nome": "TRF 1 - Analista Judiciário",
-  "ano": 2024
+  "success": true,
+  "data": {
+    "id": 1,
+    "banca": "CESPE",
+    "instituicao": "PC-BA",
+    "instituicaoId": 1,
+    "ano": 2024,
+    "cargo": "Analista Judiciário",
+    "nivel": "SUPERIOR",
+    "modalidade": "A_E",
+    "totalQuestoes": 0
+  }
 }
 ```
 
@@ -152,17 +167,28 @@ GET /api/v1/provas?page=0&size=20
 
 ```json
 {
-  "content": [
-    {
-      "id": 1,
-      "nome": "TRF 1 - Analista Judiciário",
-      "ano": 2024
+  "success": true,
+  "data": {
+    "content": [
+      {
+        "id": 1,
+        "banca": "CESPE",
+        "instituicao": "PC-BA",
+        "instituicaoId": 1,
+        "ano": 2024,
+        "cargo": "Analista Judiciário",
+        "nivel": "SUPERIOR",
+        "modalidade": "A_E",
+        "totalQuestoes": 0
+      }
+    ],
+    "page": {
+      "size": 20,
+      "number": 0,
+      "totalElements": 30,
+      "totalPages": 2
     }
-  ],
-  "page": 0,
-  "size": 20,
-  "totalElements": 30,
-  "totalPages": 2
+  }
 }
 ```
 
@@ -196,7 +222,15 @@ Esse endpoint recebe o identificador da prova no caminho e um `ProvaQuestaoReque
 
 ```json
 {
-  "idQuestion": "Q123"
+  "enunciado": "Texto introdutório da questão",
+  "questao": "Quanto é 2 + 2?",
+  "alternativas": "A) 1\nB) 2\nC) 3\nD) 4\nE) 5",
+  "disciplina": "Matemática",
+  "assunto": "Aritmética",
+  "disciplinaId": 1,
+  "assuntoId": 1,
+  "subassunto": "Operações básicas",
+  "gabarito": "D"
 }
 ```
 
@@ -216,9 +250,16 @@ POST /api/v1/provas/1/questoes
 
 ```json
 {
-  "idQuestion": "Q123",
-  "texto": "Enunciado da questão",
-  "ano": 2024
+  "success": true,
+  "data": {
+    "idQuestion": "Q123",
+    "enunciado": "Texto introdutório da questão",
+    "questao": "Quanto é 2 + 2?",
+    "disciplina": "Matemática",
+    "assunto": "Aritmética",
+    "gabarito": "D",
+    "provaId": 1
+  }
 }
 ```
 
@@ -240,7 +281,16 @@ Prova não encontrada ou questão não encontrada.
 
 # Segurança e permissões
 
-O `ProvaController` não explicita anotações de autorização por método. Portanto, qualquer regra sobre rotas públicas, autenticadas ou administrativas depende da configuração global do Spring Security e deve ser documentada em conjunto com `docs/autenticacao.md`. ([raw.githubusercontent.com](https://raw.githubusercontent.com/carmaunt/concurseiro-api/main/src/main/java/br/com/concurseiro/api/prova/controller/ProvaController.java))
+As permissões deste módulo são definidas pela configuração global do Spring Security.
+
+Regras atuais:
+
+* `GET /api/v1/provas` é público
+* `GET /api/v1/provas/{id}` é público
+* `POST /api/v1/provas` exige usuário autenticado e com status **ATIVO**
+* `POST /api/v1/provas/{provaId}/questoes` exige usuário autenticado e com status **ATIVO**
+
+Essas operações podem ser executadas por usuários com role **VISITANTE** ou **ADMIN**, desde que estejam ativos.
 
 ---
 
@@ -262,7 +312,3 @@ docs/modelos/prova.md
 ```
 
 ---
-
-# Observação importante
-
-Os nomes exatos dos campos de `ProvaRequest`, `ProvaResponse` e `ProvaQuestaoRequest` não aparecem detalhados no trecho do controller consultado. Por isso, os exemplos de payload acima servem como modelo editorial da documentação e devem ser refinados quando os DTOs forem documentados diretamente a partir do código.

@@ -11,24 +11,26 @@ Esses endpoints permitem consultar informações de usuários, além de realizar
 Todos os endpoints deste módulo utilizam o seguinte prefixo:
 
 ```
-/api/v1/usuarios
+/api/v1/admin/usuarios
 ```
 
 ---
 
 # Visão geral
 
-O módulo de usuários é responsável por:
+O módulo de usuários possui endpoints administrativos utilizados para gerenciar contas do sistema.
 
-* consultar dados de usuários
-* gerenciamento administrativo de contas
-* controle de permissões
+Esses endpoints são acessíveis apenas por usuários com role **ADMIN**.
 
-Algumas rotas são acessíveis apenas por **administradores**.
+Principais operações administrativas:
+
+* listar usuários
+* aprovar usuários visitantes
+* excluir usuários visitantes
 
 ---
 
-# GET /api/v1/usuarios
+# GET /api/v1/admin/usuarios
 
 Lista usuários do sistema.
 
@@ -53,7 +55,7 @@ Este endpoint normalmente é restrito a **usuários administradores**.
 ## Exemplo de requisição
 
 ```
-GET /api/v1/usuarios?page=0&size=10
+GET /api/v1/admin/usuarios?page=0&size=10
 ```
 
 ---
@@ -62,26 +64,20 @@ GET /api/v1/usuarios?page=0&size=10
 
 ```json
 {
-  "content": [
-    {
-      "id": 1,
-      "nome": "Maria Silva",
-      "email": "maria@email.com",
-      "role": "USER"
-    }
-  ],
-  "page": 0,
-  "size": 10,
-  "totalElements": 50,
-  "totalPages": 5
+  "success": true,
+  "data": {
+    "content": [
+      {
+        "id": 1,
+        "nome": "Maria Silva",
+        "email": "maria@email.com",
+        "role": "VISITANTE",
+        "status": "PENDENTE"
+      }
+    ]
+  }
 }
 ```
-
----
-
-# GET /api/v1/usuarios/{id}
-
-Retorna os dados de um usuário específico.
 
 ---
 
@@ -111,12 +107,6 @@ GET /api/v1/usuarios/1
   "role": "USER"
 }
 ```
-
----
-
-# PUT /api/v1/usuarios/{id}
-
-Atualiza informações de um usuário.
 
 ---
 
@@ -156,7 +146,35 @@ Dados inválidos.
 
 ---
 
-# DELETE /api/v1/usuarios/{id}
+# PATCH /api/v1/admin/usuarios/{id}/ativar
+
+Aprova um usuário visitante.
+
+Esse endpoint altera o status do usuário de **PENDENTE** para **ATIVO**.
+
+Apenas administradores podem executar esta operação.
+
+## Exemplo
+
+PATCH /api/v1/admin/usuarios/5/ativar
+
+## Resposta
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 5,
+    "nome": "Maria Silva",
+    "email": "maria@email.com",
+    "role": "VISITANTE",
+    "status": "ATIVO"
+  }
+}
+```
+---
+
+# DELETE /api/v1/admin/usuarios/{id}
 
 Remove um usuário do sistema.
 
@@ -186,7 +204,7 @@ Usuário não encontrado.
 
 # Permissões
 
-Dependendo da configuração de segurança da API, algumas operações podem exigir permissões administrativas.
+Todos os endpoints deste documento são restritos a usuários com role **ADMIN**.
 
 Exemplos de restrições:
 
