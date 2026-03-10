@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @Tag(name = "Autenticacao", description = "Registro e login de usuarios")
 @RestController
@@ -73,6 +74,13 @@ public class AuthController {
         );
 
         Usuario usuario = usuarioRepository.findByEmail(req.email()).orElseThrow();
+
+        if (usuario.getStatus() != Usuario.Status.ATIVO) {
+                throw new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "Usuário ainda não aprovado"
+                );
+        }
 
         String token = jwtService.generateToken(usuario.getEmail(), usuario.getRole());
 

@@ -1,6 +1,7 @@
 package br.com.concurseiro.api.infra.security;
 
 import br.com.concurseiro.api.usuarios.model.Usuario;
+import br.com.concurseiro.api.usuarios.repository.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,9 +20,11 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final UsuarioRepository usuarioRepository;
 
-    public JwtAuthFilter(JwtService jwtService) {
+    public JwtAuthFilter(JwtService jwtService, UsuarioRepository usuarioRepository) {
         this.jwtService = jwtService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Override
@@ -44,13 +47,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String email = jwtService.extractEmail(token);
             String roleStr = jwtService.extractRole(token);
 
-            // ✅ Role forte: só aceita roles que existirem no enum
-            Usuario.Role role = Usuario.Role.valueOf(roleStr);
+            Usuario usuario = usuarioRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+
+            if (usuario.getStatus() != Usuario.Status.ATIVO) {
+                throw new IllegalStateException("Usuário não está ativo");
+            }
+
+            Usuario.Role tokenRole = Usuario.Role.valueOf(roleStr);
+
+            if (usuario.getRole() != tokenRole) {
+                throw new IllegalStateException("Role do token difere da role atual do usuário");
+            }
+
+            if (!jwtService.isValid(token, usuario.getEmail())) {
+                throw new IllegalStateException("Token inválido");
+            }
 
             var auth = new UsernamePasswordAuthenticationToken(
-                    email,
+                    usuario.getEmail(),
                     null,
-                    List.of(new SimpleGrantedAuthority(role.authority()))
+                    List.of(new SimpleGrantedAuthority(usuario.getRole().authority()))
             );
 
             SecurityContextHolder.getContext().setAuthentication(auth);

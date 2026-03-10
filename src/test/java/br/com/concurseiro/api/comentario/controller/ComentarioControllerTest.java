@@ -3,6 +3,7 @@ package br.com.concurseiro.api.comentario.controller;
 import br.com.concurseiro.api.comentario.model.Comentario;
 import br.com.concurseiro.api.comentario.repository.ComentarioRepository;
 import br.com.concurseiro.api.infra.security.JwtService;
+import br.com.concurseiro.api.usuarios.repository.UsuarioRepository;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -47,6 +48,9 @@ class ComentarioControllerTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private UsuarioRepository usuarioRepository;
 
     @Test
     void criar_deveRetornar201_quandoPayloadValido() throws Exception {

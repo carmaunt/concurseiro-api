@@ -24,7 +24,11 @@ Cria um novo usuário na plataforma.
 
 Esse endpoint permite registrar um novo usuário no sistema.
 
-Após o cadastro, o usuário poderá realizar login para obter um token JWT.
+Após o cadastro, o usuário é criado com status **PENDENTE**.
+
+Usuários pendentes não podem realizar login imediatamente.
+
+Um administrador deve aprovar o usuário para que ele se torne **ATIVO** e possa autenticar na API.
 
 ---
 
@@ -49,6 +53,17 @@ Após o cadastro, o usuário poderá realizar login para obter um token JWT.
 | nome  | string | sim         | nome completo do usuário   |
 | email | string | sim         | email utilizado para login |
 | senha | string | sim         | senha do usuário           |
+
+---
+
+## Status inicial do usuário
+
+Usuários registrados por este endpoint são criados com:
+
+status: **PENDENTE**  
+role: **VISITANTE**
+
+Esses valores são definidos automaticamente pelo sistema.
 
 ---
 
@@ -125,21 +140,36 @@ Esse token deverá ser utilizado nas requisições subsequentes.
 
 ```json
 {
-  "token": "jwt_token",
-  "email": "usuario@email.com",
-  "role": "USER"
+  "success": true,
+  "data": {
+    "token": "jwt_token",
+    "email": "usuario@email.com",
+    "role": "VISITANTE"
+  }
 }
 ```
+### 403 - Forbidden
+Ocorre quando o usuário existe, mas não está ativo.
 
+Exemplo:
+
+```json
+{
+  "type": "https://concurseiro.dev/errors/forbidden",
+  "title": "Usuário desabilitado",
+  "status": 403
+}
+```
 ---
+
 
 ## Campos da resposta
 
-| Campo | Tipo   | Descrição                             |
-| ----- | ------ | ------------------------------------- |
-| token | string | token JWT utilizado para autenticação |
-| email | string | email do usuário autenticado          |
-| role  | string | perfil do usuário                     |
+| Campo | Tipo   | Descrição                              |
+| ----- | ------ | -------------------------------------- |
+| token | string | token JWT utilizado para autenticação  |
+| email | string | email do usuário autenticado           |
+| role  | string | perfil do usuário (VISITANTE ou ADMIN) |
 
 ---
 
@@ -170,18 +200,27 @@ Caso contrário, a API retornará:
 401 Unauthorized
 ```
 
+Em casos onde o usuário não possui permissão para acessar o recurso solicitado, a API poderá retornar:
+
+```
+403 Forbidden
+```
+
 ---
 
 # Fluxo de autenticação
 
 Fluxo completo do processo de login:
 
-1. Cliente envia email e senha
-2. API valida as credenciais
-3. Token JWT é gerado
-4. Token é retornado ao cliente
-5. Cliente envia o token nas próximas requisições
-6. Spring Security valida o token
+1. Usuário realiza cadastro na API
+2. O usuário é criado com status **PENDENTE**
+3. Um administrador aprova o usuário
+4. O usuário realiza login com email e senha
+5. A API valida as credenciais
+6. Um token JWT é gerado
+7. O token é retornado ao cliente
+8. O cliente envia o token nas requisições autenticadas
+9. O Spring Security valida o token em cada requisição
 
 ---
 

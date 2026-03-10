@@ -332,27 +332,38 @@ O sistema proíbe explicitamente a exclusão de administradores.
 
 ## Autenticação de usuário
 
-O serviço também possui o método:
+A autenticação da API envolve validação de credenciais e validação de status do usuário.
 
-```java
-autenticar(String email, String senha)
-```
+No fluxo atual:
 
-Comportamento:
-
-1. busca usuário por email
-2. se não existir, retorna `401 Unauthorized`
-3. compara a senha informada com `senhaHash`
-4. se a senha não bater, retorna `401 Unauthorized`
-5. verifica se o status é `ATIVO`
-6. se o status não for `ATIVO`, retorna `403 Forbidden`
-7. retorna o usuário autenticado
+1. o usuário envia email e senha para o endpoint de login
+2. as credenciais são validadas
+3. o usuário precisa estar com status **ATIVO**
+4. a API gera um token JWT contendo email e role
+5. nas requisições autenticadas seguintes, o token é validado
+6. o sistema consulta o usuário no banco
+7. o sistema verifica se o usuário ainda está **ATIVO**
+8. o sistema verifica se a role atual do banco corresponde à role do token
 
 ### Regra crítica
 
-Usuário `PENDENTE` não deve autenticar normalmente como usuário aprovado.
+Usuário com status `PENDENTE` não pode autenticar nem operar endpoints protegidos como usuário liberado.
 
 Esse ponto é muito importante para consumidores da API e para a equipe de backend.
+
+---
+
+## Validação em requisições autenticadas
+
+A autenticação não depende apenas da existência de um token JWT válido.
+
+Durante o processamento de uma requisição autenticada, a API também verifica:
+
+* se o usuário ainda existe no banco
+* se o usuário continua com status **ATIVO**
+* se a role atual do usuário corresponde à role gravada no token
+
+Isso evita que um token antigo continue válido caso o usuário seja desativado ou tenha seu papel alterado.
 
 ---
 
@@ -426,13 +437,18 @@ Resposta do login.
 | email | String | email do usuário autenticado       |
 | role  | String | papel do usuário autenticado       |
 
+Na resposta HTTP real da API, esses campos são retornados dentro de um objeto `data`.
+
 ### Exemplo
 
 ```json
 {
-  "token": "jwt_token",
-  "email": "usuario@email.com",
-  "role": "VISITANTE"
+  "success": true,
+  "data": {
+    "token": "jwt_token",
+    "email": "usuario@email.com",
+    "role": "VISITANTE"
+  }
 }
 ```
 
@@ -544,19 +560,23 @@ O cadastro padrão cria:
 VISITANTE + PENDENTE
 ```
 
-## 4. Usuário pendente pode ser barrado no acesso
+## 4. Usuário pendente é barrado no acesso autenticado
 
-O fluxo de autenticação do domínio exige status adequado para uso pleno da plataforma.
+Usuários com status `PENDENTE` não conseguem realizar login com sucesso e não podem acessar endpoints protegidos.
 
-## 5. Administrador não pode ser excluído por esse fluxo
+## 5. Token JWT também depende do estado atual do usuário
+
+Mesmo após a emissão do token, a API consulta o usuário no banco durante requisições autenticadas para verificar status e role atuais.
+
+## 6. Administrador não pode ser excluído por esse fluxo
 
 A regra está implementada explicitamente no serviço.
 
-## 6. Listagem administrativa é ordenada por criação
+## 7. Listagem administrativa é ordenada por criação
 
 A paginação administrativa usa ordenação por `criadoEm` em ordem decrescente.
 
-## 7. Tamanho da página é limitado
+## 8. Tamanho da página é limitado
 
 Na listagem administrativa, o serviço aplica `Math.min(size, 50)`.
 
@@ -602,9 +622,12 @@ Após autenticação bem-sucedida:
 
 ```json
 {
-  "token": "jwt_token",
-  "email": "joao@email.com",
-  "role": "VISITANTE"
+  "success": true,
+  "data": {
+    "token": "jwt_token",
+    "email": "joao@email.com",
+    "role": "VISITANTE"
+  }
 }
 ```
 
