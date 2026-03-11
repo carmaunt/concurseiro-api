@@ -147,14 +147,6 @@
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- Bucket4j for rate limiting -->
-        <dependency>
-            <groupId>com.bucket4j</groupId>
-            <artifactId>bucket4j-core</artifactId>
-            <version>8.7.0</version>
-        </dependency>
-
         <!-- OpenAPI/Swagger UI (Spring Boot 4.x) -->
         <dependency>
             <groupId>org.springdoc</groupId>

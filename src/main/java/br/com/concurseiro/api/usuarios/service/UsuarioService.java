@@ -3,8 +3,6 @@ package br.com.concurseiro.api.usuarios.service;
 import br.com.concurseiro.api.usuarios.dto.UsuarioPublicoResponse;
 import br.com.concurseiro.api.usuarios.model.Usuario;
 import br.com.concurseiro.api.usuarios.repository.UsuarioRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -16,11 +14,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UsuarioService {
-
-    private static final Logger logger = LoggerFactory.getLogger(UsuarioService.class);
-
-    private final UsuarioRepository repository;
-    private final PasswordEncoder passwordEncoder;
 
     private final UsuarioRepository repository;
     private final PasswordEncoder passwordEncoder;
@@ -58,9 +51,7 @@ public class UsuarioService {
                 );
 
         usuario.setStatus(Usuario.Status.ATIVO);
-        Usuario saved = repository.save(usuario);
-        logger.info("AUDIT: Usuário {} ativado por administrador", saved.getEmail());
-        return saved;
+        return repository.save(usuario);
     }
 
     @Transactional(readOnly = true)
@@ -81,7 +72,6 @@ public class UsuarioService {
         }
 
         repository.delete(usuario);
-        logger.info("AUDIT: Usuário {} excluído por administrador", usuario.getEmail());
     }
 
     public Usuario autenticar(String email, String senha) {
