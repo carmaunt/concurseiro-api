@@ -1,10 +1,16 @@
 package br.com.concurseiro.api.questoes.service;
 
+import br.com.concurseiro.api.catalogo.assunto.model.Assunto;
+import br.com.concurseiro.api.catalogo.assunto.repository.AssuntoRepository;
+import br.com.concurseiro.api.catalogo.banca.model.Banca;
+import br.com.concurseiro.api.catalogo.banca.repository.BancaRepository;
 import br.com.concurseiro.api.catalogo.disciplina.model.Disciplina;
 import br.com.concurseiro.api.catalogo.disciplina.repository.DisciplinaRepository;
+import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
+import br.com.concurseiro.api.catalogo.instituicao.repository.InstituicaoRepository;
+import br.com.concurseiro.api.questoes.dto.QuestaoRequest;
 import br.com.concurseiro.api.questoes.model.Questao;
 import br.com.concurseiro.api.questoes.repository.QuestaoRepository;
-import br.com.concurseiro.api.questoes.dto.QuestaoRequest;
 import br.com.concurseiro.api.questoes.spec.QuestaoSpecifications;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,24 +20,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import br.com.concurseiro.api.catalogo.assunto.model.Assunto;
-import br.com.concurseiro.api.catalogo.assunto.repository.AssuntoRepository;
-import br.com.concurseiro.api.catalogo.banca.model.Banca;
-import br.com.concurseiro.api.catalogo.banca.repository.BancaRepository;
-import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
-import br.com.concurseiro.api.catalogo.instituicao.repository.InstituicaoRepository;
 
 import java.util.Set;
 
 @Service
 public class QuestaoService {
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(QuestaoService.class);
     private static final Set<String> SORT_FIELDS_ALLOWED = Set.of(
             "ano",
-            "criadoEm",
-            "disciplina",
-            "banca",
-            "instituicao"
+            "criadoEm"
     );
 
     private final QuestaoRepository repository;
@@ -41,100 +37,67 @@ public class QuestaoService {
     private final InstituicaoRepository instituicaoRepository;
 
     public QuestaoService(
-        QuestaoRepository repository,
-        DisciplinaRepository disciplinaRepository,
-        AssuntoRepository assuntoRepository,
-        BancaRepository bancaRepository,
-        InstituicaoRepository instituicaoRepository
-) {
-    this.repository = repository;
-    this.disciplinaRepository = disciplinaRepository;
-    this.assuntoRepository = assuntoRepository;
-    this.bancaRepository = bancaRepository;
-    this.instituicaoRepository = instituicaoRepository;
-}
+            QuestaoRepository repository,
+            DisciplinaRepository disciplinaRepository,
+            AssuntoRepository assuntoRepository,
+            BancaRepository bancaRepository,
+            InstituicaoRepository instituicaoRepository
+    ) {
+        this.repository = repository;
+        this.disciplinaRepository = disciplinaRepository;
+        this.assuntoRepository = assuntoRepository;
+        this.bancaRepository = bancaRepository;
+        this.instituicaoRepository = instituicaoRepository;
+    }
 
     @Transactional
     public Questao cadastrar(QuestaoRequest request) {
-
         String modalidadeBruta = request.modalidade().trim();
         String gabaritoBruto = request.gabarito().trim().toUpperCase();
 
         String modalidade = QuestaoValidationHelper.normalizarModalidade(modalidadeBruta, request.alternativas());
-
         QuestaoValidationHelper.validarGabaritoPorModalidade(modalidade, gabaritoBruto);
-
         String gabaritoNormalizado = QuestaoValidationHelper.normalizarGabarito(modalidade, gabaritoBruto);
 
+        Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Disciplina não encontrada no catálogo"
+                ));
+
+        Assunto assunto = assuntoRepository.findById(request.assuntoId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Assunto não encontrado no catálogo"
+                ));
+
+        Banca banca = bancaRepository.findById(request.bancaId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Banca não encontrada no catálogo"
+                ));
+
+        Instituicao instituicao = instituicaoRepository.findById(request.instituicaoId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Instituição não encontrada no catálogo"
+                ));
+
         Questao questao = new Questao();
-        questao.setIdQuestion(QuestaoValidationHelper.gerarIdQuestion()); // ✅ agora sempre vem preenchido ANTES do INSERT
+        questao.setIdQuestion(QuestaoValidationHelper.gerarIdQuestion());
         questao.setEnunciado(request.enunciado());
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
-        questao.setBanca(request.banca());
-        questao.setInstituicao(request.instituicao());
         questao.setAno(request.ano());
         questao.setCargo(request.cargo());
         questao.setNivel(request.nivel());
         questao.setModalidade(modalidade);
         questao.setGabarito(gabaritoNormalizado);
 
-        // ===== Disciplina (fonte de verdade quando vier disciplinaId) =====
-        if (request.disciplinaId() != null) {
-            Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "Disciplina não encontrada no catálogo"
-                    ));
-            questao.setDisciplinaCatalogo(disciplina);
-            questao.setDisciplina(disciplina.getNome()); // <-- texto passa a ser derivado do catálogo
-        } else {
-            questao.setDisciplina(request.disciplina());
-        }
-
-        // ===== Assunto (fonte de verdade quando vier assuntoId) =====
-        if (request.assuntoId() != null) {
-            Assunto assunto = assuntoRepository.findById(request.assuntoId())
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "Assunto não encontrado no catálogo"
-                    ));
-            questao.setAssuntoCatalogo(assunto);
-            questao.setAssunto(assunto.getNome()); // <-- texto passa a ser derivado do catálogo
-        } else {
-            questao.setAssunto(request.assunto());
-        }
-
-        // ===== Banca (bloco bancaId) =====
-
-        if (request.bancaId() != null) {
-            Banca banca = bancaRepository.findById(request.bancaId())
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "Banca não encontrada no catálogo"
-                    ));
-            questao.setBancaCatalogo(banca);
-            questao.setBanca(banca.getNome()); // texto deriva do catálogo
-        } else {
-            questao.setBanca(request.banca());
-        }
-
-        // ===== Instituição (fonte de verdade quando vier instituicaoId) =====
-        if (request.instituicaoId() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "instituicaoId é obrigatório"
-            );
-        }
-
-        Instituicao inst = instituicaoRepository.findById(request.instituicaoId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Instituição não encontrada no catálogo"
-                ));
-
-        questao.setInstituicaoCatalogo(inst);
-        questao.setInstituicao(inst.getNome());
+        questao.setDisciplinaCatalogo(disciplina);
+        questao.setAssuntoCatalogo(assunto);
+        questao.setBancaCatalogo(banca);
+        questao.setInstituicaoCatalogo(instituicao);
 
         return repository.save(questao);
     }
@@ -150,6 +113,30 @@ public class QuestaoService {
         QuestaoValidationHelper.validarGabaritoPorModalidade(modalidade, gabaritoBruto);
         String gabaritoNormalizado = QuestaoValidationHelper.normalizarGabarito(modalidade, gabaritoBruto);
 
+        Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Disciplina não encontrada no catálogo"
+                ));
+
+        Assunto assunto = assuntoRepository.findById(request.assuntoId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Assunto não encontrado no catálogo"
+                ));
+
+        Banca banca = bancaRepository.findById(request.bancaId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Banca não encontrada no catálogo"
+                ));
+
+        Instituicao instituicao = instituicaoRepository.findById(request.instituicaoId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Instituição não encontrada no catálogo"
+                ));
+
         questao.setEnunciado(request.enunciado());
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
@@ -159,41 +146,10 @@ public class QuestaoService {
         questao.setModalidade(modalidade);
         questao.setGabarito(gabaritoNormalizado);
 
-        if (request.disciplinaId() != null) {
-            Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disciplina não encontrada no catálogo"));
-            questao.setDisciplinaCatalogo(disciplina);
-            questao.setDisciplina(disciplina.getNome());
-        } else {
-            questao.setDisciplina(request.disciplina());
-        }
-
-        if (request.assuntoId() != null) {
-            Assunto assunto = assuntoRepository.findById(request.assuntoId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assunto não encontrado no catálogo"));
-            questao.setAssuntoCatalogo(assunto);
-            questao.setAssunto(assunto.getNome());
-        } else {
-            questao.setAssunto(request.assunto());
-        }
-
-        if (request.bancaId() != null) {
-            Banca banca = bancaRepository.findById(request.bancaId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Banca não encontrada no catálogo"));
-            questao.setBancaCatalogo(banca);
-            questao.setBanca(banca.getNome());
-        } else {
-            questao.setBanca(request.banca());
-        }
-
-        if (request.instituicaoId() != null) {
-            Instituicao inst = instituicaoRepository.findById(request.instituicaoId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instituição não encontrada no catálogo"));
-            questao.setInstituicaoCatalogo(inst);
-            questao.setInstituicao(inst.getNome());
-        } else {
-            questao.setInstituicao(request.instituicao());
-        }
+        questao.setDisciplinaCatalogo(disciplina);
+        questao.setAssuntoCatalogo(assunto);
+        questao.setBancaCatalogo(banca);
+        questao.setInstituicaoCatalogo(instituicao);
 
         return repository.save(questao);
     }
@@ -214,13 +170,9 @@ public class QuestaoService {
     @Transactional(readOnly = true)
     public Page<Questao> listarFiltradoPaginado(
             String texto,
-            String disciplina,
             Long disciplinaId,
-            String assunto,
             Long assuntoId,
-            String banca,
             Long bancaId,
-            String instituicao,
             Long instituicaoId,
             Integer ano,
             String cargo,
@@ -230,48 +182,18 @@ public class QuestaoService {
             int size,
             String sort
     ) {
-
-        if (disciplinaId == null && disciplina != null && !disciplina.isBlank()) {
-            log.warn("Filtro por texto usado: disciplina='{}' (prefira disciplinaId)", disciplina);
-        }
-        if (assuntoId == null && assunto != null && !assunto.isBlank()) {
-            log.warn("Filtro por texto usado: assunto='{}' (prefira assuntoId)", assunto);
-        }
-        if (bancaId == null && banca != null && !banca.isBlank()) {
-            log.warn("Filtro por texto usado: banca='{}' (prefira bancaId)", banca);
-        }
-        if (instituicaoId == null && instituicao != null && !instituicao.isBlank()) {
-            log.warn("Filtro por texto usado: instituicao='{}' (prefira instituicaoId)", instituicao);
-        }
         Specification<Questao> spec = Specification
                 .where(QuestaoSpecifications.textoContains(texto))
-
-                // ===== Disciplina =====
-                .and(disciplinaId != null
-                        ? QuestaoSpecifications.disciplinaIdEquals(disciplinaId)
-                        : QuestaoSpecifications.disciplinaEquals(disciplina))
-
-                // ===== Assunto =====
-                .and(assuntoId != null
-                        ? QuestaoSpecifications.assuntoIdEquals(assuntoId)
-                        : QuestaoSpecifications.assuntoEquals(assunto))
-
-                // ===== Banca =====
-                .and(bancaId != null
-                        ? QuestaoSpecifications.bancaIdEquals(bancaId)
-                        : QuestaoSpecifications.bancaEquals(banca))
-
-                // ===== Demais filtros =====
-                .and(instituicaoId != null
-                        ? QuestaoSpecifications.instituicaoIdEquals(instituicaoId)
-                        : QuestaoSpecifications.instituicaoEquals(instituicao))
+                .and(QuestaoSpecifications.disciplinaIdEquals(disciplinaId))
+                .and(QuestaoSpecifications.assuntoIdEquals(assuntoId))
+                .and(QuestaoSpecifications.bancaIdEquals(bancaId))
+                .and(QuestaoSpecifications.instituicaoIdEquals(instituicaoId))
                 .and(QuestaoSpecifications.anoEquals(ano))
                 .and(QuestaoSpecifications.cargoEquals(cargo))
                 .and(QuestaoSpecifications.nivelEquals(nivel))
                 .and(QuestaoSpecifications.modalidadeEquals(modalidade));
 
         PageRequest pageable = buildPageRequest(page, size, sort);
-
         return repository.findAll(spec, pageable);
     }
 
@@ -280,7 +202,6 @@ public class QuestaoService {
             return PageRequest.of(page, size);
         }
 
-        // sort=ano,desc | sort=criadoEm,asc
         String[] parts = sort.split(",", 2);
         String property = parts[0].trim();
 

@@ -7,30 +7,6 @@ import java.text.Normalizer;
 
 public class QuestaoSpecifications {
 
-    public static Specification<Questao> disciplinaEquals(String disciplina) {
-        return (root, query, cb) ->
-                disciplina == null ? null :
-                        cb.equal(cb.lower(root.get("disciplina")), disciplina.toLowerCase());
-    }
-
-    public static Specification<Questao> assuntoEquals(String assunto) {
-        return (root, query, cb) ->
-                assunto == null ? null :
-                        cb.equal(cb.lower(root.get("assunto")), assunto.toLowerCase());
-    }
-
-    public static Specification<Questao> bancaEquals(String banca) {
-        return (root, query, cb) ->
-                banca == null ? null :
-                        cb.equal(cb.lower(root.get("banca")), banca.toLowerCase());
-    }
-
-    public static Specification<Questao> instituicaoEquals(String instituicao) {
-        return (root, query, cb) ->
-                instituicao == null ? null :
-                        cb.equal(cb.lower(root.get("instituicao")), instituicao.toLowerCase());
-    }
-
     public static Specification<Questao> cargoEquals(String cargo) {
         return (root, query, cb) ->
                 cargo == null ? null :
@@ -62,8 +38,8 @@ public class QuestaoSpecifications {
 
             String normalizado = Normalizer
                     .normalize(texto, Normalizer.Form.NFD)
-                    .replaceAll("\\p{M}", "")     // remove acentos
-                    .replaceAll("\\s+", " ")      // normaliza espaços
+                    .replaceAll("\\p{M}", "")
+                    .replaceAll("\\s+", " ")
                     .trim()
                     .toUpperCase();
 
