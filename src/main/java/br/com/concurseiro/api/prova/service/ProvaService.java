@@ -128,48 +128,39 @@ public class ProvaService {
         QuestaoValidationHelper.validarGabaritoPorModalidade(prova.getModalidade(), gabaritoBruto);
         String gabaritoNormalizado = QuestaoValidationHelper.normalizarGabarito(prova.getModalidade(), gabaritoBruto);
 
+        Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Disciplina não encontrada no catálogo"
+            ));
+
+        Assunto assunto = assuntoRepository.findById(request.assuntoId())
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Assunto não encontrado no catálogo"
+            ));
+
+        Instituicao instituicao = instituicaoRepository.findById(prova.getInstituicaoId())
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Instituição não encontrada no catálogo"
+            ));
+
         Questao questao = new Questao();
         questao.setIdQuestion(QuestaoValidationHelper.gerarIdQuestion());
         questao.setProvaId(provaId);
         questao.setEnunciado(request.enunciado());
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
-        questao.setBanca(prova.getBanca());
-        questao.setInstituicao(prova.getInstituicao());
         questao.setAno(prova.getAno());
         questao.setCargo(prova.getCargo());
         questao.setNivel(prova.getNivel());
         questao.setModalidade(prova.getModalidade());
         questao.setGabarito(gabaritoNormalizado);
 
-        Instituicao inst = instituicaoRepository.findById(prova.getInstituicaoId()).orElse(null);
-        if (inst != null) {
-            questao.setInstituicaoCatalogo(inst);
-        }
-
-        if (request.disciplinaId() != null) {
-            Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId())
-                .orElseThrow(() -> new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Disciplina não encontrada no catálogo"
-                ));
-            questao.setDisciplinaCatalogo(disciplina);
-            questao.setDisciplina(disciplina.getNome());
-        } else {
-            questao.setDisciplina(request.disciplina());
-        }
-
-        if (request.assuntoId() != null) {
-            Assunto assunto = assuntoRepository.findById(request.assuntoId())
-                .orElseThrow(() -> new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Assunto não encontrado no catálogo"
-                ));
-            questao.setAssuntoCatalogo(assunto);
-            questao.setAssunto(assunto.getNome());
-        } else {
-            questao.setAssunto(request.assunto());
-        }
+        questao.setInstituicaoCatalogo(instituicao);
+        questao.setDisciplinaCatalogo(disciplina);
+        questao.setAssuntoCatalogo(assunto);
 
         return questaoRepository.save(questao);
     }

@@ -1,5 +1,6 @@
 package br.com.concurseiro.api.prova.model;
 
+import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 
@@ -29,11 +30,9 @@ public class Prova {
     @Column(nullable = false, length = 160)
     private String banca;
 
-    @Column(nullable = false, length = 200)
-    private String instituicao;
-
-    @Column(name = "instituicao_id")
-    private Long instituicaoId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "instituicao_id", nullable = false)
+    private Instituicao instituicaoCatalogo;
 
     @Column(nullable = false)
     private Integer ano;
@@ -52,17 +51,19 @@ public class Prova {
 
     public Long getId() { return id; }
     public String getBanca() { return banca; }
-    public String getInstituicao() { return instituicao; }
-    public Long getInstituicaoId() { return instituicaoId; }
+    public String getInstituicao() { return instituicaoCatalogo != null ? instituicaoCatalogo.getNome() : null; }
+    public Long getInstituicaoId() { return instituicaoCatalogo != null ? instituicaoCatalogo.getId() : null; }
     public Integer getAno() { return ano; }
     public String getCargo() { return cargo; }
     public String getNivel() { return nivel; }
     public String getModalidade() { return modalidade; }
     public OffsetDateTime getCriadoEm() { return criadoEm; }
+    public Instituicao getInstituicaoCatalogo() { return instituicaoCatalogo; }
 
     public void setBanca(String banca) { this.banca = banca; }
-    public void setInstituicao(String instituicao) { this.instituicao = instituicao; }
-    public void setInstituicaoId(Long instituicaoId) { this.instituicaoId = instituicaoId; }
+    public void setInstituicao(String instituicao) { }
+    public void setInstituicaoId(Long instituicaoId) { }
+    public void setInstituicaoCatalogo(Instituicao instituicaoCatalogo) { this.instituicaoCatalogo = instituicaoCatalogo; }
     public void setAno(Integer ano) { this.ano = ano; }
     public void setCargo(String cargo) { this.cargo = cargo; }
     public void setNivel(String nivel) { this.nivel = nivel; }

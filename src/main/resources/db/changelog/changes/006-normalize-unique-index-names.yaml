@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-normalize-uk-bancas-nome
+      author: mauricio
+      changes:
+        - dropUniqueConstraint:
+            tableName: bancas
+            constraintName: ukknk5qaarly6vw2kkjgktxceja
+        - addUniqueConstraint:
+            tableName: bancas
+            columnNames: nome
+            constraintName: uk_bancas_nome
+
+  - changeSet:
+      id: 006-normalize-uk-usuarios-email
+      author: mauricio
+      changes:
+        - dropUniqueConstraint:
+            tableName: usuarios
+            constraintName: ukkfsp0s1tflm1cwlj8idhqsad0
+        - addUniqueConstraint:
+            tableName: usuarios
+            columnNames: email
+            constraintName: uk_usuarios_email
+
+  - changeSet:
+      id: 006-normalize-uk-questoes-id-question
+      author: mauricio
+      changes:
+        - dropUniqueConstraint:
+            tableName: questoes
+            constraintName: ukb3scllmrigtq3c0kgcrehmhrr
+        - addUniqueConstraint:
+            tableName: questoes
+            columnNames: id_question
+            constraintName: uk_questoes_id_question
