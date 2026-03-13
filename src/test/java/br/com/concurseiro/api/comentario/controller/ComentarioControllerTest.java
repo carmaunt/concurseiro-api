@@ -52,6 +52,9 @@ class ComentarioControllerTest {
     @MockitoBean
     private UsuarioRepository usuarioRepository;
 
+    @MockitoBean
+    private br.com.concurseiro.api.infra.security.RateLimitFilter rateLimitFilter;
+
     @Test
     void criar_deveRetornar201_quandoPayloadValido() throws Exception {
         Comentario salvo = new Comentario();

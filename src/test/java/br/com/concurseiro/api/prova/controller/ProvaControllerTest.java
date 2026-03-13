@@ -52,6 +52,9 @@ class ProvaControllerTest {
     @MockitoBean
     private UsuarioRepository usuarioRepository;
 
+    @MockitoBean
+    private br.com.concurseiro.api.infra.security.RateLimitFilter rateLimitFilter;
+
     @Test
     void criar_deveRetornar201_quandoPayloadValido() throws Exception {
         ProvaResponse response = new ProvaResponse(
@@ -128,18 +131,14 @@ class ProvaControllerTest {
                 .andExpect(jsonPath("$.data.page.totalPages").value(3));
     }
 
-    @Test
-    void lancarQuestao_deveRetornar201_quandoPayloadValido() throws Exception {
+        @Test
+        void lancarQuestao_deveRetornar201_quandoPayloadValido() throws Exception {
         Questao questao = new Questao();
         questao.setIdQuestion("QC123");
         questao.setProvaId(1L);
         questao.setEnunciado("Texto de enunciado");
         questao.setQuestao("O princípio da legalidade está previsto na Constituição.");
         questao.setAlternativas("");
-        questao.setDisciplina("Direito Constitucional");
-        questao.setAssunto("Direitos Fundamentais");
-        questao.setBanca("CESPE");
-        questao.setInstituicao("PC-BA");
         questao.setAno(2024);
         questao.setCargo("Analista");
         questao.setNivel("SUPERIOR");
@@ -153,12 +152,12 @@ class ProvaControllerTest {
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 {
-                                  "enunciado": "Texto de enunciado",
-                                  "questao": "O princípio da legalidade está previsto na Constituição.",
-                                  "alternativas": "",
-                                  "disciplina": "Direito Constitucional",
-                                  "assunto": "Direitos Fundamentais",
-                                  "gabarito": "C"
+                                "enunciado": "Texto de enunciado",
+                                "questao": "O princípio da legalidade está previsto na Constituição.",
+                                "alternativas": "",
+                                "disciplinaId": 1,
+                                "assuntoId": 1,
+                                "gabarito": "C"
                                 }
                                 """))
                 .andExpect(status().isCreated())
@@ -170,7 +169,7 @@ class ProvaControllerTest {
         ArgumentCaptor<Long> provaIdCaptor = ArgumentCaptor.forClass(Long.class);
         verify(service).cadastrarQuestao(provaIdCaptor.capture(), org.mockito.ArgumentMatchers.any());
         assertEquals(1L, provaIdCaptor.getValue());
-    }
+        }
 
         @Test
         void criar_deveRetornar409_quandoProvaDuplicada() throws Exception {

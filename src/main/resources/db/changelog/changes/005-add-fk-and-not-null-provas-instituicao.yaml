@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-add-fk-and-not-null-provas-instituicao
+      author: mauricio
+      preConditions:
+        - onFail: HALT
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: "0"
+            sql: |
+              SELECT COUNT(*)
+              FROM provas p
+              LEFT JOIN catalogo_instituicoes ci ON ci.id = p.instituicao_id
+              WHERE p.instituicao_id IS NULL
+                 OR ci.id IS NULL
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: provas
+            baseColumnNames: instituicao_id
+            constraintName: fk_provas_instituicao
+            referencedTableName: catalogo_instituicoes
+            referencedColumnNames: id
+
+        - addNotNullConstraint:
+            tableName: provas
+            columnName: instituicao_id
+            columnDataType: bigint

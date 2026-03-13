@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-add-foreign-keys
+      author: mauricio
+      changes:
+
+        - addForeignKeyConstraint:
+            baseTableName: questoes
+            baseColumnNames: disciplina_id
+            constraintName: fk_questoes_disciplina
+            referencedTableName: disciplinas
+            referencedColumnNames: id
+
+        - addForeignKeyConstraint:
+            baseTableName: questoes
+            baseColumnNames: assunto_id
+            constraintName: fk_questoes_assunto
+            referencedTableName: assuntos
+            referencedColumnNames: id
+
+        - addForeignKeyConstraint:
+            baseTableName: questoes
+            baseColumnNames: banca_id
+            constraintName: fk_questoes_banca
+            referencedTableName: bancas
+            referencedColumnNames: id
+
+        - addForeignKeyConstraint:
+            baseTableName: questoes
+            baseColumnNames: instituicao_id
+            constraintName: fk_questoes_instituicao
+            referencedTableName: catalogo_instituicoes
+            referencedColumnNames: id

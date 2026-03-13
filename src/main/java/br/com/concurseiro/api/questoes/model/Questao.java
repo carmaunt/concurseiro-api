@@ -1,9 +1,9 @@
 package br.com.concurseiro.api.questoes.model;
 
-import br.com.concurseiro.api.catalogo.disciplina.model.Disciplina;
-import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
 import br.com.concurseiro.api.catalogo.assunto.model.Assunto;
 import br.com.concurseiro.api.catalogo.banca.model.Banca;
+import br.com.concurseiro.api.catalogo.disciplina.model.Disciplina;
+import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
 import jakarta.persistence.*;
 
 import java.text.Normalizer;
@@ -36,19 +36,6 @@ public class Questao {
     @Column(nullable = false)
     private String alternativas;
 
-    // ====== MODELO ATUAL (continua por enquanto) ======
-    @Column(nullable = false, length = 160)
-    private String disciplina;
-
-    @Column(nullable = false, length = 200)
-    private String assunto;
-
-    @Column(nullable = false, length = 160)
-    private String banca;
-
-    @Column(nullable = false, length = 200)
-    private String instituicao;
-
     @Column(nullable = false)
     private Integer ano;
 
@@ -70,33 +57,22 @@ public class Questao {
     @Column(nullable = false)
     private OffsetDateTime criadoEm = OffsetDateTime.now();
 
-    // ====== NOVO: vínculo com catálogo (migração gradual) ======
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "disciplina_id") // nullable por padrão (migração progressiva)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "disciplina_id", nullable = false)
     private Disciplina disciplinaCatalogo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assunto_id") // nullable por padrão (migração progressiva)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "assunto_id", nullable = false)
     private Assunto assuntoCatalogo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "banca_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "banca_id", nullable = false)
     private Banca bancaCatalogo;
 
-    // ===== NOVO: vínculo com catálogo de instituição =====
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "instituicao_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "instituicao_id", nullable = false)
     private Instituicao instituicaoCatalogo;
 
-    public Instituicao getInstituicaoCatalogo() {
-        return instituicaoCatalogo;
-    }
-
-    public void setInstituicaoCatalogo(Instituicao instituicaoCatalogo) {
-        this.instituicaoCatalogo = instituicaoCatalogo;
-    }
-
-    // Campo otimizado para busca (sem acento + UPPER)
     @Column(nullable = true, length = 20000)
     private String textoBusca;
 
@@ -106,7 +82,7 @@ public class Questao {
         this.textoBusca = normalizarParaBusca(
                 (enunciado == null ? "" : enunciado) + " " +
                 (questao == null ? "" : questao) + " " +
-                (assunto == null ? "" : assunto)
+                (getAssunto() == null ? "" : getAssunto())
         );
     }
 
@@ -117,7 +93,24 @@ public class Questao {
         return n.toUpperCase();
     }
 
-    // getters/setters
+    private String nomeOuNull(Object entidade) {
+        if (entidade == null) {
+            return null;
+        }
+        if (entidade instanceof Disciplina d) {
+            return d.getNome();
+        }
+        if (entidade instanceof Assunto a) {
+            return a.getNome();
+        }
+        if (entidade instanceof Banca b) {
+            return b.getNome();
+        }
+        if (entidade instanceof Instituicao i) {
+            return i.getNome();
+        }
+        return null;
+    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -134,17 +127,17 @@ public class Questao {
     public String getAlternativas() { return alternativas; }
     public void setAlternativas(String alternativas) { this.alternativas = alternativas; }
 
-    public String getDisciplina() { return disciplina; }
-    public void setDisciplina(String disciplina) { this.disciplina = disciplina; }
+    public String getDisciplina() { return nomeOuNull(disciplinaCatalogo); }
+    public void setDisciplina(String disciplina) { }
 
-    public String getAssunto() { return assunto; }
-    public void setAssunto(String assunto) { this.assunto = assunto; }
+    public String getAssunto() { return nomeOuNull(assuntoCatalogo); }
+    public void setAssunto(String assunto) { }
 
-    public String getBanca() { return banca; }
-    public void setBanca(String banca) { this.banca = banca; }
+    public String getBanca() { return nomeOuNull(bancaCatalogo); }
+    public void setBanca(String banca) { }
 
-    public String getInstituicao() { return instituicao; }
-    public void setInstituicao(String instituicao) { this.instituicao = instituicao; }
+    public String getInstituicao() { return nomeOuNull(instituicaoCatalogo); }
+    public void setInstituicao(String instituicao) { }
 
     public Integer getAno() { return ano; }
     public void setAno(Integer ano) { this.ano = ano; }
@@ -175,6 +168,9 @@ public class Questao {
 
     public Banca getBancaCatalogo() { return bancaCatalogo; }
     public void setBancaCatalogo(Banca bancaCatalogo) { this.bancaCatalogo = bancaCatalogo; }
+
+    public Instituicao getInstituicaoCatalogo() { return instituicaoCatalogo; }
+    public void setInstituicaoCatalogo(Instituicao instituicaoCatalogo) { this.instituicaoCatalogo = instituicaoCatalogo; }
 
     public Long getProvaId() { return provaId; }
     public void setProvaId(Long provaId) { this.provaId = provaId; }

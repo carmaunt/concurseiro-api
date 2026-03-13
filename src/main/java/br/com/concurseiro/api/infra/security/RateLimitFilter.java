@@ -1,92 +1,101 @@
 package br.com.concurseiro.api.infra.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.net.URI;
+import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private static final int MAX_ATTEMPTS = 10;
-    private static final long WINDOW_SECONDS = 60;
-    private static final int MAX_ENTRIES = 10_000;
-    private static final long CLEANUP_INTERVAL_MS = 60_000;
+    private static final Duration WINDOW = Duration.ofMinutes(1);
+    private static final String LOGIN_PATH = "/auth/login";
+    private static final String KEY_PREFIX = "rate_limit:login:";
 
-    private final ConcurrentHashMap<String, RequestCounter> counters = new ConcurrentHashMap<>();
-    private final AtomicLong lastCleanup = new AtomicLong(System.currentTimeMillis());
+    private final StringRedisTemplate redisTemplate;
+    private final ObjectMapper objectMapper;
+
+    public RateLimitFilter(StringRedisTemplate redisTemplate, ObjectMapper objectMapper) {
+        this.redisTemplate = redisTemplate;
+        this.objectMapper = objectMapper;
+    }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return !LOGIN_PATH.equals(request.getRequestURI());
+    }
 
-        if (!"/api/v1/auth/login".equals(request.getRequestURI()) || !"POST".equalsIgnoreCase(request.getMethod())) {
-            filterChain.doFilter(request, response);
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
+
+        String clientIp = extractClientIp(request);
+        String key = KEY_PREFIX + clientIp;
+
+        Long attempts = redisTemplate.opsForValue().increment(key);
+
+        if (attempts != null && attempts == 1L) {
+            redisTemplate.expire(key, WINDOW);
+        }
+
+        if (attempts != null && attempts > MAX_ATTEMPTS) {
+            writeTooManyRequests(response, request);
             return;
         }
 
-        evictExpiredEntries();
-
-        String clientIp = getClientIp(request);
-        RequestCounter counter = counters.compute(clientIp, (key, existing) -> {
-            if (existing == null || existing.isExpired()) {
-                return new RequestCounter();
-            }
-            return existing;
-        });
-
-        if (counter.incrementAndCheck()) {
-            filterChain.doFilter(request, response);
-        } else {
-            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().write(
-                    "{\"type\":\"https://concurseiro.dev/errors/rate-limit\","
-                    + "\"title\":\"Muitas tentativas\","
-                    + "\"status\":429,"
-                    + "\"detail\":\"Limite de tentativas de login excedido. Tente novamente em breve.\"}"
-            );
-        }
+        filterChain.doFilter(request, response);
     }
 
-    private void evictExpiredEntries() {
-        long now = System.currentTimeMillis();
-        long last = lastCleanup.get();
-        if (now - last > CLEANUP_INTERVAL_MS || counters.size() > MAX_ENTRIES) {
-            if (lastCleanup.compareAndSet(last, now)) {
-                counters.entrySet().removeIf(e -> e.getValue().isExpired());
-            }
-        }
-    }
+    private String extractClientIp(HttpServletRequest request) {
 
-    private String getClientIp(HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
+
         if (xForwardedFor != null && !xForwardedFor.isBlank()) {
             return xForwardedFor.split(",")[0].trim();
         }
+
+        String xRealIp = request.getHeader("X-Real-IP");
+
+        if (xRealIp != null && !xRealIp.isBlank()) {
+            return xRealIp.trim();
+        }
+
         return request.getRemoteAddr();
     }
 
-    private static class RequestCounter {
-        private final Instant windowStart = Instant.now();
-        private int count = 0;
+    private void writeTooManyRequests(
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) throws IOException {
 
-        boolean isExpired() {
-            return Instant.now().isAfter(windowStart.plusSeconds(WINDOW_SECONDS));
-        }
+        response.setStatus(429);
+        response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Retry-After", String.valueOf(WINDOW.toSeconds()));
 
-        synchronized boolean incrementAndCheck() {
-            count++;
-            return count <= MAX_ATTEMPTS;
-        }
+        Map<String, Object> body = new LinkedHashMap<>();
+
+        body.put("type", URI.create("https://httpstatuses.com/429").toString());
+        body.put("title", "Too Many Requests");
+        body.put("status", 429);
+        body.put("detail", "Muitas tentativas de login. Tente novamente em instantes.");
+        body.put("instance", request.getRequestURI());
+
+        objectMapper.writeValue(response.getWriter(), body);
     }
 }
