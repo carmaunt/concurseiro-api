@@ -84,8 +84,7 @@ public class ProvaService {
 
         Prova prova = new Prova();
         prova.setBanca(banca);
-        prova.setInstituicao(inst.getNome());
-        prova.setInstituicaoId(inst.getId());
+        prova.setInstituicaoCatalogo(inst);
         prova.setAno(request.ano());
         prova.setCargo(cargo);
         prova.setNivel(nivel);
