@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-initial-baseline
+      author: mauricio
+      changes:
+        - sql:
+            splitStatements: false
+            sql: |
+              -- Baseline do schema atual (já limpo das colunas legadas)
+              -- Registramos o estado atual sem alterar nada no banco.
+              SELECT 1;
