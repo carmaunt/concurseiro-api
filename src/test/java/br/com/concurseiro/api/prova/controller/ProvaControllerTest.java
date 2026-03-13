@@ -52,6 +52,9 @@ class ProvaControllerTest {
     @MockitoBean
     private UsuarioRepository usuarioRepository;
 
+    @MockitoBean
+    private br.com.concurseiro.api.infra.security.RateLimitFilter rateLimitFilter;
+
     @Test
     void criar_deveRetornar201_quandoPayloadValido() throws Exception {
         ProvaResponse response = new ProvaResponse(

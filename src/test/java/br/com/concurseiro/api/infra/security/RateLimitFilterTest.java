@@ -1,85 +1,87 @@
 package br.com.concurseiro.api.infra.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.mock.web.MockFilterChain;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.io.IOException;
+import java.time.Duration;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 class RateLimitFilterTest {
 
     private RateLimitFilter filter;
+    private StringRedisTemplate redisTemplate;
+    private ValueOperations<String, String> valueOperations;
+    private FilterChain filterChain;
 
     @BeforeEach
     void setUp() {
-        filter = new RateLimitFilter();
+
+        redisTemplate = mock(StringRedisTemplate.class);
+        valueOperations = mock(ValueOperations.class);
+        filterChain = mock(FilterChain.class);
+
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+
+        filter = new RateLimitFilter(redisTemplate, new ObjectMapper());
     }
 
     @Test
-    void devePermitir_quandoNaoEhLogin() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v1/questoes");
+    void shouldAllowRequestWhenUnderLimit() throws ServletException, IOException {
+
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/auth/login");
+        request.setRemoteAddr("127.0.0.1");
+
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain filterChain = new MockFilterChain();
+
+        when(valueOperations.increment("rate_limit:login:127.0.0.1")).thenReturn(1L);
+        when(redisTemplate.expire("rate_limit:login:127.0.0.1", Duration.ofMinutes(1))).thenReturn(true);
 
         filter.doFilter(request, response, filterChain);
 
-        assertNotEquals(429, response.getStatus());
-        assertEquals(200, response.getStatus());
+        verify(filterChain).doFilter(any(), any());
     }
 
     @Test
-    void devePermitir_primeirasNTentativas() throws Exception {
-        for (int i = 0; i < 10; i++) {
-            MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v1/auth/login");
-            request.setRemoteAddr("192.168.1.1");
-            MockHttpServletResponse response = new MockHttpServletResponse();
-            MockFilterChain filterChain = new MockFilterChain();
+    void shouldBlockRequestWhenLimitExceeded() throws ServletException, IOException {
 
-            filter.doFilter(request, response, filterChain);
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/auth/login");
+        request.setRemoteAddr("127.0.0.1");
 
-            assertNotEquals(429, response.getStatus(), "Request " + (i + 1) + " should be allowed");
-        }
-    }
-
-    @Test
-    void deveBloquear_aposLimite() throws Exception {
-        for (int i = 0; i < 10; i++) {
-            MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v1/auth/login");
-            request.setRemoteAddr("10.0.0.1");
-            MockHttpServletResponse response = new MockHttpServletResponse();
-            MockFilterChain filterChain = new MockFilterChain();
-
-            filter.doFilter(request, response, filterChain);
-        }
-
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v1/auth/login");
-        request.setRemoteAddr("10.0.0.1");
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain filterChain = new MockFilterChain();
+
+        when(valueOperations.increment("rate_limit:login:127.0.0.1")).thenReturn(11L);
 
         filter.doFilter(request, response, filterChain);
 
         assertEquals(429, response.getStatus());
+        verify(filterChain, never()).doFilter(any(), any());
     }
 
     @Test
-    void deveUsarXForwardedFor_quandoPresente() throws Exception {
-        for (int i = 0; i < 11; i++) {
-            MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v1/auth/login");
-            request.setRemoteAddr("127.0.0.1");
-            request.addHeader("X-Forwarded-For", "203.0.113.50");
-            MockHttpServletResponse response = new MockHttpServletResponse();
-            MockFilterChain filterChain = new MockFilterChain();
+    void shouldSetExpirationOnFirstAttempt() throws ServletException, IOException {
 
-            filter.doFilter(request, response, filterChain);
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/auth/login");
+        request.setRemoteAddr("127.0.0.1");
 
-            if (i < 10) {
-                assertNotEquals(429, response.getStatus(), "Request " + (i + 1) + " should be allowed");
-            } else {
-                assertEquals(429, response.getStatus(), "Request 11 should be blocked");
-            }
-        }
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        when(valueOperations.increment("rate_limit:login:127.0.0.1")).thenReturn(1L);
+        when(redisTemplate.expire("rate_limit:login:127.0.0.1", Duration.ofMinutes(1))).thenReturn(true);
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(redisTemplate).expire(eq("rate_limit:login:127.0.0.1"), eq(Duration.ofMinutes(1)));
     }
 }

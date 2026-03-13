@@ -26,16 +26,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UsuarioRepository usuarioRepository;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public JwtAuthFilter(
             JwtService jwtService,
-            UsuarioRepository usuarioRepository,
-            ObjectMapper objectMapper
+            UsuarioRepository usuarioRepository
     ) {
         this.jwtService = jwtService;
         this.usuarioRepository = usuarioRepository;
-        this.objectMapper = objectMapper;
     }
 
     @Override
