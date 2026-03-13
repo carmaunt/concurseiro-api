@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-drop-legacy-hibernate-fk-disciplina
+      author: mauricio
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - foreignKeyConstraintExists:
+            foreignKeyName: fk5069r1gf1a1jnbmhor652vxx3
+            foreignKeyTableName: questoes
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: questoes
+            constraintName: fk5069r1gf1a1jnbmhor652vxx3
+
+  - changeSet:
+      id: 003-drop-legacy-hibernate-fk-assunto
+      author: mauricio
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - foreignKeyConstraintExists:
+            foreignKeyName: fk9n39ncsc82972ucedtglbw8w6
+            foreignKeyTableName: questoes
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: questoes
+            constraintName: fk9n39ncsc82972ucedtglbw8w6
+
+  - changeSet:
+      id: 003-drop-legacy-hibernate-fk-instituicao
+      author: mauricio
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - foreignKeyConstraintExists:
+            foreignKeyName: fk2lp8e881c3dg1xs2v190fk31a
+            foreignKeyTableName: questoes
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: questoes
+            constraintName: fk2lp8e881c3dg1xs2v190fk31a
+
+  - changeSet:
+      id: 003-drop-legacy-hibernate-fk-banca
+      author: mauricio
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: MARK_RAN
+        - foreignKeyConstraintExists:
+            foreignKeyName: fks5wnt1a1knn4aey2q4j0cuwt1
+            foreignKeyTableName: questoes
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: questoes
+            constraintName: fks5wnt1a1knn4aey2q4j0cuwt1
