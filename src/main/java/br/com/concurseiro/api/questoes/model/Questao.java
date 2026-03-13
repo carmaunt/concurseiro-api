@@ -57,20 +57,20 @@ public class Questao {
     @Column(nullable = false)
     private OffsetDateTime criadoEm = OffsetDateTime.now();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "disciplina_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "disciplina_id", nullable = false)
     private Disciplina disciplinaCatalogo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assunto_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "assunto_id", nullable = false)
     private Assunto assuntoCatalogo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "banca_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "banca_id", nullable = false)
     private Banca bancaCatalogo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "instituicao_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "instituicao_id", nullable = false)
     private Instituicao instituicaoCatalogo;
 
     @Column(nullable = true, length = 20000)

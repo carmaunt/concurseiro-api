@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-make-questoes-catalog-fks-not-null
+      author: mauricio
+      preConditions:
+        - onFail: HALT
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: "0"
+            sql: |
+              SELECT COUNT(*)
+              FROM questoes
+              WHERE disciplina_id IS NULL
+                 OR assunto_id IS NULL
+                 OR banca_id IS NULL
+                 OR instituicao_id IS NULL
+      changes:
+        - addNotNullConstraint:
+            tableName: questoes
+            columnName: disciplina_id
+            columnDataType: bigint
+
+        - addNotNullConstraint:
+            tableName: questoes
+            columnName: assunto_id
+            columnDataType: bigint
+
+        - addNotNullConstraint:
+            tableName: questoes
+            columnName: banca_id
+            columnDataType: bigint
+
+        - addNotNullConstraint:
+            tableName: questoes
+            columnName: instituicao_id
+            columnDataType: bigint

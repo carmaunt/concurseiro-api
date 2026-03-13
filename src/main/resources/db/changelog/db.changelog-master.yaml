@@ -3,3 +3,7 @@ databaseChangeLog:
       file: db/changelog/changes/001-initial-baseline.yaml
   - include:
       file: db/changelog/changes/002-add-foreign-keys.yaml
+  - include:
+      file: db/changelog/changes/003-drop-legacy-hibernate-foreign-keys.yaml
+  - include:
+      file: db/changelog/changes/004-make-questoes-catalog-fks-not-null.yaml
