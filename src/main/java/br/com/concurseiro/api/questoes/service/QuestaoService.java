@@ -9,6 +9,7 @@ import br.com.concurseiro.api.catalogo.disciplina.repository.DisciplinaRepositor
 import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
 import br.com.concurseiro.api.catalogo.instituicao.repository.InstituicaoRepository;
 import br.com.concurseiro.api.questoes.dto.QuestaoRequest;
+import br.com.concurseiro.api.questoes.dto.QuestaoResponse;
 import br.com.concurseiro.api.questoes.model.Questao;
 import br.com.concurseiro.api.questoes.repository.QuestaoRepository;
 import br.com.concurseiro.api.questoes.spec.QuestaoSpecifications;
@@ -47,7 +48,7 @@ public class QuestaoService {
         this.disciplinaRepository = disciplinaRepository;
         this.assuntoRepository = assuntoRepository;
         this.bancaRepository = bancaRepository;
-        this.instituicaoRepository = instituicaoRepository;
+        this.instituicaoRepository = instituicaoRepository;     
     }
 
     @Transactional
@@ -163,39 +164,40 @@ public class QuestaoService {
 
     @Transactional(readOnly = true)
     public Questao buscarPorIdQuestion(String idQuestion) {
-        return repository.findByIdQuestion(idQuestion)
+        return repository.findDetalhadaByIdQuestion(idQuestion)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Questão não encontrada"));
     }
 
     @Transactional(readOnly = true)
-    public Page<Questao> listarFiltradoPaginado(
-            String texto,
-            Long disciplinaId,
-            Long assuntoId,
-            Long bancaId,
-            Long instituicaoId,
-            Integer ano,
-            String cargo,
-            String nivel,
-            String modalidade,
-            int page,
-            int size,
-            String sort
+    public Page<QuestaoResponse> listarFiltradoPaginado(
+        String texto,
+        Long disciplinaId,
+        Long assuntoId,
+        Long bancaId,
+        Long instituicaoId,
+        Integer ano,
+        String cargo,
+        String nivel,
+        String modalidade,
+        int page,
+        int size,
+        String sort
     ) {
         Specification<Questao> spec = Specification
-                .where(QuestaoSpecifications.textoContains(texto))
-                .and(QuestaoSpecifications.disciplinaIdEquals(disciplinaId))
-                .and(QuestaoSpecifications.assuntoIdEquals(assuntoId))
-                .and(QuestaoSpecifications.bancaIdEquals(bancaId))
-                .and(QuestaoSpecifications.instituicaoIdEquals(instituicaoId))
-                .and(QuestaoSpecifications.anoEquals(ano))
-                .and(QuestaoSpecifications.cargoEquals(cargo))
-                .and(QuestaoSpecifications.nivelEquals(nivel))
-                .and(QuestaoSpecifications.modalidadeEquals(modalidade));
+            .where(QuestaoSpecifications.textoContains(texto))
+            .and(QuestaoSpecifications.disciplinaIdEquals(disciplinaId))
+            .and(QuestaoSpecifications.assuntoIdEquals(assuntoId))
+            .and(QuestaoSpecifications.bancaIdEquals(bancaId))
+            .and(QuestaoSpecifications.instituicaoIdEquals(instituicaoId))
+            .and(QuestaoSpecifications.anoEquals(ano))
+            .and(QuestaoSpecifications.cargoEquals(cargo))
+            .and(QuestaoSpecifications.nivelEquals(nivel))
+            .and(QuestaoSpecifications.modalidadeEquals(modalidade));
 
         PageRequest pageable = buildPageRequest(page, size, sort);
-        return repository.findAll(spec, pageable);
-    }
+        return repository.findAll(spec, pageable)
+            .map(QuestaoResponse::fromEntity);
+      }
 
     private PageRequest buildPageRequest(int page, int size, String sort) {
         if (sort == null || sort.isBlank()) {

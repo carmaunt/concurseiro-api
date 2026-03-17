@@ -1,6 +1,7 @@
 package br.com.concurseiro.api.prova.service;
 
 import br.com.concurseiro.api.catalogo.assunto.repository.AssuntoRepository;
+import br.com.concurseiro.api.catalogo.banca.repository.BancaRepository;
 import br.com.concurseiro.api.catalogo.disciplina.repository.DisciplinaRepository;
 import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
 import br.com.concurseiro.api.catalogo.instituicao.repository.InstituicaoRepository;
@@ -43,18 +44,22 @@ class ProvaServiceTest {
     @Mock
     private AssuntoRepository assuntoRepository;
 
+    @Mock
+    private BancaRepository bancaRepository;
+
     private ProvaService service;
 
     @BeforeEach
-    void setUp() {
-        service = new ProvaService(
-                provaRepository,
-                questaoRepository,
-                instituicaoRepository,
-                disciplinaRepository,
-                assuntoRepository
-        );
-    }
+        void setUp() {
+                service = new ProvaService(
+                        provaRepository,
+                        questaoRepository,
+                        instituicaoRepository,
+                        disciplinaRepository,
+                        assuntoRepository,
+                        bancaRepository
+                );
+        }
 
     @Test
     void deveCriarProvaComSucesso() {
@@ -70,7 +75,7 @@ class ProvaServiceTest {
         );
 
         when(instituicaoRepository.findById(1L)).thenReturn(Optional.of(inst));
-        when(provaRepository.existsByBancaIgnoreCaseAndInstituicaoIdAndAnoAndCargoIgnoreCaseAndNivelIgnoreCaseAndModalidadeIgnoreCase(
+        when(provaRepository.existsByBancaIgnoreCaseAndInstituicaoCatalogoIdAndAnoAndCargoIgnoreCaseAndNivelIgnoreCaseAndModalidadeIgnoreCase(
                 "FCC", 1L, 2023, "Analista Judiciário", "SUPERIOR", "A_E"
         )).thenReturn(false);
 
@@ -93,7 +98,7 @@ class ProvaServiceTest {
         assertEquals("A_E", response.modalidade());
         assertEquals(0L, response.totalQuestoes());
 
-        verify(provaRepository).existsByBancaIgnoreCaseAndInstituicaoIdAndAnoAndCargoIgnoreCaseAndNivelIgnoreCaseAndModalidadeIgnoreCase(
+        verify(provaRepository).existsByBancaIgnoreCaseAndInstituicaoCatalogoIdAndAnoAndCargoIgnoreCaseAndNivelIgnoreCaseAndModalidadeIgnoreCase(
                 "FCC", 1L, 2023, "Analista Judiciário", "SUPERIOR", "A_E"
         );
         verify(provaRepository).save(any(Prova.class));
@@ -113,7 +118,7 @@ class ProvaServiceTest {
         );
 
         when(instituicaoRepository.findById(1L)).thenReturn(Optional.of(inst));
-        when(provaRepository.existsByBancaIgnoreCaseAndInstituicaoIdAndAnoAndCargoIgnoreCaseAndNivelIgnoreCaseAndModalidadeIgnoreCase(
+        when(provaRepository.existsByBancaIgnoreCaseAndInstituicaoCatalogoIdAndAnoAndCargoIgnoreCaseAndNivelIgnoreCaseAndModalidadeIgnoreCase(
                 "TESTE", 1L, 2030, "Cargo Teste", "SUPERIOR", "A_E"
         )).thenReturn(true);
 
@@ -147,7 +152,7 @@ class ProvaServiceTest {
         );
 
         when(instituicaoRepository.findById(1L)).thenReturn(Optional.of(inst));
-        when(provaRepository.existsByBancaIgnoreCaseAndInstituicaoIdAndAnoAndCargoIgnoreCaseAndNivelIgnoreCaseAndModalidadeIgnoreCase(
+        when(provaRepository.existsByBancaIgnoreCaseAndInstituicaoCatalogoIdAndAnoAndCargoIgnoreCaseAndNivelIgnoreCaseAndModalidadeIgnoreCase(
                 "TESTE", 1L, 2030, "Cargo Teste", "SUPERIOR", "A_E"
         )).thenReturn(false);
 

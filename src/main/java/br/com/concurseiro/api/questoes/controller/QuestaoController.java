@@ -76,19 +76,18 @@ public class QuestaoController {
         }
 
         return service.listarFiltradoPaginado(
-                        texto,
-                        disciplinaId,
-                        assuntoId,
-                        bancaId,
-                        instituicaoId,
-                        ano,
-                        cargo,
-                        nivel,
-                        modalidade,
-                        page,
-                        size,
-                        sort
-                )
-                .map(QuestaoResponse::fromEntity);
+                texto,
+                disciplinaId,
+                assuntoId,
+                bancaId,
+                instituicaoId,
+                ano,
+                cargo,
+                nivel,
+                modalidade,
+                page,
+                size,
+                sort
+        );
     }
 }

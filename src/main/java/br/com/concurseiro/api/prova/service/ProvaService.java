@@ -2,6 +2,8 @@ package br.com.concurseiro.api.prova.service;
 
 import br.com.concurseiro.api.catalogo.assunto.model.Assunto;
 import br.com.concurseiro.api.catalogo.assunto.repository.AssuntoRepository;
+import br.com.concurseiro.api.catalogo.banca.model.Banca;
+import br.com.concurseiro.api.catalogo.banca.repository.BancaRepository;
 import br.com.concurseiro.api.catalogo.disciplina.model.Disciplina;
 import br.com.concurseiro.api.catalogo.disciplina.repository.DisciplinaRepository;
 import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
@@ -36,19 +38,22 @@ public class ProvaService {
     private final InstituicaoRepository instituicaoRepository;
     private final DisciplinaRepository disciplinaRepository;
     private final AssuntoRepository assuntoRepository;
+    private final BancaRepository bancaRepository;
 
     public ProvaService(
         ProvaRepository provaRepository,
         QuestaoRepository questaoRepository,
         InstituicaoRepository instituicaoRepository,
         DisciplinaRepository disciplinaRepository,
-        AssuntoRepository assuntoRepository
+        AssuntoRepository assuntoRepository,
+        BancaRepository bancaRepository
     ) {
         this.provaRepository = provaRepository;
         this.questaoRepository = questaoRepository;
         this.instituicaoRepository = instituicaoRepository;
         this.disciplinaRepository = disciplinaRepository;
         this.assuntoRepository = assuntoRepository;
+        this.bancaRepository = bancaRepository;
     }
 
     @Transactional
@@ -65,7 +70,7 @@ public class ProvaService {
         String modalidade = QuestaoValidationHelper.normalizarModalidade(request.modalidade().trim(), null);
 
         boolean jaExiste = provaRepository
-            .existsByBancaIgnoreCaseAndInstituicaoIdAndAnoAndCargoIgnoreCaseAndNivelIgnoreCaseAndModalidadeIgnoreCase(
+            .existsByBancaIgnoreCaseAndInstituicaoCatalogoIdAndAnoAndCargoIgnoreCaseAndNivelIgnoreCaseAndModalidadeIgnoreCase(
                 banca,
                 inst.getId(),
                 request.ano(),
@@ -145,6 +150,12 @@ public class ProvaService {
                 "Instituição não encontrada no catálogo"
             ));
 
+        Banca banca = bancaRepository.findByNomeIgnoreCase(prova.getBanca())
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Banca não encontrada no catálogo"
+            ));
+
         Questao questao = new Questao();
         questao.setIdQuestion(QuestaoValidationHelper.gerarIdQuestion());
         questao.setProvaId(provaId);
@@ -160,6 +171,7 @@ public class ProvaService {
         questao.setInstituicaoCatalogo(instituicao);
         questao.setDisciplinaCatalogo(disciplina);
         questao.setAssuntoCatalogo(assunto);
+        questao.setBancaCatalogo(banca);
 
         return questaoRepository.save(questao);
     }
