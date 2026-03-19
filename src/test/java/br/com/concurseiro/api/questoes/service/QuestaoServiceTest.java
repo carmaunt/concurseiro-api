@@ -50,12 +50,12 @@ class QuestaoServiceTest {
     }
 
     private Disciplina mockDisciplina(Long id, String nome) {
-        Disciplina disciplina = mock(Disciplina.class);
-        when(disciplina.getId()).thenReturn(id);
-        when(disciplina.getNome()).thenReturn(nome);
-        when(disciplinaRepository.findById(id)).thenReturn(Optional.of(disciplina));
-        return disciplina;
-}
+            Disciplina disciplina = mock(Disciplina.class);
+            when(disciplina.getId()).thenReturn(id);
+            when(disciplina.getNome()).thenReturn(nome);
+            when(disciplinaRepository.findById(id)).thenReturn(Optional.of(disciplina));
+            return disciplina;
+    }
 
     private Assunto mockAssunto(Long id, String nome) {
         Assunto assunto = mock(Assunto.class);
@@ -74,12 +74,12 @@ class QuestaoServiceTest {
     }
 
     private Instituicao mockInstituicao(Long id, String nome) {
-        Instituicao instituicao = mock(Instituicao.class);
-        when(instituicao.getId()).thenReturn(id);
-        when(instituicao.getNome()).thenReturn(nome);
-        when(instituicaoRepository.findById(id)).thenReturn(Optional.of(instituicao));
-        return instituicao;
-   }
+            Instituicao instituicao = mock(Instituicao.class);
+            when(instituicao.getId()).thenReturn(id);
+            when(instituicao.getNome()).thenReturn(nome);
+            when(instituicaoRepository.findById(id)).thenReturn(Optional.of(instituicao));
+            return instituicao;
+    }
 
     private QuestaoRequest requestPadrao(
             Long disciplinaId,
@@ -328,7 +328,7 @@ class QuestaoServiceTest {
     void buscarPorIdQuestion_deveRetornarQuestao_quandoExiste() {
         Questao q = new Questao();
         q.setIdQuestion("Q123456789012345");
-        when(questaoRepository.findByIdQuestion("Q123456789012345")).thenReturn(Optional.of(q));
+        when(questaoRepository.findDetalhadaByIdQuestion("Q123456789012345")).thenReturn(Optional.of(q));
 
         Questao result = service.buscarPorIdQuestion("Q123456789012345");
         assertEquals("Q123456789012345", result.getIdQuestion());
@@ -336,7 +336,7 @@ class QuestaoServiceTest {
 
     @Test
     void buscarPorIdQuestion_deveFalhar_quandoNaoExiste() {
-        when(questaoRepository.findByIdQuestion("QNOTFOUND")).thenReturn(Optional.empty());
+        when(questaoRepository.findDetalhadaByIdQuestion("QNOTFOUND")).thenReturn(Optional.empty());
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> service.buscarPorIdQuestion("QNOTFOUND"));

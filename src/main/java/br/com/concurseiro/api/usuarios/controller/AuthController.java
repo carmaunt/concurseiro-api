@@ -40,15 +40,27 @@ public class AuthController {
     }
 
     public record RegisterRequest(
-            @NotBlank @Size(max = 160) String nome,
-            @NotBlank @Email @Size(max = 200) String email,
-            @NotBlank @Size(min = 6, max = 200) String senha
-    ) {}
+                @NotBlank @Size(max = 160) String nome,
+                @NotBlank @Email @Size(max = 200) String email,
+                @NotBlank
+                @Size(min = 8, max = 72)
+                @jakarta.validation.constraints.Pattern(
+                        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d\\s]).{8,72}$",
+                        message = "a senha deve ter entre 8 e 72 caracteres, com letra minúscula, maiúscula, número e símbolo"
+                )
+                String senha
+     ) {}
 
-    public record LoginRequest(
-            @NotBlank @Email @Size(max = 200) String email,
-            @NotBlank @Size(min = 6, max = 200) String senha
-    ) {}
+     public record LoginRequest(
+                @NotBlank @Email @Size(max = 200) String email,
+                @NotBlank
+                @Size(min = 8, max = 72)
+                @jakarta.validation.constraints.Pattern(
+                        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d\\s]).{8,72}$",
+                        message = "a senha deve ter entre 8 e 72 caracteres, com letra minúscula, maiúscula, número e símbolo"
+                )
+                String senha
+     ) {}
 
     public record AuthResponse(
             String token,

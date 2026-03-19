@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import br.com.concurseiro.api.infra.security.LoginRateLimitService;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -36,6 +37,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.BeforeEach;
+
 @WebMvcTest(ComentarioController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class ComentarioControllerTest {
@@ -51,6 +54,20 @@ class ComentarioControllerTest {
 
     @MockitoBean
     private UsuarioRepository usuarioRepository;
+
+    @MockitoBean
+    private LoginRateLimitService loginRateLimitService;
+
+
+    @BeforeEach
+    void setUpRateLimit() {
+        org.mockito.Mockito.when(
+                loginRateLimitService.isAllowed(
+                        org.mockito.ArgumentMatchers.anyString(),
+                        org.mockito.ArgumentMatchers.anyString()
+                )
+        ).thenReturn(true);
+    }
 
     @Test
     void criar_deveRetornar201_quandoPayloadValido() throws Exception {

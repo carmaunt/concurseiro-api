@@ -40,6 +40,18 @@ import org.springframework.http.HttpStatus;
 @AutoConfigureMockMvc(addFilters = false)
 class ProvaControllerTest {
 
+        @org.springframework.test.context.bean.override.mockito.MockitoBean
+        private br.com.concurseiro.api.infra.security.LoginRateLimitService loginRateLimitService;
+
+        @org.junit.jupiter.api.BeforeEach
+        void setUpRateLimit() {
+        org.mockito.Mockito.when(
+                loginRateLimitService.isAllowed(
+                        org.mockito.ArgumentMatchers.anyString(),
+                        org.mockito.ArgumentMatchers.anyString()
+                )
+        ).thenReturn(true);}
+
     @Autowired
     private MockMvc mockMvc;
 
