@@ -14,7 +14,14 @@ class RateLimitFilterTest {
 
     @BeforeEach
     void setUp() {
-        filter = new RateLimitFilter();
+        LoginRateLimitService rateLimitService = org.mockito.Mockito.mock(LoginRateLimitService.class);
+
+        org.mockito.Mockito.when(rateLimitService.isAllowed(
+                org.mockito.Mockito.anyString(),
+                org.mockito.Mockito.anyString()
+        )).thenReturn(true);
+
+        filter = new RateLimitFilter(rateLimitService);
     }
 
     @Test
