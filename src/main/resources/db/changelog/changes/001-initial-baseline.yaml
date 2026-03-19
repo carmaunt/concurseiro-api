@@ -3,9 +3,461 @@ databaseChangeLog:
       id: 001-initial-baseline
       author: mauricio
       changes:
-        - sql:
-            splitStatements: false
-            sql: |
-              -- Baseline do schema atual (já limpo das colunas legadas)
-              -- Registramos o estado atual sem alterar nada no banco.
-              SELECT 1;
+        - createTable:
+            tableName: disciplinas
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: disciplinas_pkey
+                    nullable: false
+              - column:
+                  name: ativo
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nome
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: disciplinas
+            columnNames: nome
+            constraintName: uk_disciplinas_nome
+
+        - createTable:
+            tableName: bancas
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: bancas_pkey
+                    nullable: false
+              - column:
+                  name: nome
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: bancas
+            columnNames: nome
+            constraintName: uk_bancas_nome
+
+        - createTable:
+            tableName: catalogo_instituicoes
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: catalogo_instituicoes_pkey
+                    nullable: false
+              - column:
+                  name: nome
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: catalogo_instituicoes
+            columnNames: nome
+            constraintName: uk_catalogo_instituicoes_nome
+
+        - createTable:
+            tableName: assuntos
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: assuntos_pkey
+                    nullable: false
+              - column:
+                  name: ativo
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nome
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: disciplina_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: assuntos
+            columnNames: disciplina_id,nome
+            constraintName: uk_assuntos_disciplina_nome
+
+        - addForeignKeyConstraint:
+            baseTableName: assuntos
+            baseColumnNames: disciplina_id
+            constraintName: fkrywo4e4myklpl695fg2hmhha3
+            referencedTableName: disciplinas
+            referencedColumnNames: id
+
+        - createTable:
+            tableName: subassuntos
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: subassuntos_pkey
+                    nullable: false
+              - column:
+                  name: ativo
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nome
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: assunto_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: subassuntos
+            columnNames: assunto_id,nome
+            constraintName: uk_subassuntos_assunto_nome
+
+        - addForeignKeyConstraint:
+            baseTableName: subassuntos
+            baseColumnNames: assunto_id
+            constraintName: fkf6e6yyaks1wy63u536g52yn0m
+            referencedTableName: assuntos
+            referencedColumnNames: id
+
+        - createTable:
+            tableName: usuarios
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: usuarios_pkey
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nome
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: senha_hash
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: usuarios
+            columnNames: email
+            constraintName: uk_usuarios_email
+
+        - createTable:
+            tableName: provas
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: provas_pkey
+                    nullable: false
+              - column:
+                  name: ano
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: banca
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cargo
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: instituicao_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: modalidade
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nivel
+                  type: varchar(80)
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: provas
+            columnNames: banca,instituicao_id,ano,cargo,nivel,modalidade
+            constraintName: uk_provas_cabecalho
+
+        - addForeignKeyConstraint:
+            baseTableName: provas
+            baseColumnNames: instituicao_id
+            constraintName: fk_provas_instituicao
+            referencedTableName: catalogo_instituicoes
+            referencedColumnNames: id
+
+        - createTable:
+            tableName: questoes
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: questoes_pkey
+                    nullable: false
+              - column:
+                  name: alternativas
+                  type: oid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ano
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cargo
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enunciado
+                  type: oid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: gabarito
+                  type: varchar(8)
+              - column:
+                  name: id_question
+                  type: varchar(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: modalidade
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: nivel
+                  type: varchar(80)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: questao
+                  type: oid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: texto_busca
+                  type: varchar(20000)
+              - column:
+                  name: disciplina_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: assunto_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: banca_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: instituicao_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: prova_id
+                  type: bigint
+
+        - addUniqueConstraint:
+            tableName: questoes
+            columnNames: id_question
+            constraintName: uk_questoes_id_question
+
+        - createIndex:
+            tableName: questoes
+            indexName: idx_questao_ano
+            columns:
+              - column:
+                  name: ano
+
+        - createIndex:
+            tableName: questoes
+            indexName: idx_questao_id_question
+            columns:
+              - column:
+                  name: id_question
+
+        - createIndex:
+            tableName: questoes
+            indexName: idx_questao_texto_busca
+            columns:
+              - column:
+                  name: texto_busca
+
+        - addForeignKeyConstraint:
+            baseTableName: questoes
+            baseColumnNames: disciplina_id
+            constraintName: fk_questoes_disciplina
+            referencedTableName: disciplinas
+            referencedColumnNames: id
+
+        - addForeignKeyConstraint:
+            baseTableName: questoes
+            baseColumnNames: assunto_id
+            constraintName: fk_questoes_assunto
+            referencedTableName: assuntos
+            referencedColumnNames: id
+
+        - addForeignKeyConstraint:
+            baseTableName: questoes
+            baseColumnNames: banca_id
+            constraintName: fk_questoes_banca
+            referencedTableName: bancas
+            referencedColumnNames: id
+
+        - addForeignKeyConstraint:
+            baseTableName: questoes
+            baseColumnNames: instituicao_id
+            constraintName: fk_questoes_instituicao
+            referencedTableName: catalogo_instituicoes
+            referencedColumnNames: id
+
+        - createTable:
+            tableName: comentarios
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: comentarios_pkey
+                    nullable: false
+              - column:
+                  name: autor
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: curtidas
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: descurtidas
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: questao_id
+                  type: varchar(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: texto
+                  type: text
+                  constraints:
+                    nullable: false
+
+        - createIndex:
+            tableName: comentarios
+            indexName: idx_comentario_questao_id
+            columns:
+              - column:
+                  name: questao_id

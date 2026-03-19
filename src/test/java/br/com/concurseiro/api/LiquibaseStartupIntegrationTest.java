@@ -1,6 +1,5 @@
 package br.com.concurseiro.api;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -11,7 +10,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @Testcontainers
-@Disabled("Pendente: criar changelog inicial reconstrutível para banco limpo; baseline atual serve apenas para schema já existente")
 class LiquibaseStartupIntegrationTest {
 
     @SuppressWarnings("resource")
@@ -32,7 +30,7 @@ class LiquibaseStartupIntegrationTest {
         registry.add("spring.liquibase.enabled", () -> "true");
         registry.add("spring.liquibase.change-log", () -> "classpath:db/changelog/db.changelog-master.yaml");
 
-        registry.add("jwt.secret", () -> "test-secret-123456789");
+        registry.add("jwt.secret", () -> "test-secret-123456789-test-secret-123456789");
         registry.add("app.admin.api-key", () -> "test-admin-key");
         registry.add("cors.allowed-origins", () -> "*");
     }
