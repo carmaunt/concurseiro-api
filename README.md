@@ -2,7 +2,7 @@
 
 API REST para gerenciamento de **questões de concursos públicos**, provas, comentários e usuários.
 
-O projeto foi desenvolvido com **Spring Boot** e possui arquitetura modular, autenticação baseada em **JWT**, busca avançada de questões e organização por catálogos estruturados.
+O projeto foi desenvolvido com **Spring Boot** e possui arquitetura modular, autenticação baseada em **JWT**, organização por catálogos estruturados, observabilidade e controle de acesso por roles.
 
 ---
 
@@ -17,6 +17,8 @@ A Concurseiro API permite:
 * comentários em questões
 * classificação por disciplina, banca, assunto e instituição
 * busca avançada com filtros e paginação
+* monitoramento com Actuator e Prometheus
+* limitação de tentativas no endpoint de login
 
 A API foi projetada para servir aplicações web ou mobile voltadas para **estudo de concursos públicos**.
 
@@ -26,15 +28,18 @@ A API foi projetada para servir aplicações web ou mobile voltadas para **estud
 
 Principais tecnologias utilizadas:
 
-* Java
+* Java 21
 * Spring Boot
 * Spring Web
 * Spring Security
-* JWT (JSON Web Token)
+* JWT (JJWT)
 * Spring Data JPA
 * PostgreSQL
+* Liquibase
 * Springdoc OpenAPI (Swagger)
-* Actuator
+* Spring Boot Actuator
+* Micrometer Prometheus
+* Redis
 
 ---
 
@@ -50,16 +55,19 @@ Cada camada possui responsabilidades bem definidas:
 
 * recebe requisições HTTP
 * valida entradas
+* chama os serviços da aplicação
 * retorna respostas
 
 **Service**
 
 * implementa regras de negócio
 * coordena operações
+* aplica validações de domínio
 
 **Repository**
 
 * acesso ao banco de dados
+* persistência e consulta de entidades
 
 ---
 
@@ -85,7 +93,7 @@ Cada módulo representa um contexto funcional da aplicação.
 
 Toda a documentação da API está disponível na pasta:
 
-```
+```text
 docs/
 ```
 
@@ -93,25 +101,25 @@ docs/
 
 Arquitetura do sistema:
 
-```
+```text
 docs/arquitetura.md
 ```
 
 Autenticação e segurança:
 
-```
+```text
 docs/autenticacao.md
 ```
 
 Paginação e filtros:
 
-```
+```text
 docs/paginacao.md
 ```
 
 Tratamento de erros:
 
-```
+```text
 docs/erros.md
 ```
 
@@ -121,13 +129,13 @@ docs/erros.md
 
 Endpoints da API estão organizados em:
 
-```
+```text
 docs/endpoints/
 ```
 
 Principais módulos documentados:
 
-```
+```text
 auth.md
 usuarios.md
 questoes.md
@@ -142,13 +150,13 @@ catalogo.md
 
 A estrutura das entidades da API está documentada em:
 
-```
+```text
 docs/modelos/
 ```
 
 Modelos disponíveis:
 
-```
+```text
 usuario.md
 questao.md
 prova.md
@@ -172,24 +180,69 @@ Fluxo de autenticação:
 
 Header utilizado:
 
-```
+```http
 Authorization: Bearer <token>
 ```
 
----
-
 A API utiliza autorização baseada em roles.
 
-VISITANTE  
-- pode realizar ações autenticadas comuns como criar provas e comentar questões
+**VISITANTE**
+- pode realizar ações autenticadas comuns, como criar provas, cadastrar questões, comentar questões e interagir com comentários
 
-ADMIN  
+**ADMIN**
 - possui acesso administrativo
 - pode aprovar usuários
 - pode excluir usuários visitantes
 - pode excluir questões
+- pode acessar endpoints administrativos
+- pode acessar endpoints protegidos de observabilidade
 
-Alguns endpoints de leitura da API permanecem públicos, como busca de questões e listagem de provas.
+Alguns endpoints de leitura da API permanecem públicos, como busca de questões, listagem de provas e leitura de catálogo.
+
+---
+
+# Controle de acesso
+
+De acordo com a configuração atual de segurança:
+
+Rotas públicas:
+- `POST /api/v1/auth/**`
+- `GET /api/v1/questoes/**`
+- `GET /api/v1/catalogo/**`
+- `GET /api/v1/provas/**`
+- `GET /api/v1/questoes/*/comentarios`
+- `/actuator/health`
+- `/actuator/info`
+- `/v3/api-docs/**`
+- `/swagger-ui/**`
+- `/swagger-ui.html`
+
+Rotas autenticadas para `VISITANTE` e `ADMIN`:
+- `POST /api/v1/questoes`
+- `POST /api/v1/questoes/*/comentarios`
+- `POST /api/v1/provas`
+- `POST /api/v1/provas/*/questoes`
+- `POST /api/v1/comentarios/*/curtir`
+- `POST /api/v1/comentarios/*/descurtir`
+
+Rotas exclusivas de `ADMIN`:
+- `/api/v1/admin/**`
+- `/actuator/prometheus`
+- `/internal/prometheus`
+
+---
+
+# Proteção contra abuso no login
+
+O endpoint `POST /api/v1/auth/login` possui limitação de tentativas para reduzir abuso e força bruta.
+
+A limitação considera:
+- IP do cliente
+- email enviado no corpo da requisição
+
+A implementação atual utiliza Redis.
+
+---
 
 # Exemplo de uso
 
@@ -238,6 +291,7 @@ Resposta:
 Observação:
 
 Usuários com status **PENDENTE** não podem realizar login e receberão resposta HTTP 403.
+
 ---
 
 ## Buscar questões
@@ -254,11 +308,49 @@ A API possui especificação **OpenAPI**.
 
 Arquivo:
 
-```
+```text
 openapi.json
 ```
 
-Quando a aplicação está rodando, a interface Swagger pode ser acessada normalmente pelo endpoint configurado pelo Springdoc.
+Quando a aplicação está rodando em ambiente com Swagger habilitado, a interface pode ser acessada pelos endpoints configurados pelo Springdoc.
+
+Observação:
+- em produção, o Swagger está desabilitado por configuração
+
+---
+
+# Banco de dados e persistência
+
+A aplicação utiliza:
+
+* PostgreSQL como banco principal
+* Liquibase para gerenciamento de changelog
+* Hibernate com `ddl-auto=validate`
+
+Isso significa que o schema não deve ser alterado automaticamente pela aplicação.
+
+---
+
+# Configuração
+
+Principais variáveis e propriedades utilizadas:
+
+## Banco
+- `PGHOST`
+- `PGPORT`
+- `PGDATABASE`
+- `PGUSER`
+- `PGPASSWORD`
+
+## JWT
+- `JWT_SECRET` obrigatória
+- `JWT_EXPIRATION_MS` opcional
+
+## CORS
+- `CORS_ALLOWED_ORIGINS`
+
+## Aplicação
+- `spring.application.name=concurseiro-api`
 
 ---
 
@@ -266,31 +358,33 @@ Quando a aplicação está rodando, a interface Swagger pode ser acessada normal
 
 Pré-requisitos:
 
-* Java 17+
+* Java 21
 * Maven
 * PostgreSQL
+* Redis
+* variável `JWT_SECRET` configurada
 
 Clone o repositório:
 
-```
+```bash
 git clone https://github.com/carmaunt/concurseiro-api
 ```
 
 Entre no diretório:
 
-```
+```bash
 cd concurseiro-api
 ```
 
 Execute o projeto:
 
-```
+```bash
 ./mvnw spring-boot:run
 ```
 
 A API será iniciada na porta padrão:
 
-```
+```text
 http://localhost:8080
 ```
 
@@ -298,15 +392,20 @@ http://localhost:8080
 
 # Monitoramento
 
-O projeto utiliza **Spring Actuator** para métricas e saúde da aplicação.
+O projeto utiliza **Spring Boot Actuator** e **Prometheus** para saúde e métricas da aplicação.
 
-Endpoints comuns:
+Endpoints expostos na configuração atual:
 
-```
+```text
 /actuator/health
 /actuator/info
-/actuator/metrics
+/actuator/prometheus
 ```
+
+Observações:
+- `/actuator/health` e `/actuator/info` são públicos
+- `/actuator/prometheus` exige role `ADMIN`
+- em produção, os endpoints expostos são mais restritos
 
 ---
 
