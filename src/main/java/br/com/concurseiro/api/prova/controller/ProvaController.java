@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Provas", description = "Gerenciamento de provas de concursos")
@@ -53,5 +54,13 @@ public class ProvaController {
             @RequestBody @Valid ProvaQuestaoRequest request) {
         Questao questao = service.cadastrarQuestao(provaId, request);
         return QuestaoResponse.fromEntity(questao);
+    }
+
+    @Operation(summary = "Excluir prova")
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void excluir(@PathVariable Long id) {
+        service.excluir(id);
     }
 }

@@ -180,4 +180,12 @@ public class ProvaService {
         if (valor == null) return null;
         return valor.trim().replaceAll("\\s+", " ");
     }
+
+    @Transactional
+    public void excluir(Long id) {
+        Prova prova = provaRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Prova não encontrada"));
+
+        provaRepository.delete(prova);
+    }
 }
