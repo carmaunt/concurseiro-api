@@ -28,7 +28,7 @@ A API foi projetada para servir aplicações web ou mobile voltadas para **estud
 
 Principais tecnologias utilizadas:
 
-* Java 21
+* Java 25
 * Spring Boot
 * Spring Web
 * Spring Security
