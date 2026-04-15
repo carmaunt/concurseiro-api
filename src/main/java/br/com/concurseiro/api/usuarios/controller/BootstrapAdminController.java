@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import br.com.concurseiro.api.infra.response.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -22,9 +23,10 @@ public class BootstrapAdminController {
 
     @PostMapping("/bootstrap-admin")
     @ResponseStatus(HttpStatus.OK)
-    public String bootstrapAdmin(
+    public ApiResponse<String> bootstrapAdmin(
             @RequestHeader("X-Admin-Key") String apiKey,
-            @RequestParam String email
+            @RequestParam String email,
+            jakarta.servlet.http.HttpServletRequest request
     ) {
         if (!adminApiKey.equals(apiKey)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Chave inválida");
@@ -37,6 +39,6 @@ public class BootstrapAdminController {
         usuario.setStatus(Usuario.Status.ATIVO);
         usuarioRepository.save(usuario);
 
-        return "Usuário promovido com sucesso";
+        return ApiResponse.success("Usuário promovido com sucesso", request.getRequestURI());
     }
 }
