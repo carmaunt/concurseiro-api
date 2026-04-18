@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record ProvaQuestaoRequest(
-        @NotBlank @Size(max = 10000) String enunciado,
+        @Size(max = 10000) String enunciado,
         @NotBlank @Size(max = 10000) String questao,
         @Size(max = 10000) String alternativas,
 
