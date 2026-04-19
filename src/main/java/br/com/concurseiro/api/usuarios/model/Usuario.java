@@ -9,9 +9,9 @@ public class Usuario {
 
     public enum Role {
         ADMIN,
-        VISITANTE;
+        VISITANTE,
+        USUARIO_FINAL;
 
-        // Autoridade no padrão do Spring Security (ROLE_ADMIN, ROLE_VISITANTE)
         public String authority() {
             return "ROLE_" + this.name();
         }
@@ -20,6 +20,11 @@ public class Usuario {
     public enum Status {
         PENDENTE,
         ATIVO
+    }
+
+    public enum AuthProvider {
+        LOCAL,
+        GOOGLE
     }
 
     @Id
@@ -32,7 +37,7 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 200)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String senhaHash;
 
     @Enumerated(EnumType.STRING)
@@ -42,6 +47,13 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Status status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AuthProvider authProvider = AuthProvider.LOCAL;
+
+    @Column(unique = true, length = 200)
+    private String firebaseUid;
 
     @Column(nullable = false)
     private OffsetDateTime criadoEm = OffsetDateTime.now();
@@ -62,6 +74,12 @@ public class Usuario {
 
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
+
+    public AuthProvider getAuthProvider() { return authProvider; }
+    public void setAuthProvider(AuthProvider authProvider) { this.authProvider = authProvider; }
+
+    public String getFirebaseUid() { return firebaseUid; }
+    public void setFirebaseUid(String firebaseUid) { this.firebaseUid = firebaseUid; }
 
     public OffsetDateTime getCriadoEm() { return criadoEm; }
     public void setCriadoEm(OffsetDateTime criadoEm) { this.criadoEm = criadoEm; }

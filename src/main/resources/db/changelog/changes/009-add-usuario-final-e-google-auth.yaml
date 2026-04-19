@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-add-usuario-final-e-google-auth
+      author: mauricio
+
+      changes:
+
+        # 1. Permitir senhaHash ser nulo
+        - dropNotNullConstraint:
+            tableName: usuarios
+            columnName: senha_hash
+            columnDataType: varchar(255)
+
+        # 2. Adicionar coluna auth_provider
+        - addColumn:
+            tableName: usuarios
+            columns:
+              - column:
+                  name: auth_provider
+                  type: varchar(20)
+                  defaultValue: LOCAL
+                  constraints:
+                    nullable: false
+
+        # 3. Adicionar coluna firebase_uid
+        - addColumn:
+            tableName: usuarios
+            columns:
+              - column:
+                  name: firebase_uid
+                  type: varchar(200)
+
+        # 4. Criar índice único para firebase_uid
+        - addUniqueConstraint:
+            tableName: usuarios
+            columnNames: firebase_uid
+            constraintName: uk_usuario_firebase_uid
