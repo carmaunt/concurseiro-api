@@ -48,3 +48,5 @@ target/
 
 # arquivos de configuração local
 .env
+
+firebase-admin.json

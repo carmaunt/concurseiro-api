@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.Authentication;
 
 @Tag(name = "Comentarios", description = "Comentários em questões de concursos")
 @RestController
@@ -52,11 +53,12 @@ public class ComentarioController {
     @ResponseStatus(HttpStatus.CREATED)
     public ComentarioResponse criar(
             @PathVariable String questaoId,
-            @RequestBody @Valid ComentarioRequest request) {
+            @RequestBody @Valid ComentarioRequest request,
+            Authentication authentication) {
 
         Comentario c = new Comentario();
         c.setQuestaoId(questaoId);
-        c.setAutor(request.autor().trim());
+        c.setAutor(authentication.getName());
         c.setTexto(request.texto().trim());
 
         return ComentarioResponse.fromEntity(repository.save(c));

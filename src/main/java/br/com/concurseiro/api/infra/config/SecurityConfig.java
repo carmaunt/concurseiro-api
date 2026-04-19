@@ -68,23 +68,43 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
                         // leitura pública
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes/*").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/catalogo/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/provas/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes/*/comentarios").permitAll()
 
-                        // ações permitidas para qualquer usuário autenticado e ativo
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/questoes")
-                            .hasAnyAuthority(Usuario.Role.ADMIN.authority(), Usuario.Role.VISITANTE.authority())
+                        // comentários exigem autenticação
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes/*/comentarios")
+                            .hasAnyAuthority(
+                                    Usuario.Role.ADMIN.authority(),
+                                    Usuario.Role.VISITANTE.authority(),
+                                    Usuario.Role.USUARIO_FINAL.authority()
+                            )
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/questoes/*/comentarios")
+                            .hasAnyAuthority(
+                                    Usuario.Role.ADMIN.authority(),
+                                    Usuario.Role.VISITANTE.authority(),
+                                    Usuario.Role.USUARIO_FINAL.authority()
+                            )
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/comentarios/*/curtir")
+                            .hasAnyAuthority(
+                                    Usuario.Role.ADMIN.authority(),
+                                    Usuario.Role.VISITANTE.authority(),
+                                    Usuario.Role.USUARIO_FINAL.authority()
+                            )
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/comentarios/*/descurtir")
+                            .hasAnyAuthority(
+                                    Usuario.Role.ADMIN.authority(),
+                                    Usuario.Role.VISITANTE.authority(),
+                                    Usuario.Role.USUARIO_FINAL.authority()
+                            )
+
+                        // ações de painel/admin
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/questoes")
                             .hasAnyAuthority(Usuario.Role.ADMIN.authority(), Usuario.Role.VISITANTE.authority())
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/provas")
                             .hasAnyAuthority(Usuario.Role.ADMIN.authority(), Usuario.Role.VISITANTE.authority())
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/provas/*/questoes")
-                            .hasAnyAuthority(Usuario.Role.ADMIN.authority(), Usuario.Role.VISITANTE.authority())
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/comentarios/*/curtir")
-                            .hasAnyAuthority(Usuario.Role.ADMIN.authority(), Usuario.Role.VISITANTE.authority())
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/comentarios/*/descurtir")
                             .hasAnyAuthority(Usuario.Role.ADMIN.authority(), Usuario.Role.VISITANTE.authority())
 
                         // ações exclusivas de admin

@@ -21,6 +21,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import br.com.concurseiro.api.infra.security.FirebaseService;
+import com.google.firebase.auth.FirebaseToken;
 
 @Tag(name = "Autenticacao", description = "Registro e login de usuarios")
 @RestController
@@ -32,19 +34,22 @@ public class AuthController {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
     private final RefreshTokenService refreshTokenService;
+    private final FirebaseService firebaseService;
 
     public AuthController(
             AuthenticationManager authenticationManager,
             JwtService jwtService,
             UsuarioRepository usuarioRepository,
             UsuarioService usuarioService,
-            RefreshTokenService refreshTokenService
+            RefreshTokenService refreshTokenService,
+            FirebaseService firebaseService
     ) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.usuarioRepository = usuarioRepository;
         this.usuarioService = usuarioService;
         this.refreshTokenService = refreshTokenService;
+        this.firebaseService = firebaseService;
     }
 
     public record RegisterRequest(
@@ -76,6 +81,58 @@ public class AuthController {
             String email,
             String role
     ) {}
+
+    public record GoogleLoginRequest(
+            @NotBlank String idToken
+    ) {}
+
+        @PostMapping("/google")
+        @SecurityRequirements
+        public AuthResponse loginComGoogle(@RequestBody @Valid GoogleLoginRequest req) {
+
+        FirebaseToken decodedToken = firebaseService.validarToken(req.idToken());
+
+        String firebaseUid = decodedToken.getUid();
+        String email = decodedToken.getEmail();
+        String nome = decodedToken.getName() != null ? decodedToken.getName() : email;
+
+        Usuario usuario = usuarioRepository.findByFirebaseUid(firebaseUid)
+                .orElseGet(() -> usuarioRepository.findByEmail(email)
+                        .map(existente -> {
+                        existente.setFirebaseUid(firebaseUid);
+                        existente.setAuthProvider(Usuario.AuthProvider.GOOGLE);
+
+                        if (existente.getRole() == Usuario.Role.VISITANTE && existente.getStatus() != Usuario.Status.ATIVO) {
+                                existente.setStatus(Usuario.Status.ATIVO);
+                        }
+
+                        return usuarioRepository.save(existente);
+                        })
+                        .orElseGet(() -> {
+                        Usuario novo = new Usuario();
+                        novo.setNome(nome);
+                        novo.setEmail(email);
+                        novo.setFirebaseUid(firebaseUid);
+                        novo.setAuthProvider(Usuario.AuthProvider.GOOGLE);
+                        novo.setRole(Usuario.Role.USUARIO_FINAL);
+                        novo.setStatus(Usuario.Status.ATIVO);
+
+                        return usuarioRepository.save(novo);
+                        })
+                );
+
+        refreshTokenService.revogarTodosDoUsuario(usuario.getId());
+
+        String accessToken = jwtService.generateToken(usuario.getEmail(), usuario.getRole());
+        var refreshToken = refreshTokenService.criar(usuario);
+
+        return new AuthResponse(
+                accessToken,
+                refreshToken.getToken(),
+                usuario.getEmail(),
+                usuario.getRole().name()
+        );
+        }
 
     @Operation(summary = "Registrar novo usuario")
     @SecurityRequirements

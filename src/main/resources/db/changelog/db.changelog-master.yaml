@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/changes/008-add-refresh-tokens.yaml
   - include:
       file: db/changelog/changes/009-add-usuario-final-e-google-auth.yaml
+  - include:
+      file: db/changelog/changes/010-update-usuarios-role-check.yaml

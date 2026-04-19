@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-update-usuarios-role-check
+      author: mauricio
+
+      changes:
+        - sql:
+            sql: ALTER TABLE usuarios DROP CONSTRAINT usuarios_role_check;
+
+        - sql:
+            sql: ALTER TABLE usuarios ADD CONSTRAINT usuarios_role_check CHECK (role IN ('ADMIN', 'VISITANTE', 'USUARIO_FINAL'));
