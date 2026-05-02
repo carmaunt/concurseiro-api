@@ -90,4 +90,24 @@ public class UsuarioService {
 
         return usuario;
     }
+
+    @Transactional
+    public Usuario cadastrarUsuarioFinal(String nome, String email, String senha) {
+        if (repository.findByEmail(email).isPresent()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Email já cadastrado"
+            );
+        }
+
+        Usuario usuario = new Usuario();
+        usuario.setNome(nome);
+        usuario.setEmail(email);
+        usuario.setSenhaHash(passwordEncoder.encode(senha));
+        usuario.setRole(Usuario.Role.USUARIO_FINAL);
+        usuario.setStatus(Usuario.Status.ATIVO);
+        usuario.setAuthProvider(Usuario.AuthProvider.LOCAL);
+
+        return repository.save(usuario);
+    }
 }

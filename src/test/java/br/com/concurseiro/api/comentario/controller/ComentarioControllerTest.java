@@ -20,6 +20,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import br.com.concurseiro.api.infra.security.LoginRateLimitService;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -83,13 +85,13 @@ class ComentarioControllerTest {
         when(repository.save(any(Comentario.class))).thenReturn(salvo);
 
         mockMvc.perform(post("/api/v1/questoes/123/comentarios")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "autor": "Mauricio",
-                                  "texto": "Comentário de teste"
-                                }
-                                """))
+                .principal(new UsernamePasswordAuthenticationToken("Mauricio", null))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                        "texto": "Comentário de teste"
+                        }
+                        """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(1))
@@ -152,15 +154,14 @@ class ComentarioControllerTest {
     void criar_deveRetornar400_quandoPayloadInvalido() throws Exception {
         mockMvc.perform(post("/api/v1/questoes/123/comentarios")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .with(user("Mauricio"))
                         .content("""
                                 {
-                                  "autor": "",
-                                  "texto": ""
+                                "texto": ""
                                 }
                                 """))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.title").value("Falha de validação"))
-                .andExpect(jsonPath("$.fields.autor", containsString("must not be blank")))
-                .andExpect(jsonPath("$.fields.texto", containsString("must not be blank")));
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("$.title").value("Falha de validação"))
+                        .andExpect(jsonPath("$.fields.texto", containsString("must not be blank")));
     }
 }

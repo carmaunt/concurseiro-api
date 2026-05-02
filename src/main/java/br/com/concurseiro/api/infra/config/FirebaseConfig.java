@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -15,6 +16,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @Configuration
+@ConditionalOnProperty(
+        name = "firebase.enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class FirebaseConfig {
 
     @Value("${firebase.credentials.path:}")

@@ -86,7 +86,7 @@ public class AuthController {
             @NotBlank String idToken
     ) {}
 
-        @PostMapping("/google")
+        @PostMapping("/firebase")
         @SecurityRequirements
         public AuthResponse loginComGoogle(@RequestBody @Valid GoogleLoginRequest req) {
 
@@ -140,6 +140,14 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public void register(@RequestBody @Valid RegisterRequest req) {
         usuarioService.cadastrarVisitante(req.nome(), req.email(), req.senha());
+    }
+
+    @Operation(summary = "Registrar novo usuario final")
+    @SecurityRequirements
+    @PostMapping("/register/final")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void registerUsuarioFinal(@RequestBody @Valid RegisterRequest req) {
+        usuarioService.cadastrarUsuarioFinal(req.nome(), req.email(), req.senha());
     }
 
     @Operation(summary = "Autenticar e obter token JWT")

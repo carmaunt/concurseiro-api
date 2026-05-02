@@ -33,6 +33,7 @@ class LiquibaseStartupIntegrationTest {
         registry.add("jwt.secret", () -> "test-secret-123456789-test-secret-123456789");
         registry.add("app.admin.api-key", () -> "test-admin-key");
         registry.add("cors.allowed-origins", () -> "*");
+        registry.add("firebase.enabled", () -> "false");
     }
 
     @Test
