@@ -1,0 +1,61 @@
+name: Probe API
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: "Base URL da API"
+        required: true
+        default: "https://concurseiro-api-lnae.onrender.com"
+      run_db_query:
+        description: "Consultar disciplinas direto no banco usando secret DATABASE_URL?"
+        required: true
+        type: choice
+        default: "false"
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Mostrar ambiente
+        run: |
+          echo "Runner: $(uname -a)"
+          echo "API_URL=${{ inputs.api_url }}"
+
+      - name: Testar DNS
+        run: |
+          host="$(echo '${{ inputs.api_url }}' | sed -E 's#https?://([^/]+).*#\1#')"
+          echo "Host: $host"
+          getent hosts "$host" || true
+          nslookup "$host" || true
+
+      - name: Testar HTTP básico
+        run: |
+          curl -iL --connect-timeout 20 --max-time 60 "${{ inputs.api_url }}/actuator/health" || true
+
+      - name: Listar disciplinas pela API pública
+        run: |
+          curl -iL --connect-timeout 20 --max-time 60 "${{ inputs.api_url }}/api/v1/catalogo/disciplinas" || true
+
+      - name: Instalar cliente PostgreSQL
+        if: ${{ inputs.run_db_query == 'true' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Consultar disciplinas direto no banco
+        if: ${{ inputs.run_db_query == 'true' }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "Secret DATABASE_URL não configurada no repositório."
+            exit 1
+          fi
+
+          psql "$DATABASE_URL" -c "SELECT id, nome FROM disciplinas ORDER BY nome;"
