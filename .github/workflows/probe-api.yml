@@ -1,6 +1,11 @@
 name: Probe API
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/probe-api.yml"
   workflow_dispatch:
     inputs:
       api_url:
@@ -21,35 +26,40 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
+    env:
+      API_URL: ${{ github.event.inputs.api_url || 'https://concurseiro-api-lnae.onrender.com' }}
+      RUN_DB_QUERY: ${{ github.event.inputs.run_db_query || 'false' }}
+
     steps:
       - name: Mostrar ambiente
         run: |
           echo "Runner: $(uname -a)"
-          echo "API_URL=${{ inputs.api_url }}"
+          echo "API_URL=$API_URL"
+          echo "RUN_DB_QUERY=$RUN_DB_QUERY"
 
       - name: Testar DNS
         run: |
-          host="$(echo '${{ inputs.api_url }}' | sed -E 's#https?://([^/]+).*#\1#')"
+          host="$(echo "$API_URL" | sed -E 's#https?://([^/]+).*#\1#')"
           echo "Host: $host"
           getent hosts "$host" || true
           nslookup "$host" || true
 
       - name: Testar HTTP básico
         run: |
-          curl -iL --connect-timeout 20 --max-time 60 "${{ inputs.api_url }}/actuator/health" || true
+          curl -iL --connect-timeout 20 --max-time 60 "$API_URL/actuator/health" || true
 
       - name: Listar disciplinas pela API pública
         run: |
-          curl -iL --connect-timeout 20 --max-time 60 "${{ inputs.api_url }}/api/v1/catalogo/disciplinas" || true
+          curl -iL --connect-timeout 20 --max-time 60 "$API_URL/api/v1/catalogo/disciplinas" || true
 
       - name: Instalar cliente PostgreSQL
-        if: ${{ inputs.run_db_query == 'true' }}
+        if: ${{ env.RUN_DB_QUERY == 'true' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql-client
 
       - name: Consultar disciplinas direto no banco
-        if: ${{ inputs.run_db_query == 'true' }}
+        if: ${{ env.RUN_DB_QUERY == 'true' }}
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
