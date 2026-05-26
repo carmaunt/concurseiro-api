@@ -15,6 +15,7 @@ import br.com.concurseiro.api.questoes.repository.QuestaoRepository;
 import br.com.concurseiro.api.questoes.spec.QuestaoSpecifications;
 import br.com.concurseiro.api.questoes.textoapoio.model.TextoApoio;
 import br.com.concurseiro.api.questoes.textoapoio.service.TextoApoioService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -41,6 +42,7 @@ public class QuestaoService {
         this(repository, disciplinaRepository, assuntoRepository, bancaRepository, instituicaoRepository, null);
     }
 
+    @Autowired
     public QuestaoService(QuestaoRepository repository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, BancaRepository bancaRepository, InstituicaoRepository instituicaoRepository, TextoApoioService textoApoioService) {
         this.repository = repository;
         this.disciplinaRepository = disciplinaRepository;
