@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012-alter-textos-apoio-hash-varchar
+      author: mauricio
+      changes:
+        - modifyDataType:
+            tableName: textos_apoio
+            columnName: hash_sha256
+            newDataType: varchar(64)
