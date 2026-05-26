@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-add-textos-apoio
+      author: mauricio
+      changes:
+        - createTable:
+            tableName: textos_apoio
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: textos_apoio_pkey
+                    nullable: false
+              - column:
+                  name: titulo
+                  type: varchar(255)
+              - column:
+                  name: conteudo
+                  type: oid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: hash_sha256
+                  type: char(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: textos_apoio
+            columnNames: hash_sha256
+            constraintName: uk_textos_apoio_hash_sha256
+        - createIndex:
+            tableName: textos_apoio
+            indexName: idx_textos_apoio_hash_sha256
+            columns:
+              - column:
+                  name: hash_sha256
+        - addColumn:
+            tableName: questoes
+            columns:
+              - column:
+                  name: texto_apoio_id
+                  type: bigint
+        - addForeignKeyConstraint:
+            baseTableName: questoes
+            baseColumnNames: texto_apoio_id
+            constraintName: fk_questoes_texto_apoio
+            referencedTableName: textos_apoio
+            referencedColumnNames: id
+        - createIndex:
+            tableName: questoes
+            indexName: idx_questoes_texto_apoio_id
+            columns:
+              - column:
+                  name: texto_apoio_id
