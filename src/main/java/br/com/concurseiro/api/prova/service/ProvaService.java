@@ -106,7 +106,7 @@ public class ProvaService {
         Questao questao = new Questao();
         questao.setIdQuestion(QuestaoValidationHelper.gerarIdQuestion());
         questao.setProvaId(provaId);
-        questao.setEnunciado(request.enunciado());
+        questao.setEnunciado(normalizarCampoOpcional(request.enunciado()));
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
         questao.setTextoApoio(textoApoio);
@@ -125,6 +125,10 @@ public class ProvaService {
     private TextoApoio resolverTextoApoio(Long textoApoioId, String titulo, String conteudo) {
         if (textoApoioService == null) return null;
         return textoApoioService.resolverTextoApoio(textoApoioId, titulo, conteudo);
+    }
+
+    private String normalizarCampoOpcional(String valor) {
+        return valor == null ? "" : valor.trim();
     }
 
     private ErrorResponseException conflitoProvaDuplicada(Throwable cause) {
