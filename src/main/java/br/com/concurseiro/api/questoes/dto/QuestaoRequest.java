@@ -7,6 +7,10 @@ public record QuestaoRequest(
         @NotBlank @Size(max = 10000) String questao,
         @NotBlank @Size(max = 10000) String alternativas,
 
+        Long textoApoioId,
+        @Size(max = 255) String textoApoioTitulo,
+        @Size(max = 50000) String textoApoioConteudo,
+
         // ===== Catálogo (agora obrigatório) =====
         @NotNull Long disciplinaId,
         @NotNull Long assuntoId,
