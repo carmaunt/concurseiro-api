@@ -28,4 +28,37 @@ public record QuestaoRequest(
 
         @NotBlank
         String gabarito
-) {}
+) {
+    public QuestaoRequest(
+            String enunciado,
+            String questao,
+            String alternativas,
+            Long disciplinaId,
+            Long assuntoId,
+            Long bancaId,
+            Long instituicaoId,
+            Integer ano,
+            String cargo,
+            String nivel,
+            String modalidade,
+            String gabarito
+    ) {
+        this(
+                enunciado,
+                questao,
+                alternativas,
+                null,
+                null,
+                null,
+                disciplinaId,
+                assuntoId,
+                bancaId,
+                instituicaoId,
+                ano,
+                cargo,
+                nivel,
+                modalidade,
+                gabarito
+        );
+    }
+}
