@@ -67,7 +67,7 @@ public class QuestaoService {
 
         Questao questao = new Questao();
         questao.setIdQuestion(QuestaoValidationHelper.gerarIdQuestion());
-        questao.setEnunciado(request.enunciado());
+        questao.setEnunciado(normalizarCampoOpcional(request.enunciado()));
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
         questao.setTextoApoio(textoApoio);
@@ -98,7 +98,7 @@ public class QuestaoService {
         Instituicao instituicao = instituicaoRepository.findById(request.instituicaoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instituição não encontrada no catálogo"));
         TextoApoio textoApoio = resolverTextoApoio(request.textoApoioId(), request.textoApoioTitulo(), request.textoApoioConteudo());
 
-        questao.setEnunciado(request.enunciado());
+        questao.setEnunciado(normalizarCampoOpcional(request.enunciado()));
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
         questao.setTextoApoio(textoApoio);
@@ -144,6 +144,10 @@ public class QuestaoService {
     private TextoApoio resolverTextoApoio(Long textoApoioId, String titulo, String conteudo) {
         if (textoApoioService == null) return null;
         return textoApoioService.resolverTextoApoio(textoApoioId, titulo, conteudo);
+    }
+
+    private String normalizarCampoOpcional(String valor) {
+        return valor == null ? "" : valor.trim();
     }
 
     private PageRequest buildPageRequest(int page, int size, String sort) {
