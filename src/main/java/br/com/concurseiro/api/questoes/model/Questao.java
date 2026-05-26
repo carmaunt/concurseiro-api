@@ -4,6 +4,7 @@ import br.com.concurseiro.api.catalogo.assunto.model.Assunto;
 import br.com.concurseiro.api.catalogo.banca.model.Banca;
 import br.com.concurseiro.api.catalogo.disciplina.model.Disciplina;
 import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
+import br.com.concurseiro.api.questoes.textoapoio.model.TextoApoio;
 import jakarta.persistence.*;
 
 import java.text.Normalizer;
@@ -13,9 +14,12 @@ import java.time.OffsetDateTime;
 @Table(name = "questoes", indexes = {
         @Index(name = "idx_questao_ano", columnList = "ano"),
         @Index(name = "idx_questao_id_question", columnList = "id_question"),
-        @Index(name = "idx_questao_texto_busca", columnList = "textoBusca")
+        @Index(name = "idx_questao_texto_busca", columnList = "textoBusca"),
+        @Index(name = "idx_questoes_texto_apoio_id", columnList = "texto_apoio_id")
 })
 public class Questao {
+
+    private static final int TEXTO_BUSCA_MAX_LENGTH = 20000;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,13 +77,20 @@ public class Questao {
     @JoinColumn(name = "instituicao_id", nullable = false)
     private Instituicao instituicaoCatalogo;
 
-    @Column(nullable = true, length = 20000)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "texto_apoio_id")
+    private TextoApoio textoApoio;
+
+    @Column(nullable = true, length = TEXTO_BUSCA_MAX_LENGTH)
     private String textoBusca;
 
     @PrePersist
     @PreUpdate
     private void preencherTextoBusca() {
+        String textoApoioConteudo = textoApoio == null ? "" : textoApoio.getConteudo();
+
         this.textoBusca = normalizarParaBusca(
+                (textoApoioConteudo == null ? "" : textoApoioConteudo) + " " +
                 (enunciado == null ? "" : enunciado) + " " +
                 (questao == null ? "" : questao) + " " +
                 (getAssunto() == null ? "" : getAssunto())
@@ -90,7 +101,13 @@ public class Questao {
         String n = Normalizer.normalize(s, Normalizer.Form.NFD);
         n = n.replaceAll("\\p{M}", "");
         n = n.replaceAll("\\s+", " ").trim();
-        return n.toUpperCase();
+        n = n.toUpperCase();
+
+        if (n.length() > TEXTO_BUSCA_MAX_LENGTH) {
+            return n.substring(0, TEXTO_BUSCA_MAX_LENGTH);
+        }
+
+        return n;
     }
 
     private String nomeOuNull(Object entidade) {
@@ -171,6 +188,9 @@ public class Questao {
 
     public Instituicao getInstituicaoCatalogo() { return instituicaoCatalogo; }
     public void setInstituicaoCatalogo(Instituicao instituicaoCatalogo) { this.instituicaoCatalogo = instituicaoCatalogo; }
+
+    public TextoApoio getTextoApoio() { return textoApoio; }
+    public void setTextoApoio(TextoApoio textoApoio) { this.textoApoio = textoApoio; }
 
     public Long getProvaId() { return provaId; }
     public void setProvaId(Long provaId) { this.provaId = provaId; }
