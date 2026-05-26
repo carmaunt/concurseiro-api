@@ -37,6 +37,10 @@ public class QuestaoService {
     private final InstituicaoRepository instituicaoRepository;
     private final TextoApoioService textoApoioService;
 
+    public QuestaoService(QuestaoRepository repository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, BancaRepository bancaRepository, InstituicaoRepository instituicaoRepository) {
+        this(repository, disciplinaRepository, assuntoRepository, bancaRepository, instituicaoRepository, null);
+    }
+
     public QuestaoService(QuestaoRepository repository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, BancaRepository bancaRepository, InstituicaoRepository instituicaoRepository, TextoApoioService textoApoioService) {
         this.repository = repository;
         this.disciplinaRepository = disciplinaRepository;
@@ -57,7 +61,7 @@ public class QuestaoService {
         Assunto assunto = assuntoRepository.findById(request.assuntoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assunto não encontrado no catálogo"));
         Banca banca = bancaRepository.findById(request.bancaId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Banca não encontrada no catálogo"));
         Instituicao instituicao = instituicaoRepository.findById(request.instituicaoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instituição não encontrada no catálogo"));
-        TextoApoio textoApoio = textoApoioService.resolverTextoApoio(request.textoApoioId(), request.textoApoioTitulo(), request.textoApoioConteudo());
+        TextoApoio textoApoio = resolverTextoApoio(request.textoApoioId(), request.textoApoioTitulo(), request.textoApoioConteudo());
 
         Questao questao = new Questao();
         questao.setIdQuestion(QuestaoValidationHelper.gerarIdQuestion());
@@ -90,7 +94,7 @@ public class QuestaoService {
         Assunto assunto = assuntoRepository.findById(request.assuntoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assunto não encontrado no catálogo"));
         Banca banca = bancaRepository.findById(request.bancaId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Banca não encontrada no catálogo"));
         Instituicao instituicao = instituicaoRepository.findById(request.instituicaoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instituição não encontrada no catálogo"));
-        TextoApoio textoApoio = textoApoioService.resolverTextoApoio(request.textoApoioId(), request.textoApoioTitulo(), request.textoApoioConteudo());
+        TextoApoio textoApoio = resolverTextoApoio(request.textoApoioId(), request.textoApoioTitulo(), request.textoApoioConteudo());
 
         questao.setEnunciado(request.enunciado());
         questao.setQuestao(request.questao());
@@ -133,6 +137,11 @@ public class QuestaoService {
                 .and(QuestaoSpecifications.modalidadeEquals(modalidade));
 
         return repository.findAll(spec, buildPageRequest(page, size, sort)).map(QuestaoResponse::fromEntity);
+    }
+
+    private TextoApoio resolverTextoApoio(Long textoApoioId, String titulo, String conteudo) {
+        if (textoApoioService == null) return null;
+        return textoApoioService.resolverTextoApoio(textoApoioId, titulo, conteudo);
     }
 
     private PageRequest buildPageRequest(int page, int size, String sort) {
