@@ -3,7 +3,7 @@ package br.com.concurseiro.api.questoes.dto;
 import jakarta.validation.constraints.*;
 
 public record QuestaoRequest(
-        @NotBlank @Size(max = 10000) String enunciado,
+        @Size(max = 10000) String enunciado,
         @NotBlank @Size(max = 10000) String questao,
         @NotBlank @Size(max = 10000) String alternativas,
 
