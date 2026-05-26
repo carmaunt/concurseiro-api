@@ -41,6 +41,10 @@ public class ProvaService {
     private final BancaRepository bancaRepository;
     private final TextoApoioService textoApoioService;
 
+    public ProvaService(ProvaRepository provaRepository, QuestaoRepository questaoRepository, InstituicaoRepository instituicaoRepository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, BancaRepository bancaRepository) {
+        this(provaRepository, questaoRepository, instituicaoRepository, disciplinaRepository, assuntoRepository, bancaRepository, null);
+    }
+
     public ProvaService(ProvaRepository provaRepository, QuestaoRepository questaoRepository, InstituicaoRepository instituicaoRepository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, BancaRepository bancaRepository, TextoApoioService textoApoioService) {
         this.provaRepository = provaRepository;
         this.questaoRepository = questaoRepository;
@@ -96,7 +100,7 @@ public class ProvaService {
         Assunto assunto = assuntoRepository.findById(request.assuntoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assunto não encontrado no catálogo"));
         Instituicao instituicao = instituicaoRepository.findById(prova.getInstituicaoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instituição não encontrada no catálogo"));
         Banca banca = bancaRepository.findByNomeIgnoreCase(prova.getBanca()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Banca não encontrada no catálogo"));
-        TextoApoio textoApoio = textoApoioService.resolverTextoApoio(request.textoApoioId(), request.textoApoioTitulo(), request.textoApoioConteudo());
+        TextoApoio textoApoio = resolverTextoApoio(request.textoApoioId(), request.textoApoioTitulo(), request.textoApoioConteudo());
         Questao questao = new Questao();
         questao.setIdQuestion(QuestaoValidationHelper.gerarIdQuestion());
         questao.setProvaId(provaId);
@@ -114,6 +118,11 @@ public class ProvaService {
         questao.setAssuntoCatalogo(assunto);
         questao.setBancaCatalogo(banca);
         return questaoRepository.save(questao);
+    }
+
+    private TextoApoio resolverTextoApoio(Long textoApoioId, String titulo, String conteudo) {
+        if (textoApoioService == null) return null;
+        return textoApoioService.resolverTextoApoio(textoApoioId, titulo, conteudo);
     }
 
     private ErrorResponseException conflitoProvaDuplicada(Throwable cause) {
