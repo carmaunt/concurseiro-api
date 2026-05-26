@@ -18,6 +18,7 @@ import br.com.concurseiro.api.questoes.repository.QuestaoRepository;
 import br.com.concurseiro.api.questoes.service.QuestaoValidationHelper;
 import br.com.concurseiro.api.questoes.textoapoio.model.TextoApoio;
 import br.com.concurseiro.api.questoes.textoapoio.service.TextoApoioService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,6 +46,7 @@ public class ProvaService {
         this(provaRepository, questaoRepository, instituicaoRepository, disciplinaRepository, assuntoRepository, bancaRepository, null);
     }
 
+    @Autowired
     public ProvaService(ProvaRepository provaRepository, QuestaoRepository questaoRepository, InstituicaoRepository instituicaoRepository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, BancaRepository bancaRepository, TextoApoioService textoApoioService) {
         this.provaRepository = provaRepository;
         this.questaoRepository = questaoRepository;
