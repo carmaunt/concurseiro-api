@@ -21,7 +21,7 @@ public class TextoApoio {
     @Column(nullable = false)
     private String conteudo;
 
-    @Column(name = "hash_sha256", nullable = false, unique = true, length = 64, columnDefinition = "char(64)")
+    @Column(name = "hash_sha256", nullable = false, unique = true, length = 64)
     private String hashSha256;
 
     @Column(nullable = false)
