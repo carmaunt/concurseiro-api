@@ -16,7 +16,7 @@ public record ProvaQuestaoRequest(
         @NotNull Long disciplinaId,
         @NotNull Long assuntoId,
 
-        String subassunto,
+        Long subassuntoId,
 
         @NotBlank String gabarito
 ) {}

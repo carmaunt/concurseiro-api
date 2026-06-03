@@ -14,6 +14,7 @@ public record QuestaoRequest(
         // ===== Catálogo (agora obrigatório) =====
         @NotNull Long disciplinaId,
         @NotNull Long assuntoId,
+        Long subassuntoId,
         @NotNull Long bancaId,
         @NotNull Long instituicaoId,
 
@@ -52,6 +53,7 @@ public record QuestaoRequest(
                 null,
                 disciplinaId,
                 assuntoId,
+                null,
                 bancaId,
                 instituicaoId,
                 ano,

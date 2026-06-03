@@ -13,6 +13,6 @@ public record ProvaQuestaoComTextoRequest(
         @Size(max = 50000) String textoApoioConteudo,
         @NotNull Long disciplinaId,
         @NotNull Long assuntoId,
-        String subassunto,
+        Long subassuntoId,
         @NotBlank String gabarito
 ) {}

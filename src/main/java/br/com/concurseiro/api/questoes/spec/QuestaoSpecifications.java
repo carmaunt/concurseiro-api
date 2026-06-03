@@ -59,6 +59,12 @@ public class QuestaoSpecifications {
                         cb.equal(root.get("assuntoCatalogo").get("id"), assuntoId);
     }
 
+    public static Specification<Questao> subassuntoIdEquals(Long subassuntoId) {
+        return (root, query, cb) ->
+                subassuntoId == null ? null :
+                        cb.equal(root.get("subAssuntoCatalogo").get("id"), subassuntoId);
+    }
+
     public static Specification<Questao> bancaIdEquals(Long bancaId) {
         return (root, query, cb) ->
                 bancaId == null ? null :

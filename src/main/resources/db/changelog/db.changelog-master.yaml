@@ -11,3 +11,5 @@ databaseChangeLog:
       file: db/changelog/changes/011-add-textos-apoio.yaml
   - include:
       file: db/changelog/changes/012-alter-textos-apoio-hash-varchar.yaml
+  - include:
+      file: db/changelog/changes/013-add-questoes-subassunto.yaml

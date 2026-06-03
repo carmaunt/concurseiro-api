@@ -8,6 +8,8 @@ import br.com.concurseiro.api.catalogo.disciplina.model.Disciplina;
 import br.com.concurseiro.api.catalogo.disciplina.repository.DisciplinaRepository;
 import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
 import br.com.concurseiro.api.catalogo.instituicao.repository.InstituicaoRepository;
+import br.com.concurseiro.api.catalogo.subassunto.model.SubAssunto;
+import br.com.concurseiro.api.catalogo.subassunto.repository.SubAssuntoRepository;
 import br.com.concurseiro.api.questoes.dto.QuestaoRequest;
 import br.com.concurseiro.api.questoes.model.Questao;
 import br.com.concurseiro.api.questoes.repository.QuestaoRepository;
@@ -29,6 +31,7 @@ class QuestaoServiceTest {
     private QuestaoRepository questaoRepository;
     private DisciplinaRepository disciplinaRepository;
     private AssuntoRepository assuntoRepository;
+    private SubAssuntoRepository subAssuntoRepository;
     private BancaRepository bancaRepository;
     private InstituicaoRepository instituicaoRepository;
 
@@ -37,6 +40,7 @@ class QuestaoServiceTest {
         questaoRepository = mock(QuestaoRepository.class);
         disciplinaRepository = mock(DisciplinaRepository.class);
         assuntoRepository = mock(AssuntoRepository.class);
+        subAssuntoRepository = mock(SubAssuntoRepository.class);
         bancaRepository = mock(BancaRepository.class);
         instituicaoRepository = mock(InstituicaoRepository.class);
 
@@ -44,8 +48,10 @@ class QuestaoServiceTest {
                 questaoRepository,
                 disciplinaRepository,
                 assuntoRepository,
+                subAssuntoRepository,
                 bancaRepository,
-                instituicaoRepository
+                instituicaoRepository,
+                null
         );
     }
 
@@ -63,6 +69,15 @@ class QuestaoServiceTest {
         when(assunto.getNome()).thenReturn(nome);
         when(assuntoRepository.findById(id)).thenReturn(Optional.of(assunto));
         return assunto;
+    }
+
+    private SubAssunto mockSubAssunto(Long id, String nome, Assunto assunto) {
+        SubAssunto subAssunto = mock(SubAssunto.class);
+        when(subAssunto.getId()).thenReturn(id);
+        when(subAssunto.getNome()).thenReturn(nome);
+        when(subAssunto.getAssunto()).thenReturn(assunto);
+        when(subAssuntoRepository.findById(id)).thenReturn(Optional.of(subAssunto));
+        return subAssunto;
     }
 
     private Banca mockBanca(Long id, String nome) {
@@ -113,6 +128,7 @@ class QuestaoServiceTest {
                         null,
                         1L,
                         2L,
+                        null,
                         3L,
                         4L,
                         null,
@@ -160,6 +176,78 @@ class QuestaoServiceTest {
         assertEquals("PC-BA", result.getInstituicao());
 
         verify(questaoRepository, times(1)).save(any());
+    }
+
+    @Test
+    void cadastrar_deveSalvarSubAssunto_quandoInformadoECompativelComAssunto() {
+        mockDisciplina(1L, "Português");
+        Assunto assunto = mockAssunto(2L, "Interpretação e compreensão de texto");
+        SubAssunto subAssunto = mockSubAssunto(5L, "Inferência", assunto);
+        mockBanca(3L, "CEBRASPE");
+        mockInstituicao(4L, "Polícia Federal");
+
+        when(questaoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        QuestaoRequest req = new QuestaoRequest(
+                "Julgue o item.",
+                "O texto permite inferir determinada conclusão.",
+                "C) Certo\nE) Errado",
+                null,
+                null,
+                null,
+                1L,
+                2L,
+                5L,
+                3L,
+                4L,
+                2025,
+                "Agente",
+                "Superior",
+                "CERTO_ERRADO",
+                "C"
+        );
+
+        Questao result = service.cadastrar(req);
+
+        assertEquals(subAssunto, result.getSubAssuntoCatalogo());
+        assertEquals("Inferência", result.getSubAssunto());
+        verify(questaoRepository).save(any());
+    }
+
+    @Test
+    void cadastrar_deveFalhar_quandoSubAssuntoNaoPertenceAoAssunto() {
+        mockDisciplina(1L, "Português");
+        Assunto assunto = mockAssunto(2L, "Interpretação e compreensão de texto");
+        Assunto outroAssunto = mock(Assunto.class);
+        when(outroAssunto.getId()).thenReturn(99L);
+        mockSubAssunto(5L, "Inferência", outroAssunto);
+        mockBanca(3L, "CEBRASPE");
+        mockInstituicao(4L, "Polícia Federal");
+
+        QuestaoRequest req = new QuestaoRequest(
+                "Julgue o item.",
+                "O texto permite inferir determinada conclusão.",
+                "C) Certo\nE) Errado",
+                null,
+                null,
+                null,
+                1L,
+                assunto.getId(),
+                5L,
+                3L,
+                4L,
+                2025,
+                "Agente",
+                "Superior",
+                "CERTO_ERRADO",
+                "C"
+        );
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> service.cadastrar(req));
+
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+        assertTrue(ex.getReason().contains("Subassunto não pertence"));
+        verify(questaoRepository, never()).save(any());
     }
 
     @Test

@@ -8,6 +8,8 @@ import br.com.concurseiro.api.catalogo.disciplina.model.Disciplina;
 import br.com.concurseiro.api.catalogo.disciplina.repository.DisciplinaRepository;
 import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
 import br.com.concurseiro.api.catalogo.instituicao.repository.InstituicaoRepository;
+import br.com.concurseiro.api.catalogo.subassunto.model.SubAssunto;
+import br.com.concurseiro.api.catalogo.subassunto.repository.SubAssuntoRepository;
 import br.com.concurseiro.api.questoes.dto.QuestaoRequest;
 import br.com.concurseiro.api.questoes.dto.QuestaoResponse;
 import br.com.concurseiro.api.questoes.model.Questao;
@@ -34,19 +36,21 @@ public class QuestaoService {
     private final QuestaoRepository repository;
     private final DisciplinaRepository disciplinaRepository;
     private final AssuntoRepository assuntoRepository;
+    private final SubAssuntoRepository subAssuntoRepository;
     private final BancaRepository bancaRepository;
     private final InstituicaoRepository instituicaoRepository;
     private final TextoApoioService textoApoioService;
 
     public QuestaoService(QuestaoRepository repository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, BancaRepository bancaRepository, InstituicaoRepository instituicaoRepository) {
-        this(repository, disciplinaRepository, assuntoRepository, bancaRepository, instituicaoRepository, null);
+        this(repository, disciplinaRepository, assuntoRepository, null, bancaRepository, instituicaoRepository, null);
     }
 
     @Autowired
-    public QuestaoService(QuestaoRepository repository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, BancaRepository bancaRepository, InstituicaoRepository instituicaoRepository, TextoApoioService textoApoioService) {
+    public QuestaoService(QuestaoRepository repository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, SubAssuntoRepository subAssuntoRepository, BancaRepository bancaRepository, InstituicaoRepository instituicaoRepository, TextoApoioService textoApoioService) {
         this.repository = repository;
         this.disciplinaRepository = disciplinaRepository;
         this.assuntoRepository = assuntoRepository;
+        this.subAssuntoRepository = subAssuntoRepository;
         this.bancaRepository = bancaRepository;
         this.instituicaoRepository = instituicaoRepository;
         this.textoApoioService = textoApoioService;
@@ -61,6 +65,7 @@ public class QuestaoService {
 
         Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disciplina não encontrada no catálogo"));
         Assunto assunto = assuntoRepository.findById(request.assuntoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assunto não encontrado no catálogo"));
+        SubAssunto subAssunto = resolverSubAssunto(request.subassuntoId(), assunto);
         Banca banca = bancaRepository.findById(request.bancaId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Banca não encontrada no catálogo"));
         Instituicao instituicao = instituicaoRepository.findById(request.instituicaoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instituição não encontrada no catálogo"));
         TextoApoio textoApoio = resolverTextoApoio(request.textoApoioId(), request.textoApoioTitulo(), request.textoApoioConteudo());
@@ -78,6 +83,7 @@ public class QuestaoService {
         questao.setGabarito(gabaritoNormalizado);
         questao.setDisciplinaCatalogo(disciplina);
         questao.setAssuntoCatalogo(assunto);
+        questao.setSubAssuntoCatalogo(subAssunto);
         questao.setBancaCatalogo(banca);
         questao.setInstituicaoCatalogo(instituicao);
 
@@ -94,6 +100,7 @@ public class QuestaoService {
 
         Disciplina disciplina = disciplinaRepository.findById(request.disciplinaId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Disciplina não encontrada no catálogo"));
         Assunto assunto = assuntoRepository.findById(request.assuntoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assunto não encontrado no catálogo"));
+        SubAssunto subAssunto = resolverSubAssunto(request.subassuntoId(), assunto);
         Banca banca = bancaRepository.findById(request.bancaId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Banca não encontrada no catálogo"));
         Instituicao instituicao = instituicaoRepository.findById(request.instituicaoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instituição não encontrada no catálogo"));
         TextoApoio textoApoio = resolverTextoApoio(request.textoApoioId(), request.textoApoioTitulo(), request.textoApoioConteudo());
@@ -109,6 +116,7 @@ public class QuestaoService {
         questao.setGabarito(gabaritoNormalizado);
         questao.setDisciplinaCatalogo(disciplina);
         questao.setAssuntoCatalogo(assunto);
+        questao.setSubAssuntoCatalogo(subAssunto);
         questao.setBancaCatalogo(banca);
         questao.setInstituicaoCatalogo(instituicao);
 
@@ -127,10 +135,11 @@ public class QuestaoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<QuestaoResponse> listarFiltradoPaginado(String texto, Long disciplinaId, Long assuntoId, Long bancaId, Long instituicaoId, Integer ano, String cargo, String nivel, String modalidade, int page, int size, String sort) {
+    public Page<QuestaoResponse> listarFiltradoPaginado(String texto, Long disciplinaId, Long assuntoId, Long subassuntoId, Long bancaId, Long instituicaoId, Integer ano, String cargo, String nivel, String modalidade, int page, int size, String sort) {
         Specification<Questao> spec = Specification.where(QuestaoSpecifications.textoContains(texto))
                 .and(QuestaoSpecifications.disciplinaIdEquals(disciplinaId))
                 .and(QuestaoSpecifications.assuntoIdEquals(assuntoId))
+                .and(QuestaoSpecifications.subassuntoIdEquals(subassuntoId))
                 .and(QuestaoSpecifications.bancaIdEquals(bancaId))
                 .and(QuestaoSpecifications.instituicaoIdEquals(instituicaoId))
                 .and(QuestaoSpecifications.anoEquals(ano))
@@ -144,6 +153,23 @@ public class QuestaoService {
     private TextoApoio resolverTextoApoio(Long textoApoioId, String titulo, String conteudo) {
         if (textoApoioService == null) return null;
         return textoApoioService.resolverTextoApoio(textoApoioId, titulo, conteudo);
+    }
+
+    private SubAssunto resolverSubAssunto(Long subassuntoId, Assunto assunto) {
+        if (subassuntoId == null) return null;
+        if (subAssuntoRepository == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Subassunto não encontrado no catálogo");
+        }
+
+        SubAssunto subAssunto = subAssuntoRepository.findById(subassuntoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subassunto não encontrado no catálogo"));
+
+        Long assuntoDoSubAssunto = subAssunto.getAssunto() != null ? subAssunto.getAssunto().getId() : null;
+        if (!assunto.getId().equals(assuntoDoSubAssunto)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Subassunto não pertence ao assunto informado");
+        }
+
+        return subAssunto;
     }
 
     private String normalizarCampoOpcional(String valor) {

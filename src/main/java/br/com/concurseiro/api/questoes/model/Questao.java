@@ -4,6 +4,7 @@ import br.com.concurseiro.api.catalogo.assunto.model.Assunto;
 import br.com.concurseiro.api.catalogo.banca.model.Banca;
 import br.com.concurseiro.api.catalogo.disciplina.model.Disciplina;
 import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
+import br.com.concurseiro.api.catalogo.subassunto.model.SubAssunto;
 import br.com.concurseiro.api.questoes.textoapoio.model.TextoApoio;
 import jakarta.persistence.*;
 
@@ -15,7 +16,8 @@ import java.time.OffsetDateTime;
         @Index(name = "idx_questao_ano", columnList = "ano"),
         @Index(name = "idx_questao_id_question", columnList = "id_question"),
         @Index(name = "idx_questao_texto_busca", columnList = "textoBusca"),
-        @Index(name = "idx_questoes_texto_apoio_id", columnList = "texto_apoio_id")
+        @Index(name = "idx_questoes_texto_apoio_id", columnList = "texto_apoio_id"),
+        @Index(name = "idx_questoes_subassunto_id", columnList = "subassunto_id")
 })
 public class Questao {
 
@@ -69,6 +71,10 @@ public class Questao {
     @JoinColumn(name = "assunto_id", nullable = false)
     private Assunto assuntoCatalogo;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subassunto_id")
+    private SubAssunto subAssuntoCatalogo;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "banca_id", nullable = false)
     private Banca bancaCatalogo;
@@ -120,6 +126,9 @@ public class Questao {
         if (entidade instanceof Assunto a) {
             return a.getNome();
         }
+        if (entidade instanceof SubAssunto s) {
+            return s.getNome();
+        }
         if (entidade instanceof Banca b) {
             return b.getNome();
         }
@@ -149,6 +158,9 @@ public class Questao {
 
     public String getAssunto() { return nomeOuNull(assuntoCatalogo); }
     public void setAssunto(String assunto) { }
+
+    public String getSubAssunto() { return nomeOuNull(subAssuntoCatalogo); }
+    public void setSubAssunto(String subAssunto) { }
 
     public String getBanca() { return nomeOuNull(bancaCatalogo); }
     public void setBanca(String banca) { }
@@ -182,6 +194,9 @@ public class Questao {
 
     public Assunto getAssuntoCatalogo() { return assuntoCatalogo; }
     public void setAssuntoCatalogo(Assunto assuntoCatalogo) { this.assuntoCatalogo = assuntoCatalogo; }
+
+    public SubAssunto getSubAssuntoCatalogo() { return subAssuntoCatalogo; }
+    public void setSubAssuntoCatalogo(SubAssunto subAssuntoCatalogo) { this.subAssuntoCatalogo = subAssuntoCatalogo; }
 
     public Banca getBancaCatalogo() { return bancaCatalogo; }
     public void setBancaCatalogo(Banca bancaCatalogo) { this.bancaCatalogo = bancaCatalogo; }

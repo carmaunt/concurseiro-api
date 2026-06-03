@@ -16,6 +16,7 @@ public interface QuestaoRepository extends JpaRepository<Questao, Long>, JpaSpec
         from Questao q
         left join fetch q.disciplinaCatalogo
         left join fetch q.assuntoCatalogo
+        left join fetch q.subAssuntoCatalogo
         left join fetch q.bancaCatalogo
         left join fetch q.instituicaoCatalogo
         left join fetch q.textoApoio

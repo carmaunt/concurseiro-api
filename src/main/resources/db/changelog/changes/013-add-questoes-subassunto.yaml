@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 013-add-questoes-subassunto
+      author: mauricio
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            columnExists:
+              tableName: questoes
+              columnName: subassunto_id
+      changes:
+        - addColumn:
+            tableName: questoes
+            columns:
+              - column:
+                  name: subassunto_id
+                  type: bigint
+        - addForeignKeyConstraint:
+            baseTableName: questoes
+            baseColumnNames: subassunto_id
+            constraintName: fk_questoes_subassunto
+            referencedTableName: subassuntos
+            referencedColumnNames: id
+        - createIndex:
+            tableName: questoes
+            indexName: idx_questoes_subassunto_id
+            columns:
+              - column:
+                  name: subassunto_id
