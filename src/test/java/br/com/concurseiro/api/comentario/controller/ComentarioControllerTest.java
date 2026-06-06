@@ -3,6 +3,7 @@ package br.com.concurseiro.api.comentario.controller;
 import br.com.concurseiro.api.comentario.model.Comentario;
 import br.com.concurseiro.api.comentario.repository.ComentarioRepository;
 import br.com.concurseiro.api.infra.security.JwtService;
+import br.com.concurseiro.api.usuarios.model.Usuario;
 import br.com.concurseiro.api.usuarios.repository.UsuarioRepository;
 
 import org.junit.jupiter.api.Test;
@@ -77,15 +78,19 @@ class ComentarioControllerTest {
         ReflectionTestUtils.setField(salvo, "id", 1L);
         ReflectionTestUtils.setField(salvo, "criadoEm", OffsetDateTime.now());
         salvo.setQuestaoId("123");
-        salvo.setAutor("Mauricio");
+        salvo.setAutor("Cprc Central");
         salvo.setTexto("Comentário de teste");
         salvo.setCurtidas(0);
         salvo.setDescurtidas(0);
 
+        Usuario usuario = new Usuario();
+        usuario.setNome("Cprc Central");
+        usuario.setEmail("cprcc.coordoint@gmail.com");
+        when(usuarioRepository.findByEmail("cprcc.coordoint@gmail.com")).thenReturn(Optional.of(usuario));
         when(repository.save(any(Comentario.class))).thenReturn(salvo);
 
         mockMvc.perform(post("/api/v1/questoes/123/comentarios")
-                .principal(new UsernamePasswordAuthenticationToken("Mauricio", null))
+                .principal(new UsernamePasswordAuthenticationToken("cprcc.coordoint@gmail.com", null))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -96,13 +101,13 @@ class ComentarioControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(1))
                 .andExpect(jsonPath("$.data.questaoId").value("123"))
-                .andExpect(jsonPath("$.data.autor").value("Mauricio"))
+                .andExpect(jsonPath("$.data.autor").value("Cprc Central"))
                 .andExpect(jsonPath("$.data.texto").value("Comentário de teste"));
 
         ArgumentCaptor<Comentario> captor = ArgumentCaptor.forClass(Comentario.class);
         verify(repository).save(captor.capture());
         assertEquals("123", captor.getValue().getQuestaoId());
-        assertEquals("Mauricio", captor.getValue().getAutor());
+        assertEquals("Cprc Central", captor.getValue().getAutor());
         assertEquals("Comentário de teste", captor.getValue().getTexto());
     }
 

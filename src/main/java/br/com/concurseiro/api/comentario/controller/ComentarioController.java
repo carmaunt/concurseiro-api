@@ -4,6 +4,7 @@ import br.com.concurseiro.api.comentario.dto.ComentarioRequest;
 import br.com.concurseiro.api.comentario.dto.ComentarioResponse;
 import br.com.concurseiro.api.comentario.model.Comentario;
 import br.com.concurseiro.api.comentario.repository.ComentarioRepository;
+import br.com.concurseiro.api.usuarios.repository.UsuarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,9 +23,11 @@ public class ComentarioController {
     private static final int MAX_PAGE_SIZE = 50;
 
     private final ComentarioRepository repository;
+    private final UsuarioRepository usuarioRepository;
 
-    public ComentarioController(ComentarioRepository repository) {
+    public ComentarioController(ComentarioRepository repository, UsuarioRepository usuarioRepository) {
         this.repository = repository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Operation(summary = "Listar comentários de uma questão")
@@ -58,10 +61,20 @@ public class ComentarioController {
 
         Comentario c = new Comentario();
         c.setQuestaoId(questaoId);
-        c.setAutor(authentication.getName());
+        c.setAutor(nomeAutor(authentication));
         c.setTexto(request.texto().trim());
 
         return ComentarioResponse.fromEntity(repository.save(c));
+    }
+
+    private String nomeAutor(Authentication authentication) {
+        String email = authentication.getName();
+        return usuarioRepository.findByEmail(email)
+                .map(usuario -> {
+                    String nome = usuario.getNome();
+                    return nome == null || nome.isBlank() ? email : nome;
+                })
+                .orElse(email);
     }
 
     @Operation(summary = "Curtir um comentário")
