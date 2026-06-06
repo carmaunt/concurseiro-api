@@ -97,10 +97,12 @@ public class AuthController {
         String nome = decodedToken.getName() != null ? decodedToken.getName() : email;
 
         Usuario usuario = usuarioRepository.findByFirebaseUid(firebaseUid)
+                .map(existente -> atualizarNomeFirebase(existente, nome))
                 .orElseGet(() -> usuarioRepository.findByEmail(email)
                         .map(existente -> {
                         existente.setFirebaseUid(firebaseUid);
                         existente.setAuthProvider(Usuario.AuthProvider.GOOGLE);
+                        existente.setNome(nome);
 
                         if (existente.getRole() == Usuario.Role.VISITANTE && existente.getStatus() != Usuario.Status.ATIVO) {
                                 existente.setStatus(Usuario.Status.ATIVO);
@@ -133,6 +135,14 @@ public class AuthController {
                 usuario.getRole().name()
         );
         }
+
+    private Usuario atualizarNomeFirebase(Usuario usuario, String nomeFirebase) {
+        if (nomeFirebase == null || nomeFirebase.isBlank() || nomeFirebase.equals(usuario.getNome())) {
+            return usuario;
+        }
+        usuario.setNome(nomeFirebase);
+        return usuarioRepository.save(usuario);
+    }
 
     @Operation(summary = "Registrar novo usuario")
     @SecurityRequirements
