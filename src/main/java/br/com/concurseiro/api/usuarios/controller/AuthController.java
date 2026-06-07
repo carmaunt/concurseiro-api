@@ -1,6 +1,7 @@
 package br.com.concurseiro.api.usuarios.controller;
 
 import br.com.concurseiro.api.infra.security.JwtService;
+import br.com.concurseiro.api.infra.security.AuthCookieService;
 import br.com.concurseiro.api.usuarios.dto.RefreshRequest;
 import br.com.concurseiro.api.usuarios.dto.RefreshResponse;
 import br.com.concurseiro.api.usuarios.model.Usuario;
@@ -15,6 +16,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,6 +38,7 @@ public class AuthController {
     private final UsuarioService usuarioService;
     private final RefreshTokenService refreshTokenService;
     private final FirebaseService firebaseService;
+    private final AuthCookieService authCookieService;
 
     public AuthController(
             AuthenticationManager authenticationManager,
@@ -42,7 +46,8 @@ public class AuthController {
             UsuarioRepository usuarioRepository,
             UsuarioService usuarioService,
             RefreshTokenService refreshTokenService,
-            FirebaseService firebaseService
+            FirebaseService firebaseService,
+            AuthCookieService authCookieService
     ) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
@@ -50,6 +55,7 @@ public class AuthController {
         this.usuarioService = usuarioService;
         this.refreshTokenService = refreshTokenService;
         this.firebaseService = firebaseService;
+        this.authCookieService = authCookieService;
     }
 
     public record RegisterRequest(
@@ -88,7 +94,7 @@ public class AuthController {
 
         @PostMapping("/firebase")
         @SecurityRequirements
-        public AuthResponse loginComGoogle(@RequestBody @Valid GoogleLoginRequest req) {
+        public AuthResponse loginComGoogle(@RequestBody @Valid GoogleLoginRequest req, HttpServletResponse response) {
 
         FirebaseToken decodedToken = firebaseService.validarToken(req.idToken());
 
@@ -127,6 +133,7 @@ public class AuthController {
 
         String accessToken = jwtService.generateToken(usuario.getEmail(), usuario.getRole());
         var refreshToken = refreshTokenService.criar(usuario);
+        authCookieService.addAuthCookies(response, accessToken, refreshToken.getToken());
 
         return new AuthResponse(
                 accessToken,
@@ -163,7 +170,7 @@ public class AuthController {
     @Operation(summary = "Autenticar e obter token JWT")
     @SecurityRequirements
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody @Valid LoginRequest req) {
+    public AuthResponse login(@RequestBody @Valid LoginRequest req, HttpServletResponse response) {
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.email(), req.senha())
@@ -182,6 +189,7 @@ public class AuthController {
 
         String accessToken = jwtService.generateToken(usuario.getEmail(), usuario.getRole());
         RefreshToken refreshToken = refreshTokenService.criar(usuario);
+        authCookieService.addAuthCookies(response, accessToken, refreshToken.getToken());
 
         return new AuthResponse(
                 accessToken,
@@ -192,8 +200,19 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshResponse> refresh(@RequestBody @Valid RefreshRequest request) {
-        RefreshToken refreshToken = refreshTokenService.buscarValido(request.refreshToken())
+    public ResponseEntity<RefreshResponse> refresh(
+            @RequestBody(required = false) @Valid RefreshRequest request,
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse
+    ) {
+        String refreshTokenValue = request != null && request.refreshToken() != null && !request.refreshToken().isBlank()
+                ? request.refreshToken()
+                : authCookieService.getRefreshToken(httpRequest).orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "Refresh token inválido"
+                ));
+
+        RefreshToken refreshToken = refreshTokenService.buscarValido(refreshTokenValue)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.UNAUTHORIZED,
                         "Refresh token inválido"
@@ -201,13 +220,21 @@ public class AuthController {
 
         Usuario usuario = refreshToken.getUsuario();
 
-        refreshTokenService.revogar(request.refreshToken());
+        refreshTokenService.revogar(refreshTokenValue);
         RefreshToken novoRefreshToken = refreshTokenService.criar(usuario);
 
         String novoAccessToken = jwtService.generateToken(usuario.getEmail(), usuario.getRole());
+        authCookieService.addAuthCookies(httpResponse, novoAccessToken, novoRefreshToken.getToken());
 
         return ResponseEntity.ok(
                 new RefreshResponse(novoAccessToken, novoRefreshToken.getToken())
         );
+    }
+
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        authCookieService.getRefreshToken(request).ifPresent(refreshTokenService::revogar);
+        authCookieService.clearAuthCookies(response);
     }
 }
