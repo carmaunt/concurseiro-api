@@ -344,6 +344,32 @@ class QuestaoServiceTest {
     }
 
     @Test
+    void cadastrar_deveAceitarGabaritoAnulada_emQualquerModalidade() {
+        mockDisciplina(1L, "Direito Constitucional");
+        mockAssunto(2L, "Direitos Fundamentais");
+        mockBanca(3L, "CEBRASPE");
+        mockInstituicao(4L, "PC-BA");
+
+        when(questaoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        QuestaoRequest req = requestPadrao(
+                1L,
+                2L,
+                3L,
+                4L,
+                "A) A\nB) B\nC) C\nD) D",
+                "A_D",
+                "ANULADA"
+        );
+
+        Questao salvo = service.cadastrar(req);
+
+        assertEquals("A_D", salvo.getModalidade());
+        assertEquals("ANULADA", salvo.getGabarito());
+        verify(questaoRepository).save(any());
+    }
+
+    @Test
     void cadastrar_deveFalhar_quandoModalidadeAD_eGabaritoForE() {
         mockDisciplina(1L, "Direito Constitucional");
         mockAssunto(2L, "Direitos Fundamentais");

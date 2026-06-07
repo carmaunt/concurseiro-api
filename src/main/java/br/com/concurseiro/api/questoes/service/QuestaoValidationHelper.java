@@ -6,6 +6,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.UUID;
 
 public final class QuestaoValidationHelper {
+    public static final String GABARITO_ANULADA = "ANULADA";
 
     private QuestaoValidationHelper() {}
 
@@ -46,6 +47,10 @@ public final class QuestaoValidationHelper {
     }
 
     public static void validarGabaritoPorModalidade(String modalidade, String gabarito) {
+        if (isGabaritoAnulada(gabarito)) {
+            return;
+        }
+
         boolean ok = switch (modalidade) {
             case "A_E" -> gabarito.matches("^[A-E]$");
             case "A_D" -> gabarito.matches("^[A-D]$");
@@ -63,6 +68,8 @@ public final class QuestaoValidationHelper {
     }
 
     public static String normalizarGabarito(String modalidade, String gabarito) {
+        if (isGabaritoAnulada(gabarito)) return GABARITO_ANULADA;
+
         if (!"CERTO_ERRADO".equals(modalidade)) return gabarito;
 
         return switch (gabarito) {
@@ -70,5 +77,9 @@ public final class QuestaoValidationHelper {
             case "ERRADO" -> "E";
             default -> gabarito;
         };
+    }
+
+    private static boolean isGabaritoAnulada(String gabarito) {
+        return GABARITO_ANULADA.equals(gabarito) || "ANULADO".equals(gabarito);
     }
 }
