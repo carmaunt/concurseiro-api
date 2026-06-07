@@ -365,7 +365,7 @@ class QuestaoServiceTest {
         Questao salvo = service.cadastrar(req);
 
         assertEquals("A_D", salvo.getModalidade());
-        assertEquals("ANULADA", salvo.getGabarito());
+        assertEquals("X", salvo.getGabarito());
         verify(questaoRepository).save(any());
     }
 

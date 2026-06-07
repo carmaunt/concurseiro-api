@@ -6,7 +6,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.UUID;
 
 public final class QuestaoValidationHelper {
-    public static final String GABARITO_ANULADA = "ANULADA";
+    public static final String GABARITO_ANULADA = "X";
 
     private QuestaoValidationHelper() {}
 
@@ -80,6 +80,6 @@ public final class QuestaoValidationHelper {
     }
 
     private static boolean isGabaritoAnulada(String gabarito) {
-        return GABARITO_ANULADA.equals(gabarito) || "ANULADO".equals(gabarito);
+        return GABARITO_ANULADA.equals(gabarito) || "ANULADA".equals(gabarito) || "ANULADO".equals(gabarito);
     }
 }
