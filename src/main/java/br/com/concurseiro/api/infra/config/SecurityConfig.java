@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -106,6 +108,8 @@ public class SecurityConfig {
                             .hasAnyAuthority(Usuario.Role.ADMIN.authority(), Usuario.Role.VISITANTE.authority())
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/provas/*/questoes")
                             .hasAnyAuthority(Usuario.Role.ADMIN.authority(), Usuario.Role.VISITANTE.authority())
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/v1/provas/*")
+                            .hasAuthority(Usuario.Role.ADMIN.authority())
 
                         // ações exclusivas de admin
                         .requestMatchers("/api/v1/admin/**").hasAuthority(Usuario.Role.ADMIN.authority())

@@ -1,6 +1,7 @@
 package br.com.concurseiro.api.prova.controller;
 
 import br.com.concurseiro.api.infra.security.JwtService;
+import br.com.concurseiro.api.infra.security.AuthCookieService;
 import br.com.concurseiro.api.prova.dto.ProvaResponse;
 import br.com.concurseiro.api.prova.service.ProvaService;
 import br.com.concurseiro.api.questoes.model.Questao;
@@ -14,6 +15,10 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ProblemDetail;
+import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,9 +31,11 @@ import java.util.List;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,7 +45,13 @@ import org.springframework.http.HttpStatus;
 
 @WebMvcTest(ProvaController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(ProvaControllerTest.MethodSecurityTestConfig.class)
 class ProvaControllerTest {
+
+    @TestConfiguration
+    @EnableMethodSecurity
+    static class MethodSecurityTestConfig {
+    }
 
         @org.springframework.test.context.bean.override.mockito.MockitoBean
         private br.com.concurseiro.api.infra.security.LoginRateLimitService loginRateLimitService;
@@ -60,6 +73,9 @@ class ProvaControllerTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private AuthCookieService authCookieService;
 
     @MockitoBean
     private UsuarioRepository usuarioRepository;
@@ -229,5 +245,23 @@ class ProvaControllerTest {
                 .andExpect(jsonPath("$.fields.banca", containsString("must not be blank")))
                 .andExpect(jsonPath("$.fields.instituicaoId", containsString("must not be null")))
                 .andExpect(jsonPath("$.fields.modalidade", containsString("modalidade deve ser")));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void excluir_deveRetornar204_quandoUsuarioAdmin() throws Exception {
+        mockMvc.perform(delete("/api/v1/provas/1"))
+                .andExpect(status().isNoContent());
+
+        verify(service).excluir(1L);
+    }
+
+    @Test
+    @WithMockUser(roles = "VISITANTE")
+    void excluir_deveRetornar403_quandoUsuarioNaoAdmin() throws Exception {
+        mockMvc.perform(delete("/api/v1/provas/1"))
+                .andExpect(status().isForbidden());
+
+        verify(service, never()).excluir(1L);
     }
 }
