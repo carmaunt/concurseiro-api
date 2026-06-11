@@ -2,6 +2,7 @@ package br.com.concurseiro.api.comentario.controller;
 
 import br.com.concurseiro.api.comentario.model.Comentario;
 import br.com.concurseiro.api.comentario.repository.ComentarioRepository;
+import br.com.concurseiro.api.infra.security.AuthCookieService;
 import br.com.concurseiro.api.infra.security.JwtService;
 import br.com.concurseiro.api.usuarios.model.Usuario;
 import br.com.concurseiro.api.usuarios.repository.UsuarioRepository;
@@ -54,6 +55,9 @@ class ComentarioControllerTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private AuthCookieService authCookieService;
 
     @MockitoBean
     private UsuarioRepository usuarioRepository;

@@ -31,8 +31,7 @@ public class TextoApoio {
     @Column(nullable = false)
     private String conteudo;
 
-    @Lob
-    @Column(name = "conteudo_json")
+    @Column(name = "conteudo_json", columnDefinition = "text")
     private String conteudoJson;
 
     @Column(name = "hash_sha256", nullable = false, unique = true, length = 64)
