@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 014-add-tipo-conteudo-json-textos-apoio
+      author: mauricio
+      changes:
+        - addColumn:
+            tableName: textos_apoio
+            columns:
+              - column:
+                  name: tipo
+                  type: varchar(30)
+                  defaultValue: TEXTO
+                  constraints:
+                    nullable: false
+              - column:
+                  name: conteudo_json
+                  type: text

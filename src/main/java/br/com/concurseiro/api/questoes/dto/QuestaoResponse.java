@@ -11,6 +11,8 @@ public record QuestaoResponse(
         Long textoApoioId,
         String textoApoioTitulo,
         String textoApoioConteudo,
+        String textoApoioTipo,
+        String textoApoioJson,
         String disciplina,
         Long disciplinaId,
         String assunto,
@@ -35,9 +37,42 @@ public record QuestaoResponse(
         Long subassuntoId = q.getSubAssuntoCatalogo() != null ? q.getSubAssuntoCatalogo().getId() : null;
         Long bancaId = q.getBancaCatalogo() != null ? q.getBancaCatalogo().getId() : null;
         Long instituicaoId = q.getInstituicaoCatalogo() != null ? q.getInstituicaoCatalogo().getId() : null;
+
         Long textoApoioId = q.getTextoApoio() != null ? q.getTextoApoio().getId() : null;
         String textoApoioTitulo = q.getTextoApoio() != null ? q.getTextoApoio().getTitulo() : null;
         String textoApoioConteudo = q.getTextoApoio() != null ? q.getTextoApoio().getConteudo() : null;
-        return new QuestaoResponse(q.getIdQuestion(), q.getEnunciado(), q.getQuestao(), q.getAlternativas(), textoApoioId, textoApoioTitulo, textoApoioConteudo, q.getDisciplina(), disciplinaId, q.getAssunto(), assuntoId, q.getSubAssunto(), subassuntoId, q.getBanca(), bancaId, q.getInstituicao(), instituicaoId, q.getAno(), q.getCargo(), q.getNivel(), q.getModalidade(), q.getGabarito(), q.getProvaId(), q.getCriadoEm());
+        String textoApoioTipo = q.getTextoApoio() != null && q.getTextoApoio().getTipo() != null
+                ? q.getTextoApoio().getTipo().name()
+                : null;
+        String textoApoioJson = q.getTextoApoio() != null ? q.getTextoApoio().getConteudoJson() : null;
+
+        return new QuestaoResponse(
+                q.getIdQuestion(),
+                q.getEnunciado(),
+                q.getQuestao(),
+                q.getAlternativas(),
+                textoApoioId,
+                textoApoioTitulo,
+                textoApoioConteudo,
+                textoApoioTipo,
+                textoApoioJson,
+                q.getDisciplina(),
+                disciplinaId,
+                q.getAssunto(),
+                assuntoId,
+                q.getSubAssunto(),
+                subassuntoId,
+                q.getBanca(),
+                bancaId,
+                q.getInstituicao(),
+                instituicaoId,
+                q.getAno(),
+                q.getCargo(),
+                q.getNivel(),
+                q.getModalidade(),
+                q.getGabarito(),
+                q.getProvaId(),
+                q.getCriadoEm()
+        );
     }
 }

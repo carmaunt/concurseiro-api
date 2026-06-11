@@ -10,6 +10,12 @@ import java.time.OffsetDateTime;
 })
 public class TextoApoio {
 
+    public enum Tipo {
+        TEXTO,
+        CODIGO,
+        TABELA
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,9 +23,17 @@ public class TextoApoio {
     @Column(length = 255)
     private String titulo;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private Tipo tipo = Tipo.TEXTO;
+
     @Lob
     @Column(nullable = false)
     private String conteudo;
+
+    @Lob
+    @Column(name = "conteudo_json")
+    private String conteudoJson;
 
     @Column(name = "hash_sha256", nullable = false, unique = true, length = 64)
     private String hashSha256;
@@ -33,8 +47,14 @@ public class TextoApoio {
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
 
+    public Tipo getTipo() { return tipo; }
+    public void setTipo(Tipo tipo) { this.tipo = tipo == null ? Tipo.TEXTO : tipo; }
+
     public String getConteudo() { return conteudo; }
     public void setConteudo(String conteudo) { this.conteudo = conteudo; }
+
+    public String getConteudoJson() { return conteudoJson; }
+    public void setConteudoJson(String conteudoJson) { this.conteudoJson = conteudoJson; }
 
     public String getHashSha256() { return hashSha256; }
     public void setHashSha256(String hashSha256) { this.hashSha256 = hashSha256; }

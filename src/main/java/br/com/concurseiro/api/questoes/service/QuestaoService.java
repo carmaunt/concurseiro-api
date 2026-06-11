@@ -68,7 +68,13 @@ public class QuestaoService {
         SubAssunto subAssunto = resolverSubAssunto(request.subassuntoId(), assunto);
         Banca banca = bancaRepository.findById(request.bancaId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Banca não encontrada no catálogo"));
         Instituicao instituicao = instituicaoRepository.findById(request.instituicaoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instituição não encontrada no catálogo"));
-        TextoApoio textoApoio = resolverTextoApoio(request.textoApoioId(), request.textoApoioTitulo(), request.textoApoioConteudo());
+        TextoApoio textoApoio = resolverTextoApoio(
+                request.textoApoioId(),
+                request.textoApoioTitulo(),
+                request.textoApoioTipo(),
+                request.textoApoioConteudo(),
+                request.textoApoioJson()
+        );
 
         Questao questao = new Questao();
         questao.setIdQuestion(QuestaoValidationHelper.gerarIdQuestion());
@@ -103,7 +109,13 @@ public class QuestaoService {
         SubAssunto subAssunto = resolverSubAssunto(request.subassuntoId(), assunto);
         Banca banca = bancaRepository.findById(request.bancaId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Banca não encontrada no catálogo"));
         Instituicao instituicao = instituicaoRepository.findById(request.instituicaoId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instituição não encontrada no catálogo"));
-        TextoApoio textoApoio = resolverTextoApoio(request.textoApoioId(), request.textoApoioTitulo(), request.textoApoioConteudo());
+        TextoApoio textoApoio = resolverTextoApoio(
+                request.textoApoioId(),
+                request.textoApoioTitulo(),
+                request.textoApoioTipo(),
+                request.textoApoioConteudo(),
+                request.textoApoioJson()
+        );
 
         questao.setEnunciado(normalizarCampoOpcional(request.enunciado()));
         questao.setQuestao(request.questao());
@@ -150,9 +162,9 @@ public class QuestaoService {
         return repository.findAll(spec, buildPageRequest(page, size, sort)).map(QuestaoResponse::fromEntity);
     }
 
-    private TextoApoio resolverTextoApoio(Long textoApoioId, String titulo, String conteudo) {
+    private TextoApoio resolverTextoApoio(Long textoApoioId, String titulo, String tipo, String conteudo, String conteudoJson) {
         if (textoApoioService == null) return null;
-        return textoApoioService.resolverTextoApoio(textoApoioId, titulo, conteudo);
+        return textoApoioService.resolverTextoApoio(textoApoioId, titulo, tipo, conteudo, conteudoJson);
     }
 
     private SubAssunto resolverSubAssunto(Long subassuntoId, Assunto assunto) {

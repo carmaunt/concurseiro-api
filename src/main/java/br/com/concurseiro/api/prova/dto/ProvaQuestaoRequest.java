@@ -11,7 +11,9 @@ public record ProvaQuestaoRequest(
 
         Long textoApoioId,
         @Size(max = 255) String textoApoioTitulo,
+        @Size(max = 30) String textoApoioTipo,
         @Size(max = 50000) String textoApoioConteudo,
+        @Size(max = 50000) String textoApoioJson,
 
         @NotNull Long disciplinaId,
         @NotNull Long assuntoId,

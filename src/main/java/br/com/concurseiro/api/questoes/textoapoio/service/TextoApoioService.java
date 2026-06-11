@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+import java.util.Locale;
 
 @Service
 public class TextoApoioService {
@@ -30,11 +31,13 @@ public class TextoApoioService {
 
     @Transactional
     public TextoApoioResponse cadastrar(TextoApoioRequest request) {
-        if (request.conteudo() == null || request.conteudo().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "conteúdo do texto de apoio é obrigatório");
-        }
+        TextoApoio.Tipo tipo = normalizarTipo(request.tipo());
+        String conteudo = normalizarConteudoOuNull(request.conteudo());
+        String conteudoJson = normalizarConteudoOuNull(request.conteudoJson());
 
-        TextoApoio textoApoio = obterOuCriar(request.titulo(), request.conteudo());
+        validarConteudoObrigatorio(tipo, conteudo, conteudoJson);
+
+        TextoApoio textoApoio = obterOuCriar(request.titulo(), tipo, conteudo, conteudoJson);
         return TextoApoioResponse.fromEntity(textoApoio);
     }
 
@@ -72,30 +75,43 @@ public class TextoApoioService {
 
     @Transactional
     public TextoApoio resolverTextoApoio(Long textoApoioId, String titulo, String conteudo) {
+        return resolverTextoApoio(textoApoioId, titulo, null, conteudo, null);
+    }
+
+    @Transactional
+    public TextoApoio resolverTextoApoio(Long textoApoioId, String titulo, String tipo, String conteudo, String conteudoJson) {
         if (textoApoioId != null) {
             return repository.findById(textoApoioId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Texto de apoio não encontrado"));
         }
 
-        if (conteudo == null || conteudo.isBlank()) {
+        TextoApoio.Tipo tipoNormalizado = normalizarTipo(tipo);
+        String conteudoNormalizado = normalizarConteudoOuNull(conteudo);
+        String conteudoJsonNormalizado = normalizarConteudoOuNull(conteudoJson);
+
+        if (conteudoNormalizado == null && conteudoJsonNormalizado == null) {
             return null;
         }
 
-        return obterOuCriar(titulo, conteudo);
+        validarConteudoObrigatorio(tipoNormalizado, conteudoNormalizado, conteudoJsonNormalizado);
+
+        return obterOuCriar(titulo, tipoNormalizado, conteudoNormalizado, conteudoJsonNormalizado);
     }
 
-    private TextoApoio obterOuCriar(String titulo, String conteudo) {
-        String conteudoNormalizado = normalizarConteudo(conteudo);
-        String hash = gerarHashSha256(conteudoNormalizado);
+    private TextoApoio obterOuCriar(String titulo, TextoApoio.Tipo tipo, String conteudo, String conteudoJson) {
+        String tituloNormalizado = normalizarTitulo(titulo);
+        String hash = gerarHashSha256(montarBaseHash(tituloNormalizado, tipo, conteudo, conteudoJson));
 
         return repository.findByHashSha256(hash)
-                .orElseGet(() -> salvarNovo(titulo, conteudoNormalizado, hash));
+                .orElseGet(() -> salvarNovo(tituloNormalizado, tipo, conteudo, conteudoJson, hash));
     }
 
-    private TextoApoio salvarNovo(String titulo, String conteudo, String hash) {
+    private TextoApoio salvarNovo(String titulo, TextoApoio.Tipo tipo, String conteudo, String conteudoJson, String hash) {
         TextoApoio textoApoio = new TextoApoio();
-        textoApoio.setTitulo(normalizarTitulo(titulo));
-        textoApoio.setConteudo(conteudo);
+        textoApoio.setTitulo(titulo);
+        textoApoio.setTipo(tipo);
+        textoApoio.setConteudo(conteudo == null ? "" : conteudo);
+        textoApoio.setConteudoJson(conteudoJson);
         textoApoio.setHashSha256(hash);
 
         try {
@@ -103,6 +119,31 @@ public class TextoApoioService {
         } catch (DataIntegrityViolationException ex) {
             return repository.findByHashSha256(hash)
                     .orElseThrow(() -> ex);
+        }
+    }
+
+    private void validarConteudoObrigatorio(TextoApoio.Tipo tipo, String conteudo, String conteudoJson) {
+        if (tipo == TextoApoio.Tipo.TABELA) {
+            if (conteudoJson == null || conteudoJson.isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "conteúdo JSON do texto de apoio é obrigatório para tabela");
+            }
+            return;
+        }
+
+        if (conteudo == null || conteudo.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "conteúdo do texto de apoio é obrigatório");
+        }
+    }
+
+    private TextoApoio.Tipo normalizarTipo(String tipo) {
+        if (tipo == null || tipo.isBlank()) {
+            return TextoApoio.Tipo.TEXTO;
+        }
+
+        try {
+            return TextoApoio.Tipo.valueOf(tipo.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tipo de texto de apoio inválido");
         }
     }
 
@@ -114,11 +155,26 @@ public class TextoApoioService {
         return titulo.trim().replaceAll("\\s+", " ");
     }
 
-    private String normalizarConteudo(String conteudo) {
+    private String normalizarConteudoOuNull(String conteudo) {
+        if (conteudo == null || conteudo.isBlank()) {
+            return null;
+        }
+
         return conteudo
                 .replace("\r\n", "\n")
                 .replace('\r', '\n')
                 .trim();
+    }
+
+    private String montarBaseHash(String titulo, TextoApoio.Tipo tipo, String conteudo, String conteudoJson) {
+        return "titulo=" + valorHash(titulo) + "\n" +
+                "tipo=" + (tipo == null ? TextoApoio.Tipo.TEXTO.name() : tipo.name()) + "\n" +
+                "conteudo=" + valorHash(conteudo) + "\n" +
+                "conteudoJson=" + valorHash(conteudoJson);
+    }
+
+    private String valorHash(String valor) {
+        return valor == null ? "" : valor;
     }
 
     private String gerarHashSha256(String conteudo) {
