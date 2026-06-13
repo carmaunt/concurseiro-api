@@ -427,6 +427,12 @@ Acesse a documentação Swagger em:
 | `CORS_ALLOWED_ORIGINS` | `*` | Origins permitidas |
 | `FIREBASE_CREDENTIALS_PATH` | - | Path credentials Firebase |
 | `APP_ADMIN_API_KEY` | admin-dev-key | Chave API admin |
+| `R2_ENDPOINT` | - | Endpoint S3 do Cloudflare R2 |
+| `R2_REGION` | auto | Região usada pelo cliente S3 |
+| `R2_ACCESS_KEY_ID` | - | Access Key ID restrito ao bucket |
+| `R2_SECRET_ACCESS_KEY` | - | Secret Access Key restrito ao bucket |
+| `R2_BUCKET` | - | Bucket de imagens |
+| `R2_PUBLIC_BASE_URL` | - | URL pública do bucket, sem barra final |
 
 ---
 

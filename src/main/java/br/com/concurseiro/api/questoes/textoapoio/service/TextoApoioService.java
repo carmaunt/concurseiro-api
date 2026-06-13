@@ -123,9 +123,12 @@ public class TextoApoioService {
     }
 
     private void validarConteudoObrigatorio(TextoApoio.Tipo tipo, String conteudo, String conteudoJson) {
-        if (tipo == TextoApoio.Tipo.TABELA) {
+        if (tipo == TextoApoio.Tipo.TABELA || tipo == TextoApoio.Tipo.IMAGEM) {
             if (conteudoJson == null || conteudoJson.isBlank()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "conteúdo JSON do texto de apoio é obrigatório para tabela");
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "conteúdo JSON do texto de apoio é obrigatório para " + tipo.name().toLowerCase(Locale.ROOT)
+                );
             }
             return;
         }

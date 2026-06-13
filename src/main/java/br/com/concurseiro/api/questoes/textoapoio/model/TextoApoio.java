@@ -13,7 +13,8 @@ public class TextoApoio {
     public enum Tipo {
         TEXTO,
         CODIGO,
-        TABELA
+        TABELA,
+        IMAGEM
     }
 
     @Id
