@@ -17,3 +17,5 @@ databaseChangeLog:
       file: db/changelog/changes/014-add-tipo-conteudo-json-textos-apoio.yaml
   - include:
       file: db/changelog/changes/015-normalize-enunciados.yaml
+  - include:
+      file: db/changelog/changes/016-remove-enunciados-legados.yaml
