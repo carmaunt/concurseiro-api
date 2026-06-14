@@ -6,6 +6,7 @@ import java.time.OffsetDateTime;
 public record QuestaoResponse(
         String idQuestion,
         String enunciado,
+        Long enunciadoId,
         String questao,
         String alternativas,
         Long textoApoioId,
@@ -49,6 +50,7 @@ public record QuestaoResponse(
         return new QuestaoResponse(
                 q.getIdQuestion(),
                 q.getEnunciado(),
+                q.getEnunciadoCatalogo() != null ? q.getEnunciadoCatalogo().getId() : null,
                 q.getQuestao(),
                 q.getAlternativas(),
                 textoApoioId,

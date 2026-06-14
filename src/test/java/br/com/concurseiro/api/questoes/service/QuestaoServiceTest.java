@@ -11,6 +11,8 @@ import br.com.concurseiro.api.catalogo.instituicao.repository.InstituicaoReposit
 import br.com.concurseiro.api.catalogo.subassunto.model.SubAssunto;
 import br.com.concurseiro.api.catalogo.subassunto.repository.SubAssuntoRepository;
 import br.com.concurseiro.api.questoes.dto.QuestaoRequest;
+import br.com.concurseiro.api.questoes.enunciado.model.Enunciado;
+import br.com.concurseiro.api.questoes.enunciado.service.EnunciadoService;
 import br.com.concurseiro.api.questoes.model.Questao;
 import br.com.concurseiro.api.questoes.repository.QuestaoRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +36,7 @@ class QuestaoServiceTest {
     private SubAssuntoRepository subAssuntoRepository;
     private BancaRepository bancaRepository;
     private InstituicaoRepository instituicaoRepository;
+    private EnunciadoService enunciadoService;
 
     @BeforeEach
     void setup() {
@@ -43,6 +46,15 @@ class QuestaoServiceTest {
         subAssuntoRepository = mock(SubAssuntoRepository.class);
         bancaRepository = mock(BancaRepository.class);
         instituicaoRepository = mock(InstituicaoRepository.class);
+        enunciadoService = mock(EnunciadoService.class);
+
+        when(enunciadoService.resolverEnunciado(any(), any())).thenAnswer(invocation -> {
+            Enunciado enunciado = new Enunciado();
+            enunciado.setId(invocation.getArgument(0));
+            enunciado.setConteudo(invocation.getArgument(1));
+            enunciado.setHashSha256("hash-teste");
+            return enunciado;
+        });
 
         service = new QuestaoService(
                 questaoRepository,
@@ -51,6 +63,7 @@ class QuestaoServiceTest {
                 subAssuntoRepository,
                 bancaRepository,
                 instituicaoRepository,
+                enunciadoService,
                 null
         );
     }
@@ -175,7 +188,51 @@ class QuestaoServiceTest {
         assertEquals("CEBRASPE", result.getBanca());
         assertEquals("PC-BA", result.getInstituicao());
 
+        verify(enunciadoService).resolverEnunciado(null, "Enunciado teste");
         verify(questaoRepository, times(1)).save(any());
+    }
+
+    @Test
+    void cadastrar_deveReutilizarEnunciadoSelecionadoPorId() {
+        mockDisciplina(1L, "Direito Constitucional");
+        mockAssunto(2L, "Direitos Fundamentais");
+        mockBanca(3L, "CEBRASPE");
+        mockInstituicao(4L, "PC-BA");
+
+        Enunciado existente = new Enunciado();
+        existente.setId(15L);
+        existente.setConteudo("Julgue o item subsequente.");
+        existente.setHashSha256("hash-existente");
+        when(enunciadoService.resolverEnunciado(15L, null)).thenReturn(existente);
+        when(questaoRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        QuestaoRequest req = new QuestaoRequest(
+                null,
+                "Texto da questão",
+                "C) Certo\nE) Errado",
+                null,
+                null,
+                null,
+                null,
+                null,
+                15L,
+                1L,
+                2L,
+                null,
+                3L,
+                4L,
+                2024,
+                "Agente",
+                "Superior",
+                "CERTO_ERRADO",
+                "C"
+        );
+
+        Questao result = service.cadastrar(req);
+
+        assertSame(existente, result.getEnunciadoCatalogo());
+        assertEquals("Julgue o item subsequente.", result.getEnunciado());
+        verify(enunciadoService).resolverEnunciado(15L, null);
     }
 
     @Test

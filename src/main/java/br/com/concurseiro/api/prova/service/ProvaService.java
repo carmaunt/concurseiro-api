@@ -15,6 +15,8 @@ import br.com.concurseiro.api.prova.dto.ProvaRequest;
 import br.com.concurseiro.api.prova.dto.ProvaResponse;
 import br.com.concurseiro.api.prova.model.Prova;
 import br.com.concurseiro.api.prova.repository.ProvaRepository;
+import br.com.concurseiro.api.questoes.enunciado.model.Enunciado;
+import br.com.concurseiro.api.questoes.enunciado.service.EnunciadoService;
 import br.com.concurseiro.api.questoes.model.Questao;
 import br.com.concurseiro.api.questoes.repository.QuestaoRepository;
 import br.com.concurseiro.api.questoes.service.QuestaoValidationHelper;
@@ -43,14 +45,15 @@ public class ProvaService {
     private final AssuntoRepository assuntoRepository;
     private final SubAssuntoRepository subAssuntoRepository;
     private final BancaRepository bancaRepository;
+    private final EnunciadoService enunciadoService;
     private final TextoApoioService textoApoioService;
 
     public ProvaService(ProvaRepository provaRepository, QuestaoRepository questaoRepository, InstituicaoRepository instituicaoRepository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, BancaRepository bancaRepository) {
-        this(provaRepository, questaoRepository, instituicaoRepository, disciplinaRepository, assuntoRepository, null, bancaRepository, null);
+        this(provaRepository, questaoRepository, instituicaoRepository, disciplinaRepository, assuntoRepository, null, bancaRepository, null, null);
     }
 
     @Autowired
-    public ProvaService(ProvaRepository provaRepository, QuestaoRepository questaoRepository, InstituicaoRepository instituicaoRepository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, SubAssuntoRepository subAssuntoRepository, BancaRepository bancaRepository, TextoApoioService textoApoioService) {
+    public ProvaService(ProvaRepository provaRepository, QuestaoRepository questaoRepository, InstituicaoRepository instituicaoRepository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, SubAssuntoRepository subAssuntoRepository, BancaRepository bancaRepository, EnunciadoService enunciadoService, TextoApoioService textoApoioService) {
         this.provaRepository = provaRepository;
         this.questaoRepository = questaoRepository;
         this.instituicaoRepository = instituicaoRepository;
@@ -58,6 +61,7 @@ public class ProvaService {
         this.assuntoRepository = assuntoRepository;
         this.subAssuntoRepository = subAssuntoRepository;
         this.bancaRepository = bancaRepository;
+        this.enunciadoService = enunciadoService;
         this.textoApoioService = textoApoioService;
     }
 
@@ -114,10 +118,11 @@ public class ProvaService {
                 request.textoApoioConteudo(),
                 request.textoApoioJson()
         );
+        Enunciado enunciado = resolverEnunciado(request.enunciadoId(), request.enunciado());
         Questao questao = new Questao();
         questao.setIdQuestion(QuestaoValidationHelper.gerarIdQuestion());
         questao.setProvaId(provaId);
-        questao.setEnunciado(normalizarCampoOpcional(request.enunciado()));
+        questao.setEnunciadoCatalogo(enunciado);
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
         questao.setTextoApoio(textoApoio);
@@ -137,6 +142,17 @@ public class ProvaService {
     private TextoApoio resolverTextoApoio(Long textoApoioId, String titulo, String tipo, String conteudo, String conteudoJson) {
         if (textoApoioService == null) return null;
         return textoApoioService.resolverTextoApoio(textoApoioId, titulo, tipo, conteudo, conteudoJson);
+    }
+
+    private Enunciado resolverEnunciado(Long enunciadoId, String conteudo) {
+        if (enunciadoService != null) {
+            return enunciadoService.resolverEnunciado(enunciadoId, conteudo);
+        }
+
+        Enunciado enunciado = new Enunciado();
+        enunciado.setConteudo(normalizarCampoOpcional(conteudo));
+        enunciado.setHashSha256("teste");
+        return enunciado;
     }
 
     private String normalizarCampoOpcional(String valor) {

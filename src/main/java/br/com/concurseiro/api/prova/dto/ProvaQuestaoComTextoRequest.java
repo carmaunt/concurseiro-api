@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 
 public record ProvaQuestaoComTextoRequest(
         @Size(max = 10000) String enunciado,
+        Long enunciadoId,
         @NotBlank @Size(max = 10000) String questao,
         @Size(max = 10000) String alternativas,
         Long textoApoioId,

@@ -15,3 +15,5 @@ databaseChangeLog:
       file: db/changelog/changes/013-add-questoes-subassunto.yaml
   - include:
       file: db/changelog/changes/014-add-tipo-conteudo-json-textos-apoio.yaml
+  - include:
+      file: db/changelog/changes/015-normalize-enunciados.yaml

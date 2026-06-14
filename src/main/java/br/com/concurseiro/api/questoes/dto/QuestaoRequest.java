@@ -12,6 +12,7 @@ public record QuestaoRequest(
         @Size(max = 30) String textoApoioTipo,
         @Size(max = 50000) String textoApoioConteudo,
         @Size(max = 50000) String textoApoioJson,
+        Long enunciadoId,
 
         // ===== Catálogo (agora obrigatório) =====
         @NotNull Long disciplinaId,
@@ -55,9 +56,53 @@ public record QuestaoRequest(
                 null,
                 null,
                 null,
+                null,
                 disciplinaId,
                 assuntoId,
                 null,
+                bancaId,
+                instituicaoId,
+                ano,
+                cargo,
+                nivel,
+                modalidade,
+                gabarito
+        );
+    }
+
+    public QuestaoRequest(
+            String enunciado,
+            String questao,
+            String alternativas,
+            Long textoApoioId,
+            String textoApoioTitulo,
+            String textoApoioTipo,
+            String textoApoioConteudo,
+            String textoApoioJson,
+            Long disciplinaId,
+            Long assuntoId,
+            Long subassuntoId,
+            Long bancaId,
+            Long instituicaoId,
+            Integer ano,
+            String cargo,
+            String nivel,
+            String modalidade,
+            String gabarito
+    ) {
+        this(
+                enunciado,
+                questao,
+                alternativas,
+                textoApoioId,
+                textoApoioTitulo,
+                textoApoioTipo,
+                textoApoioConteudo,
+                textoApoioJson,
+                null,
+                disciplinaId,
+                assuntoId,
+                subassuntoId,
                 bancaId,
                 instituicaoId,
                 ano,

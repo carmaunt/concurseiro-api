@@ -20,6 +20,7 @@ public interface QuestaoRepository extends JpaRepository<Questao, Long>, JpaSpec
         left join fetch q.bancaCatalogo
         left join fetch q.instituicaoCatalogo
         left join fetch q.textoApoio
+        left join fetch q.enunciadoCatalogo
         where q.idQuestion = :idQuestion
     """)
     Optional<Questao> findDetalhadaByIdQuestion(String idQuestion);

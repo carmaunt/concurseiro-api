@@ -1,0 +1,194 @@
+databaseChangeLog:
+  - changeSet:
+      id: 015-normalize-enunciados
+      author: mauricio
+      changes:
+        - sql:
+            sql: CREATE EXTENSION IF NOT EXISTS pgcrypto
+        - createTable:
+            tableName: enunciados
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: enunciados_pkey
+                    nullable: false
+              - column:
+                  name: conteudo
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: hash_sha256
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: criado_em
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: enunciados
+            columnNames: hash_sha256
+            constraintName: uk_enunciados_hash_sha256
+        - addColumn:
+            tableName: questoes
+            columns:
+              - column:
+                  name: enunciado_id
+                  type: bigint
+        - sql:
+            sql: |
+              INSERT INTO enunciados (conteudo, hash_sha256, criado_em)
+              SELECT
+                  texto,
+                  encode(digest(convert_to(texto, 'UTF8'), 'sha256'), 'hex'),
+                  min(criado_em)
+              FROM (
+                  SELECT convert_from(lo_get(enunciado), 'UTF8') AS texto, criado_em
+                  FROM questoes
+              ) enunciados_atuais
+              GROUP BY texto
+        - sql:
+            sql: |
+              UPDATE questoes q
+              SET enunciado_id = e.id
+              FROM enunciados e
+              WHERE e.hash_sha256 = encode(
+                  digest(convert_to(convert_from(lo_get(q.enunciado), 'UTF8'), 'UTF8'), 'sha256'),
+                  'hex'
+              )
+        - addNotNullConstraint:
+            tableName: questoes
+            columnName: enunciado_id
+            columnDataType: bigint
+        - addForeignKeyConstraint:
+            baseTableName: questoes
+            baseColumnNames: enunciado_id
+            constraintName: fk_questoes_enunciado
+            referencedTableName: enunciados
+            referencedColumnNames: id
+        - createIndex:
+            tableName: questoes
+            indexName: idx_questoes_enunciado_id
+            columns:
+              - column:
+                  name: enunciado_id
+        - dropNotNullConstraint:
+            tableName: questoes
+            columnName: enunciado
+            columnDataType: oid
+        - sql:
+            splitStatements: false
+            sql: |
+              CREATE TABLE migracao_enunciado_oids_legados (
+                  oid oid PRIMARY KEY
+              );
+
+              INSERT INTO migracao_enunciado_oids_legados (oid)
+              SELECT DISTINCT enunciado
+              FROM questoes
+              WHERE enunciado IS NOT NULL;
+
+              CREATE OR REPLACE FUNCTION sincronizar_questoes_enunciado_compat()
+              RETURNS trigger
+              LANGUAGE plpgsql
+              AS $$
+              DECLARE
+                  texto_enunciado text;
+                  hash_enunciado varchar(64);
+              BEGIN
+                  IF TG_OP = 'UPDATE' AND NEW.enunciado_id IS DISTINCT FROM OLD.enunciado_id THEN
+                      INSERT INTO migracao_enunciado_oids_legados (oid)
+                      VALUES (OLD.enunciado)
+                      ON CONFLICT DO NOTHING;
+
+                      SELECT conteudo
+                      INTO texto_enunciado
+                      FROM enunciados
+                      WHERE id = NEW.enunciado_id;
+
+                      IF texto_enunciado IS NOT NULL THEN
+                          NEW.enunciado := lo_from_bytea(0, convert_to(texto_enunciado, 'UTF8'));
+                      END IF;
+                  ELSIF TG_OP = 'UPDATE' AND NEW.enunciado IS DISTINCT FROM OLD.enunciado THEN
+                      INSERT INTO migracao_enunciado_oids_legados (oid)
+                      VALUES (OLD.enunciado)
+                      ON CONFLICT DO NOTHING;
+
+                      texto_enunciado := convert_from(lo_get(NEW.enunciado), 'UTF8');
+                      hash_enunciado := encode(
+                          digest(convert_to(texto_enunciado, 'UTF8'), 'sha256'),
+                          'hex'
+                      );
+
+                      INSERT INTO enunciados (conteudo, hash_sha256, criado_em)
+                      VALUES (texto_enunciado, hash_enunciado, CURRENT_TIMESTAMP)
+                      ON CONFLICT (hash_sha256) DO NOTHING;
+
+                      SELECT id
+                      INTO NEW.enunciado_id
+                      FROM enunciados
+                      WHERE hash_sha256 = hash_enunciado;
+                  ELSIF TG_OP = 'INSERT' AND NEW.enunciado_id IS NULL AND NEW.enunciado IS NOT NULL THEN
+                      texto_enunciado := convert_from(lo_get(NEW.enunciado), 'UTF8');
+                      hash_enunciado := encode(
+                          digest(convert_to(texto_enunciado, 'UTF8'), 'sha256'),
+                          'hex'
+                      );
+
+                      INSERT INTO enunciados (conteudo, hash_sha256, criado_em)
+                      VALUES (texto_enunciado, hash_enunciado, CURRENT_TIMESTAMP)
+                      ON CONFLICT (hash_sha256) DO NOTHING;
+
+                      SELECT id
+                      INTO NEW.enunciado_id
+                      FROM enunciados
+                      WHERE hash_sha256 = hash_enunciado;
+                  ELSIF TG_OP = 'INSERT' AND NEW.enunciado IS NULL AND NEW.enunciado_id IS NOT NULL THEN
+                      SELECT conteudo
+                      INTO texto_enunciado
+                      FROM enunciados
+                      WHERE id = NEW.enunciado_id;
+
+                      IF texto_enunciado IS NOT NULL THEN
+                          NEW.enunciado := lo_from_bytea(0, convert_to(texto_enunciado, 'UTF8'));
+                      END IF;
+                  END IF;
+
+                  RETURN NEW;
+              END
+              $$;
+
+              CREATE TRIGGER trg_questoes_enunciado_compat
+              BEFORE INSERT OR UPDATE OF enunciado, enunciado_id
+              ON questoes
+              FOR EACH ROW
+              EXECUTE FUNCTION sincronizar_questoes_enunciado_compat();
+      rollback:
+        - sql:
+            sql: DROP TRIGGER IF EXISTS trg_questoes_enunciado_compat ON questoes
+        - sql:
+            sql: DROP FUNCTION IF EXISTS sincronizar_questoes_enunciado_compat()
+        - dropTable:
+            tableName: migracao_enunciado_oids_legados
+        - dropForeignKeyConstraint:
+            baseTableName: questoes
+            constraintName: fk_questoes_enunciado
+        - dropIndex:
+            tableName: questoes
+            indexName: idx_questoes_enunciado_id
+        - dropColumn:
+            tableName: questoes
+            columnName: enunciado_id
+        - addNotNullConstraint:
+            tableName: questoes
+            columnName: enunciado
+            columnDataType: oid
+        - dropTable:
+            tableName: enunciados

@@ -5,6 +5,7 @@ import br.com.concurseiro.api.catalogo.banca.model.Banca;
 import br.com.concurseiro.api.catalogo.disciplina.model.Disciplina;
 import br.com.concurseiro.api.catalogo.instituicao.model.Instituicao;
 import br.com.concurseiro.api.catalogo.subassunto.model.SubAssunto;
+import br.com.concurseiro.api.questoes.enunciado.model.Enunciado;
 import br.com.concurseiro.api.questoes.textoapoio.model.TextoApoio;
 import jakarta.persistence.*;
 
@@ -29,10 +30,6 @@ public class Questao {
 
     @Column(name = "id_question", nullable = false, unique = true, length = 16)
     private String idQuestion;
-
-    @Lob
-    @Column(nullable = false)
-    private String enunciado;
 
     @Lob
     @Column(nullable = false)
@@ -87,6 +84,10 @@ public class Questao {
     @JoinColumn(name = "texto_apoio_id")
     private TextoApoio textoApoio;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "enunciado_id", nullable = false)
+    private Enunciado enunciadoCatalogo;
+
     @Column(nullable = true, length = TEXTO_BUSCA_MAX_LENGTH)
     private String textoBusca;
 
@@ -97,7 +98,7 @@ public class Questao {
 
         this.textoBusca = normalizarParaBusca(
                 (textoApoioConteudo == null ? "" : textoApoioConteudo) + " " +
-                (enunciado == null ? "" : enunciado) + " " +
+                (getEnunciado() == null ? "" : getEnunciado()) + " " +
                 (questao == null ? "" : questao) + " " +
                 (getAssunto() == null ? "" : getAssunto())
         );
@@ -144,8 +145,14 @@ public class Questao {
     public String getIdQuestion() { return idQuestion; }
     public void setIdQuestion(String idQuestion) { this.idQuestion = idQuestion; }
 
-    public String getEnunciado() { return enunciado; }
-    public void setEnunciado(String enunciado) { this.enunciado = enunciado; }
+    public String getEnunciado() {
+        return enunciadoCatalogo == null ? "" : enunciadoCatalogo.getConteudo();
+    }
+    public void setEnunciado(String enunciado) {
+        Enunciado entidade = new Enunciado();
+        entidade.setConteudo(enunciado == null ? "" : enunciado);
+        this.enunciadoCatalogo = entidade;
+    }
 
     public String getQuestao() { return questao; }
     public void setQuestao(String questao) { this.questao = questao; }
@@ -206,6 +213,9 @@ public class Questao {
 
     public TextoApoio getTextoApoio() { return textoApoio; }
     public void setTextoApoio(TextoApoio textoApoio) { this.textoApoio = textoApoio; }
+
+    public Enunciado getEnunciadoCatalogo() { return enunciadoCatalogo; }
+    public void setEnunciadoCatalogo(Enunciado enunciadoCatalogo) { this.enunciadoCatalogo = enunciadoCatalogo; }
 
     public Long getProvaId() { return provaId; }
     public void setProvaId(Long provaId) { this.provaId = provaId; }

@@ -12,6 +12,8 @@ import br.com.concurseiro.api.catalogo.subassunto.model.SubAssunto;
 import br.com.concurseiro.api.catalogo.subassunto.repository.SubAssuntoRepository;
 import br.com.concurseiro.api.questoes.dto.QuestaoRequest;
 import br.com.concurseiro.api.questoes.dto.QuestaoResponse;
+import br.com.concurseiro.api.questoes.enunciado.model.Enunciado;
+import br.com.concurseiro.api.questoes.enunciado.service.EnunciadoService;
 import br.com.concurseiro.api.questoes.model.Questao;
 import br.com.concurseiro.api.questoes.repository.QuestaoRepository;
 import br.com.concurseiro.api.questoes.spec.QuestaoSpecifications;
@@ -39,20 +41,22 @@ public class QuestaoService {
     private final SubAssuntoRepository subAssuntoRepository;
     private final BancaRepository bancaRepository;
     private final InstituicaoRepository instituicaoRepository;
+    private final EnunciadoService enunciadoService;
     private final TextoApoioService textoApoioService;
 
     public QuestaoService(QuestaoRepository repository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, BancaRepository bancaRepository, InstituicaoRepository instituicaoRepository) {
-        this(repository, disciplinaRepository, assuntoRepository, null, bancaRepository, instituicaoRepository, null);
+        this(repository, disciplinaRepository, assuntoRepository, null, bancaRepository, instituicaoRepository, null, null);
     }
 
     @Autowired
-    public QuestaoService(QuestaoRepository repository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, SubAssuntoRepository subAssuntoRepository, BancaRepository bancaRepository, InstituicaoRepository instituicaoRepository, TextoApoioService textoApoioService) {
+    public QuestaoService(QuestaoRepository repository, DisciplinaRepository disciplinaRepository, AssuntoRepository assuntoRepository, SubAssuntoRepository subAssuntoRepository, BancaRepository bancaRepository, InstituicaoRepository instituicaoRepository, EnunciadoService enunciadoService, TextoApoioService textoApoioService) {
         this.repository = repository;
         this.disciplinaRepository = disciplinaRepository;
         this.assuntoRepository = assuntoRepository;
         this.subAssuntoRepository = subAssuntoRepository;
         this.bancaRepository = bancaRepository;
         this.instituicaoRepository = instituicaoRepository;
+        this.enunciadoService = enunciadoService;
         this.textoApoioService = textoApoioService;
     }
 
@@ -75,10 +79,11 @@ public class QuestaoService {
                 request.textoApoioConteudo(),
                 request.textoApoioJson()
         );
+        Enunciado enunciado = resolverEnunciado(request.enunciadoId(), request.enunciado());
 
         Questao questao = new Questao();
         questao.setIdQuestion(QuestaoValidationHelper.gerarIdQuestion());
-        questao.setEnunciado(normalizarCampoOpcional(request.enunciado()));
+        questao.setEnunciadoCatalogo(enunciado);
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
         questao.setTextoApoio(textoApoio);
@@ -116,8 +121,9 @@ public class QuestaoService {
                 request.textoApoioConteudo(),
                 request.textoApoioJson()
         );
+        Enunciado enunciado = resolverEnunciado(request.enunciadoId(), request.enunciado());
 
-        questao.setEnunciado(normalizarCampoOpcional(request.enunciado()));
+        questao.setEnunciadoCatalogo(enunciado);
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
         questao.setTextoApoio(textoApoio);
@@ -165,6 +171,17 @@ public class QuestaoService {
     private TextoApoio resolverTextoApoio(Long textoApoioId, String titulo, String tipo, String conteudo, String conteudoJson) {
         if (textoApoioService == null) return null;
         return textoApoioService.resolverTextoApoio(textoApoioId, titulo, tipo, conteudo, conteudoJson);
+    }
+
+    private Enunciado resolverEnunciado(Long enunciadoId, String conteudo) {
+        if (enunciadoService != null) {
+            return enunciadoService.resolverEnunciado(enunciadoId, conteudo);
+        }
+
+        Enunciado enunciado = new Enunciado();
+        enunciado.setConteudo(normalizarCampoOpcional(conteudo));
+        enunciado.setHashSha256("teste");
+        return enunciado;
     }
 
     private SubAssunto resolverSubAssunto(Long subassuntoId, Assunto assunto) {
