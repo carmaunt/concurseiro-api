@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 017-add-explicacao-questoes
+      author: concurseiro
+      changes:
+        - addColumn:
+            tableName: questoes
+            columns:
+              - column:
+                  name: explicacao
+                  type: TEXT
+

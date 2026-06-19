@@ -19,3 +19,5 @@ databaseChangeLog:
       file: db/changelog/changes/015-normalize-enunciados.yaml
   - include:
       file: db/changelog/changes/016-remove-enunciados-legados.yaml
+  - include:
+      file: db/changelog/changes/017-add-explicacao-questoes.yaml

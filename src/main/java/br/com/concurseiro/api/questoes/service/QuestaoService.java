@@ -86,6 +86,7 @@ public class QuestaoService {
         questao.setEnunciadoCatalogo(enunciado);
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
+        questao.setExplicacao(normalizarCampoOpcional(request.explicacao()));
         questao.setTextoApoio(textoApoio);
         questao.setAno(request.ano());
         questao.setCargo(request.cargo());
@@ -126,6 +127,7 @@ public class QuestaoService {
         questao.setEnunciadoCatalogo(enunciado);
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
+        questao.setExplicacao(normalizarCampoOpcional(request.explicacao()));
         questao.setTextoApoio(textoApoio);
         questao.setAno(request.ano());
         questao.setCargo(request.cargo());

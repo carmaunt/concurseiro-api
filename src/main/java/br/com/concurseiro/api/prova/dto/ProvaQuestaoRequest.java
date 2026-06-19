@@ -9,6 +9,7 @@ public record ProvaQuestaoRequest(
         Long enunciadoId,
         @NotBlank @Size(max = 10000) String questao,
         @Size(max = 10000) String alternativas,
+        @Size(max = 50000) String explicacao,
 
         Long textoApoioId,
         @Size(max = 255) String textoApoioTitulo,

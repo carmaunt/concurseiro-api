@@ -210,6 +210,7 @@ class QuestaoServiceTest {
                 null,
                 "Texto da questão",
                 "C) Certo\nE) Errado",
+                "O item está correto porque aplica a regra geral.",
                 null,
                 null,
                 null,
@@ -232,6 +233,7 @@ class QuestaoServiceTest {
 
         assertSame(existente, result.getEnunciadoCatalogo());
         assertEquals("Julgue o item subsequente.", result.getEnunciado());
+        assertEquals("O item está correto porque aplica a regra geral.", result.getExplicacao());
         verify(enunciadoService).resolverEnunciado(15L, null);
     }
 

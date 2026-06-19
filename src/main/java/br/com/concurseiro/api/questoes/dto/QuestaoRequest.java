@@ -6,6 +6,7 @@ public record QuestaoRequest(
         @Size(max = 10000) String enunciado,
         @NotBlank @Size(max = 10000) String questao,
         @NotBlank @Size(max = 10000) String alternativas,
+        @Size(max = 50000) String explicacao,
 
         Long textoApoioId,
         @Size(max = 255) String textoApoioTitulo,
@@ -57,6 +58,7 @@ public record QuestaoRequest(
                 null,
                 null,
                 null,
+                null,
                 disciplinaId,
                 assuntoId,
                 null,
@@ -67,6 +69,35 @@ public record QuestaoRequest(
                 nivel,
                 modalidade,
                 gabarito
+        );
+    }
+
+    public QuestaoRequest(
+            String enunciado,
+            String questao,
+            String alternativas,
+            Long textoApoioId,
+            String textoApoioTitulo,
+            String textoApoioTipo,
+            String textoApoioConteudo,
+            String textoApoioJson,
+            Long enunciadoId,
+            Long disciplinaId,
+            Long assuntoId,
+            Long subassuntoId,
+            Long bancaId,
+            Long instituicaoId,
+            Integer ano,
+            String cargo,
+            String nivel,
+            String modalidade,
+            String gabarito
+    ) {
+        this(
+                enunciado, questao, alternativas, null,
+                textoApoioId, textoApoioTitulo, textoApoioTipo, textoApoioConteudo, textoApoioJson,
+                enunciadoId, disciplinaId, assuntoId, subassuntoId, bancaId, instituicaoId,
+                ano, cargo, nivel, modalidade, gabarito
         );
     }
 
@@ -94,6 +125,7 @@ public record QuestaoRequest(
                 enunciado,
                 questao,
                 alternativas,
+                null,
                 textoApoioId,
                 textoApoioTitulo,
                 textoApoioTipo,

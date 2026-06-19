@@ -125,6 +125,7 @@ public class ProvaService {
         questao.setEnunciadoCatalogo(enunciado);
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
+        questao.setExplicacao(request.explicacao() == null ? "" : request.explicacao().trim());
         questao.setTextoApoio(textoApoio);
         questao.setAno(prova.getAno());
         questao.setCargo(prova.getCargo());

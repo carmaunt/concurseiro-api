@@ -39,6 +39,9 @@ public class Questao {
     @Column(nullable = false)
     private String alternativas;
 
+    @Column(columnDefinition = "TEXT")
+    private String explicacao;
+
     @Column(nullable = false)
     private Integer ano;
 
@@ -159,6 +162,9 @@ public class Questao {
 
     public String getAlternativas() { return alternativas; }
     public void setAlternativas(String alternativas) { this.alternativas = alternativas; }
+
+    public String getExplicacao() { return explicacao; }
+    public void setExplicacao(String explicacao) { this.explicacao = explicacao; }
 
     public String getDisciplina() { return nomeOuNull(disciplinaCatalogo); }
     public void setDisciplina(String disciplina) { }
