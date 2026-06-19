@@ -21,3 +21,5 @@ databaseChangeLog:
       file: db/changelog/changes/016-remove-enunciados-legados.yaml
   - include:
       file: db/changelog/changes/017-add-explicacao-questoes.yaml
+  - include:
+      file: db/changelog/changes/018-add-app-events.yaml
