@@ -81,4 +81,17 @@ class RateLimitFilterTest {
             }
         }
     }
+
+    @Test
+    void deveLimitarIngestaoDeAnalyticsSeparadamenteDoLogin() throws Exception {
+        for (int i = 1; i <= 121; i++) {
+            MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v1/analytics/events");
+            request.setRemoteAddr("192.0.2.50");
+            MockHttpServletResponse response = new MockHttpServletResponse();
+
+            filter.doFilter(request, response, new MockFilterChain());
+
+            assertEquals(i <= 120 ? 200 : 429, response.getStatus());
+        }
+    }
 }

@@ -1,0 +1,130 @@
+databaseChangeLog:
+  - changeSet:
+      id: 018-add-app-events
+      author: concurseiro
+      changes:
+        - createTable:
+            tableName: app_events
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: app_events_pkey
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+              - column:
+                  name: device_id
+                  type: VARCHAR(160)
+              - column:
+                  name: session_id
+                  type: VARCHAR(160)
+              - column:
+                  name: event_name
+                  type: VARCHAR(80)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: screen_name
+                  type: VARCHAR(120)
+              - column:
+                  name: filter_name
+                  type: VARCHAR(120)
+              - column:
+                  name: question_id
+                  type: VARCHAR(40)
+              - column:
+                  name: answer_correct
+                  type: BOOLEAN
+              - column:
+                  name: disciplina_id
+                  type: BIGINT
+              - column:
+                  name: assunto_id
+                  type: BIGINT
+              - column:
+                  name: subassunto_id
+                  type: BIGINT
+              - column:
+                  name: interaction_duration_ms
+                  type: BIGINT
+              - column:
+                  name: app_version
+                  type: VARCHAR(40)
+              - column:
+                  name: platform
+                  type: VARCHAR(40)
+              - column:
+                  name: metadata
+                  type: JSONB
+                  defaultValueComputed: "'{}'::jsonb"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: app_events
+            baseColumnNames: user_id
+            constraintName: fk_app_events_usuario
+            referencedTableName: usuarios
+            referencedColumnNames: id
+            onDelete: SET NULL
+        - addForeignKeyConstraint:
+            baseTableName: app_events
+            baseColumnNames: disciplina_id
+            constraintName: fk_app_events_disciplina
+            referencedTableName: disciplinas
+            referencedColumnNames: id
+            onDelete: SET NULL
+        - addForeignKeyConstraint:
+            baseTableName: app_events
+            baseColumnNames: assunto_id
+            constraintName: fk_app_events_assunto
+            referencedTableName: assuntos
+            referencedColumnNames: id
+            onDelete: SET NULL
+        - addForeignKeyConstraint:
+            baseTableName: app_events
+            baseColumnNames: subassunto_id
+            constraintName: fk_app_events_subassunto
+            referencedTableName: subassuntos
+            referencedColumnNames: id
+            onDelete: SET NULL
+        - createIndex:
+            tableName: app_events
+            indexName: idx_app_events_created_at
+            columns:
+              - column: { name: created_at }
+        - createIndex:
+            tableName: app_events
+            indexName: idx_app_events_event_created
+            columns:
+              - column: { name: event_name }
+              - column: { name: created_at }
+        - createIndex:
+            tableName: app_events
+            indexName: idx_app_events_user_created
+            columns:
+              - column: { name: user_id }
+              - column: { name: created_at }
+        - createIndex:
+            tableName: app_events
+            indexName: idx_app_events_device_created
+            columns:
+              - column: { name: device_id }
+              - column: { name: created_at }
+        - createIndex:
+            tableName: app_events
+            indexName: idx_app_events_dimensions_created
+            columns:
+              - column: { name: disciplina_id }
+              - column: { name: assunto_id }
+              - column: { name: subassunto_id }
+              - column: { name: created_at }

@@ -188,6 +188,15 @@ Authorization: Bearer <token>
 | ⚙️ 🔒 PUT | `/{idQuestion}` | Atualizar |
 | ⚙️ 🔒 DELETE | `/{idQuestion}` | Excluir |
 
+### Analytics
+
+| Método | Endpoint | Descrição |
+|--------|----------|------------|
+| POST | `/api/v1/analytics/events` | Registrar evento genérico do app |
+| ⚙️ 🔒 GET | `/api/v1/admin/analytics/dashboard` | Consultar métricas e rankings agregados |
+
+Contrato, exemplos e regras de privacidade: [docs/endpoints/analytics.md](docs/endpoints/analytics.md).
+
 ---
 
 ### Provas (`/api/v1/provas`)

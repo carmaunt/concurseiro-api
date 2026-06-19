@@ -17,7 +17,8 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
 
-    private static final int MAX_ATTEMPTS = 10;
+    private static final int MAX_LOGIN_ATTEMPTS = 10;
+    private static final int MAX_ANALYTICS_EVENTS = 120;
     private static final long WINDOW_SECONDS = 60;
     private static final int MAX_ENTRIES = 10_000;
     private static final long CLEANUP_INTERVAL_MS = 60_000;
@@ -32,8 +33,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        if (!"/api/v1/auth/login".equals(request.getRequestURI())
-                || !"POST".equalsIgnoreCase(request.getMethod())) {
+        boolean login = "/api/v1/auth/login".equals(request.getRequestURI());
+        boolean analytics = "/api/v1/analytics/events".equals(request.getRequestURI());
+        if (!"POST".equalsIgnoreCase(request.getMethod()) || (!login && !analytics)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -41,15 +43,17 @@ public class RateLimitFilter extends OncePerRequestFilter {
         evictExpiredEntries();
 
         String clientIp = getClientIp(request);
+        String scope = login ? "login:" : "analytics:";
+        int limit = login ? MAX_LOGIN_ATTEMPTS : MAX_ANALYTICS_EVENTS;
 
-        RequestCounter counter = counters.compute(clientIp, (key, existing) -> {
+        RequestCounter counter = counters.compute(scope + clientIp, (key, existing) -> {
             if (existing == null || existing.isExpired()) {
                 return new RequestCounter();
             }
             return existing;
         });
 
-        if (counter.incrementAndCheck()) {
+        if (counter.incrementAndCheck(limit)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -60,7 +64,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 "{\"type\":\"https://concurseiro.dev/errors/rate-limit\","
                         + "\"title\":\"Muitas tentativas\","
                         + "\"status\":429,"
-                        + "\"detail\":\"Limite de tentativas de login excedido. Tente novamente em breve.\"}"
+                        + "\"detail\":\"" + (login
+                        ? "Limite de tentativas de login excedido. Tente novamente em breve."
+                        : "Limite de eventos de analytics excedido. Tente novamente em breve.") + "\"}"
         );
     }
 
@@ -91,9 +97,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
             return Instant.now().isAfter(windowStart.plusSeconds(WINDOW_SECONDS));
         }
 
-        synchronized boolean incrementAndCheck() {
+        synchronized boolean incrementAndCheck(int limit) {
             count++;
-            return count <= MAX_ATTEMPTS;
+            return count <= limit;
         }
     }
 }

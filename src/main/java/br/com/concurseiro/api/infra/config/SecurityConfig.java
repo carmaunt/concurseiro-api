@@ -68,6 +68,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").authenticated()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/analytics/events").permitAll()
 
                         // leitura pública
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes").permitAll()

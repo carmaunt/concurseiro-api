@@ -1,5 +1,9 @@
 package br.com.concurseiro.api;
 
+import br.com.concurseiro.api.analytics.repository.AnalyticsQueryRepository;
+import br.com.concurseiro.api.analytics.repository.AnalyticsQueryRepository.AnalyticsFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -11,6 +15,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest
 @Testcontainers
 class LiquibaseStartupIntegrationTest {
+
+    @Autowired JdbcTemplate jdbc;
+    @Autowired AnalyticsQueryRepository analyticsQueries;
 
     @SuppressWarnings("resource")
     @Container
@@ -38,5 +45,32 @@ class LiquibaseStartupIntegrationTest {
 
     @Test
     void contextLoads() {
+    }
+
+    @Test
+    void analyticsQueriesAggregateRealPostgresData() {
+        jdbc.update("""
+                INSERT INTO app_events (device_id, event_name, screen_name, interaction_duration_ms, metadata)
+                VALUES ('device-a', 'screen_view', 'home', 2000, '{}'::jsonb)
+                """);
+        jdbc.update("""
+                INSERT INTO app_events (device_id, event_name, filter_name, interaction_duration_ms, metadata)
+                VALUES ('device-a', 'filter_applied', 'disciplina', 3000, '{}'::jsonb)
+                """);
+        jdbc.update("""
+                INSERT INTO app_events (device_id, event_name, interaction_duration_ms, metadata)
+                VALUES ('device-b', 'question_answered', 4000, '{}'::jsonb)
+                """);
+
+        var from = java.time.OffsetDateTime.now().minusMinutes(1);
+        var to = java.time.OffsetDateTime.now().plusMinutes(1);
+        var filter = new AnalyticsFilter(from, to, null, null, null);
+
+        org.junit.jupiter.api.Assertions.assertEquals(2, analyticsQueries.countDevices());
+        org.junit.jupiter.api.Assertions.assertEquals(2, analyticsQueries.countActive(filter));
+        org.junit.jupiter.api.Assertions.assertEquals(1, analyticsQueries.countEvent("question_answered", filter));
+        org.junit.jupiter.api.Assertions.assertEquals(3.0, analyticsQueries.averageInteractionSeconds(filter), 0.001);
+        org.junit.jupiter.api.Assertions.assertEquals("home", analyticsQueries.topScreens(filter, 10).getFirst().label());
+        org.junit.jupiter.api.Assertions.assertEquals("disciplina", analyticsQueries.topFilters(filter, 10).getFirst().label());
     }
 }
