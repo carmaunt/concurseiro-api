@@ -1,0 +1,110 @@
+databaseChangeLog:
+  - changeSet:
+      id: 018-add-app-events
+      author: concurseiro
+      changes:
+        - createTable:
+            tableName: app_events
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_app_events_usuario
+                    references: usuarios(id)
+              - column:
+                  name: device_id
+                  type: VARCHAR(160)
+              - column:
+                  name: session_id
+                  type: VARCHAR(160)
+              - column:
+                  name: event_name
+                  type: VARCHAR(80)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: screen_name
+                  type: VARCHAR(120)
+              - column:
+                  name: filter_name
+                  type: VARCHAR(120)
+              - column:
+                  name: question_id
+                  type: VARCHAR(40)
+              - column:
+                  name: acertou
+                  type: BOOLEAN
+              - column:
+                  name: disciplina_id
+                  type: BIGINT
+              - column:
+                  name: disciplina_nome
+                  type: VARCHAR(160)
+              - column:
+                  name: assunto_id
+                  type: BIGINT
+              - column:
+                  name: assunto_nome
+                  type: VARCHAR(160)
+              - column:
+                  name: subassunto_id
+                  type: BIGINT
+              - column:
+                  name: subassunto_nome
+                  type: VARCHAR(160)
+              - column:
+                  name: interaction_duration_seconds
+                  type: INT
+              - column:
+                  name: app_version
+                  type: VARCHAR(40)
+              - column:
+                  name: platform
+                  type: VARCHAR(40)
+              - column:
+                  name: metadata_json
+                  type: TEXT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - createIndex:
+            indexName: idx_app_events_created_at
+            tableName: app_events
+            columns:
+              - column:
+                  name: created_at
+        - createIndex:
+            indexName: idx_app_events_event_name_created_at
+            tableName: app_events
+            columns:
+              - column:
+                  name: event_name
+              - column:
+                  name: created_at
+        - createIndex:
+            indexName: idx_app_events_user_created_at
+            tableName: app_events
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: created_at
+        - createIndex:
+            indexName: idx_app_events_device_created_at
+            tableName: app_events
+            columns:
+              - column:
+                  name: device_id
+              - column:
+                  name: created_at
