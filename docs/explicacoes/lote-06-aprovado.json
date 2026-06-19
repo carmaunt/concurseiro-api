@@ -1,0 +1,42 @@
+[
+  {
+    "idQuestion": "QDF469DF4E868492",
+    "explicacao": "A questão foi anulada porque os dados são internamente incompatíveis. Pelo capital social de R$ 150.000 somado ao lucro líquido de R$ 50.000, o patrimônio líquido seria R$ 200.000. Porém, pela equação patrimonial, os ativos de R$ 500.000 menos os passivos de R$ 440.000 resultariam em R$ 60.000, impedindo uma conclusão única."
+  },
+  {
+    "idQuestion": "Q4B4082473AC04A8",
+    "explicacao": "O lucro bruto corresponde às vendas líquidas menos o custo das mercadorias vendidas: R$ 1.000.000 − R$ 600.000 = R$ 400.000. As demais despesas são consideradas posteriormente na apuração do resultado líquido."
+  },
+  {
+    "idQuestion": "Q57F2438058DD499",
+    "explicacao": "Somam-se as contas do ativo: caixa de R$ 10.000, duplicatas a receber de R$ 80.000, estoques de R$ 50.000, máquinas de R$ 100.000, terrenos de R$ 160.000 e marcas e patentes de R$ 100.000. O total é R$ 500.000."
+  },
+  {
+    "idQuestion": "QB891065EC202410",
+    "explicacao": "No balancete de seis colunas, os saldos anteriores são apresentados em duas colunas distintas, uma devedora e outra credora; outras duas registram os movimentos e as duas últimas, os saldos finais. Não se utiliza uma única coluna seguida apenas das letras D ou C como afirma o item."
+  },
+  {
+    "idQuestion": "Q90497FB22D2A4E2",
+    "explicacao": "O balancete pode ser elaborado com duas, quatro, seis ou oito colunas. O modelo de oito colunas acrescenta, além dos saldos e movimentos, os totais de débitos e créditos. Portanto, seis colunas não constituem o limite máximo."
+  },
+  {
+    "idQuestion": "QD0CE909960CE4E1",
+    "explicacao": "O balancete verifica a igualdade entre débitos e créditos e detecta erros que rompam essa igualdade. Ele não identifica todos os erros: omissões, lançamentos em contas erradas ou registros duplicados com débito e crédito equivalentes podem passar despercebidos."
+  },
+  {
+    "idQuestion": "Q6A7BB301120C47A",
+    "explicacao": "O valor depreciável é R$ 60.000 menos o residual de 10%, resultando em R$ 54.000. A soma dos dígitos da vida útil é 1 + 2 + 3 + 4 + 5 = 15; na terceira quota, aplica-se 3/15: R$ 54.000 × 3/15 = R$ 10.800, creditados em depreciação acumulada."
+  },
+  {
+    "idQuestion": "Q5DA8B3EC5424428",
+    "explicacao": "A diferença de R$ 3.000 entre o valor nominal da duplicata e o crédito bancário representa encargos financeiros referentes aos 60 dias até o vencimento. Pelo regime de competência, esse valor deve ser apropriado ao resultado ao longo do prazo, e não integralmente como despesa no momento do desconto."
+  },
+  {
+    "idQuestion": "QEB0F907DFCAB4CC",
+    "explicacao": "O resultado com mercadorias é a receita líquida da venda menos o custo do estoque baixado: R$ 10.000 − R$ 5.500 = R$ 4.500. Esse é o lucro bruto gerado pela operação."
+  },
+  {
+    "idQuestion": "Q92303B7F7226406",
+    "explicacao": "O recebimento antecipado é debitado em caixa e creditado em adiantamentos de clientes, no passivo, pois ainda existe a obrigação de entregar o bem ou serviço. Contudo, esse tratamento decorre do regime de competência, que impede reconhecer receita antes de ela ser realizada, e não do regime de caixa mencionado no item."
+  }
+]

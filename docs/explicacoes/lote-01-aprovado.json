@@ -1,0 +1,42 @@
+[
+  {
+    "idQuestion": "QB40B1163EFF5F60",
+    "explicacao": "Como Paulo é inocente e a afirmação de Maria sobre ele é verdadeira, Jair não pode ser culpado, pois, se fosse, todas as afirmações de Maria seriam falsas."
+  },
+  {
+    "idQuestion": "QC0B35615252FB47",
+    "explicacao": "Se João fosse culpado, Jair seria inocente. Portanto, pela contraposição, sendo Jair culpado, João deve ser inocente."
+  },
+  {
+    "idQuestion": "Q941D6D86D334B11",
+    "explicacao": "Recusar um sistema eficiente sem justificativa adequada contraria os deveres de eficiência, zelo e compromisso com o interesse público, caracterizando desvio ético."
+  },
+  {
+    "idQuestion": "Q09076A67A2C5C80",
+    "explicacao": "O item trata de relações de parentesco, mas as informações fornecidas abordam apenas pratos e cores de camisas. Não há dados suficientes para chegar à conclusão apresentada."
+  },
+  {
+    "idQuestion": "Q0008EA96F704638",
+    "explicacao": "Se o antecedente for verdadeiro, P e Q serão verdadeiros, tornando P∨Q verdadeiro. Se o antecedente for falso, a implicação também será verdadeira. Logo, é uma tautologia."
+  },
+  {
+    "idQuestion": "Q00BE96B6E8631B2",
+    "explicacao": "Se P for verdadeira, então Q ou R será verdadeira. Caso R seja verdadeira, S também será. Assim, em qualquer caso, Q∨S∨T será verdadeira."
+  },
+  {
+    "idQuestion": "Q47203791B5AE72D",
+    "explicacao": "O princípio da universalidade exige que todas as receitas e despesas constem do orçamento. Ele não autoriza operações sem prévia aprovação parlamentar."
+  },
+  {
+    "idQuestion": "Q2F6BA2A5DAE9166",
+    "explicacao": "A probabilidade é (C(12,2) + C(8,2)) / C(20,2) = 94/190, aproximadamente 49,5%, portanto inferior a 0,5."
+  },
+  {
+    "idQuestion": "Q38137FFACE727EF",
+    "explicacao": "Histórias, ritos, rituais e símbolos são manifestações visíveis da cultura organizacional e podem ser observados pelos membros da organização."
+  },
+  {
+    "idQuestion": "QB3F688E04B7E725",
+    "explicacao": "Se 15 dos 20 policiais têm pelo menos 10 anos de serviço, apenas 5 têm menos de 10 anos. Portanto, não são mais de 6 policiais."
+  }
+]
