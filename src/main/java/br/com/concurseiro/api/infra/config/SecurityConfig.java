@@ -69,6 +69,9 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
+                        // analytics do app: aceita eventos anônimos com deviceId e eventos autenticados com JWT
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/analytics/events").permitAll()
+
                         // leitura pública
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes/*").permitAll()
