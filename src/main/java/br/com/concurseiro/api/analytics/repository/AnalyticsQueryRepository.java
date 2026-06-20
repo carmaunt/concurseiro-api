@@ -71,7 +71,7 @@ public class AnalyticsQueryRepository {
         QueryParts p=where(f,"question_answered","e.question_id IS NOT NULL","e.answer_correct = "+correct);p.params.addValue("limit",l);
         return jdbc.query("SELECT NULL id,e.question_id label,COUNT(*) total FROM app_events e "+p.sql+" GROUP BY e.question_id ORDER BY total DESC LIMIT :limit",p.params,(rs,n)->new AnalyticsRankingItemResponse(null,rs.getString("label"),rs.getLong("total")));
     }
-    public long countMetadataBoolean(String event,String key,AnalyticsFilter f,boolean value) { QueryParts p=where(f,event,"COALESCE((e.metadata->>'"+key+"')::boolean,false)="+value); return scalarLong("SELECT COUNT(*) FROM app_events e "+p.sql,p.params); }
+    public long countMetadataBoolean(String event,String key,AnalyticsFilter f,boolean value) { QueryParts p=where(f,event,"jsonb_exists(e.metadata,'"+key+"')","(e.metadata->>'"+key+"')::boolean="+value); return scalarLong("SELECT COUNT(*) FROM app_events e "+p.sql,p.params); }
     public OffsetDateTime lastEventAt(){ return jdbc.queryForObject("SELECT MAX(created_at) FROM app_events",new MapSqlParameterSource(),OffsetDateTime.class); }
     public Map<String,Long> eventsByVersion(AnalyticsFilter f){ QueryParts p=where(f,null);Map<String,Long> out=new LinkedHashMap<>();jdbc.query("SELECT COALESCE(app_version,'desconhecida') v,COUNT(*) n FROM app_events e "+p.sql+" GROUP BY v ORDER BY n DESC",p.params,rs->{out.put(rs.getString("v"),rs.getLong("n"));});return out; }
     public long countUnknown(AnalyticsFilter f,Set<String> official){ QueryParts p=where(f,null);p.params.addValue("official",official);return scalarLong("SELECT COUNT(*) FROM app_events e "+p.sql+" AND e.event_name NOT IN (:official)",p.params); }

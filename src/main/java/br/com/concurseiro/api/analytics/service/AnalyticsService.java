@@ -176,7 +176,9 @@ public class AnalyticsService {
         LocalDate today = now.toLocalDate();
         if ("custom".equals(value)) {
             if (start == null || end == null || end.isBefore(start)) throw badRequest("startDate e endDate válidos são obrigatórios");
-            return new DateRange(start.atStartOfDay(APP_ZONE).toOffsetDateTime(), end.plusDays(1).atStartOfDay(APP_ZONE).toOffsetDateTime());
+            OffsetDateTime requestedTo = end.plusDays(1).atStartOfDay(APP_ZONE).toOffsetDateTime();
+            OffsetDateTime cappedTo = requestedTo.isAfter(now) ? now.plusNanos(1) : requestedTo;
+            return new DateRange(start.atStartOfDay(APP_ZONE).toOffsetDateTime(), cappedTo);
         }
         OffsetDateTime from = switch (value) {
             case "today" -> today.atStartOfDay(APP_ZONE).toOffsetDateTime();

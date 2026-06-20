@@ -2,9 +2,11 @@ package br.com.concurseiro.api;
 
 import br.com.concurseiro.api.analytics.repository.AnalyticsQueryRepository;
 import br.com.concurseiro.api.analytics.repository.AnalyticsQueryRepository.AnalyticsFilter;
+import br.com.concurseiro.api.analytics.service.AnalyticsInsightsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -18,6 +20,7 @@ class LiquibaseStartupIntegrationTest {
 
     @Autowired JdbcTemplate jdbc;
     @Autowired AnalyticsQueryRepository analyticsQueries;
+    @Autowired AnalyticsInsightsService analyticsInsights;
 
     @SuppressWarnings("resource")
     @Container
@@ -41,6 +44,11 @@ class LiquibaseStartupIntegrationTest {
         registry.add("app.admin.api-key", () -> "test-admin-key");
         registry.add("cors.allowed-origins", () -> "*");
         registry.add("firebase.enabled", () -> "false");
+    }
+
+    @BeforeEach
+    void cleanAnalyticsEvents() {
+        jdbc.update("DELETE FROM app_events");
     }
 
     @Test
@@ -72,5 +80,21 @@ class LiquibaseStartupIntegrationTest {
         org.junit.jupiter.api.Assertions.assertEquals(3.0, analyticsQueries.averageInteractionSeconds(filter), 0.001);
         org.junit.jupiter.api.Assertions.assertEquals("home", analyticsQueries.topScreens(filter, 10).getFirst().label());
         org.junit.jupiter.api.Assertions.assertEquals("disciplina", analyticsQueries.topFilters(filter, 10).getFirst().label());
+    }
+
+    @Test
+    void analyticsInsightsRunsAllQueriesAgainstPostgres() {
+        jdbc.update("""
+                INSERT INTO app_events (anonymous_id, device_id, session_id, event_name, screen_name, app_version, metadata)
+                VALUES ('integration-user', 'integration-device', 'integration-session', 'app_opened', 'home', '2.0.0', '{}'::jsonb),
+                       ('integration-user', 'integration-device', 'integration-session', 'question_answered', 'questao', '2.0.0', '{"correct":true}'::jsonb)
+                """);
+
+        var result = analyticsInsights.insights("7d", null, null, null, null, null, null, null, null);
+
+        org.junit.jupiter.api.Assertions.assertNotNull(result.status());
+        org.junit.jupiter.api.Assertions.assertTrue(result.score() >= 0 && result.score() <= 100);
+        org.junit.jupiter.api.Assertions.assertNotNull(result.previousPeriod());
+        org.junit.jupiter.api.Assertions.assertFalse(result.drivers().isEmpty());
     }
 }
