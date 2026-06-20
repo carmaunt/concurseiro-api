@@ -1,7 +1,7 @@
 package br.com.concurseiro.api.usuarios.controller;
 
-import br.com.concurseiro.api.usuarios.model.Usuario;
 import br.com.concurseiro.api.usuarios.dto.UsuarioPublicoResponse;
+import br.com.concurseiro.api.usuarios.model.Usuario;
 import br.com.concurseiro.api.usuarios.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,12 +20,16 @@ public class AdminUsuarioController {
         this.service = service;
     }
 
-    @Operation(summary = "Listar todos os usuarios (paginado)")
+    @Operation(summary = "Listar usuarios administrativos (paginado)")
     @GetMapping
     public Page<UsuarioPublicoResponse> listar(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return service.listarPaginado(page, size);
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) Usuario.TipoConta tipoConta,
+            @RequestParam(required = false) Usuario.Role role,
+            @RequestParam(required = false) Usuario.Status status
+    ) {
+        return service.listarPaginado(page, size, tipoConta, role, status);
     }
 
     @Operation(summary = "Ativar um usuario pendente")

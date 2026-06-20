@@ -22,6 +22,11 @@ public class Usuario {
         ATIVO
     }
 
+    public enum TipoConta {
+        PAINEL,
+        APP
+    }
+
     public enum AuthProvider {
         LOCAL,
         GOOGLE
@@ -49,6 +54,10 @@ public class Usuario {
     private Status status;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_conta", nullable = false, length = 20)
+    private TipoConta tipoConta = TipoConta.PAINEL;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private AuthProvider authProvider = AuthProvider.LOCAL;
 
@@ -74,6 +83,9 @@ public class Usuario {
 
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
+
+    public TipoConta getTipoConta() { return tipoConta; }
+    public void setTipoConta(TipoConta tipoConta) { this.tipoConta = tipoConta; }
 
     public AuthProvider getAuthProvider() { return authProvider; }
     public void setAuthProvider(AuthProvider authProvider) { this.authProvider = authProvider; }

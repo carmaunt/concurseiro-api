@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -137,12 +138,13 @@ class UsuarioServiceTest {
     @Test
     void listarPaginado_deveRetornarPagina() {
         Page<Usuario> page = new PageImpl<>(List.of(usuario));
-        when(repository.findAll(any(Pageable.class))).thenReturn(page);
+        when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
         Page<UsuarioPublicoResponse> result = service.listarPaginado(0, 10);
 
         assertEquals(1, result.getTotalElements());
         assertEquals("test@test.com", result.getContent().get(0).email());
+        assertEquals(Usuario.TipoConta.PAINEL, result.getContent().get(0).tipoConta());
     }
 
     @Test

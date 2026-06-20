@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-add-tipo-conta-usuarios
+      author: mauricio
+
+      changes:
+        - addColumn:
+            tableName: usuarios
+            columns:
+              - column:
+                  name: tipo_conta
+                  type: varchar(20)
+                  defaultValue: PAINEL
+                  constraints:
+                    nullable: false
+
+        - sql:
+            splitStatements: false
+            sql: |
+              UPDATE public.usuarios
+              SET tipo_conta = CASE
+                  WHEN role = 'USUARIO_FINAL' THEN 'APP'
+                  ELSE 'PAINEL'
+              END;
+
+              ALTER TABLE public.usuarios
+              ADD CONSTRAINT usuarios_tipo_conta_check
+              CHECK (tipo_conta IN ('PAINEL', 'APP'));
+
+      rollback:
+        - sql:
+            splitStatements: false
+            sql: |
+              ALTER TABLE public.usuarios
+              DROP CONSTRAINT IF EXISTS usuarios_tipo_conta_check;
+
+              ALTER TABLE public.usuarios
+              DROP COLUMN IF EXISTS tipo_conta;

@@ -25,3 +25,5 @@ databaseChangeLog:
       file: db/changelog/changes/018-add-app-events.yaml
   - include:
       file: db/changelog/changes/019-evolve-app-events.yaml
+  - include:
+      file: db/changelog/changes/020-add-tipo-conta-usuarios.yaml

@@ -22,10 +22,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import br.com.concurseiro.api.infra.security.FirebaseService;
 import com.google.firebase.auth.FirebaseToken;
+import org.springframework.beans.factory.annotation.Value;
+import java.util.Arrays;
 
 @Tag(name = "Autenticacao", description = "Registro e login de usuarios")
 @RestController
@@ -39,6 +42,9 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
     private final FirebaseService firebaseService;
     private final AuthCookieService authCookieService;
+
+    @Value("${app.closed-test.allowed-emails:}")
+    private String allowedTesterEmails;
 
     public AuthController(
             AuthenticationManager authenticationManager,
@@ -88,6 +94,13 @@ public class AuthController {
             String role
     ) {}
 
+    public record AuthMeResponse(
+            String email,
+            String role,
+            String status,
+            String tipoConta
+    ) {}
+
     public record GoogleLoginRequest(
             @NotBlank String idToken
     ) {}
@@ -110,13 +123,11 @@ public class AuthController {
                         existente.setAuthProvider(Usuario.AuthProvider.GOOGLE);
                         existente.setNome(nome);
 
-                        if (existente.getRole() == Usuario.Role.VISITANTE && existente.getStatus() != Usuario.Status.ATIVO) {
-                                existente.setStatus(Usuario.Status.ATIVO);
-                        }
 
                         return usuarioRepository.save(existente);
                         })
                         .orElseGet(() -> {
+                        validarEmailAutorizadoParaTesteFechado(email);
                         Usuario novo = new Usuario();
                         novo.setNome(nome);
                         novo.setEmail(email);
@@ -124,6 +135,7 @@ public class AuthController {
                         novo.setAuthProvider(Usuario.AuthProvider.GOOGLE);
                         novo.setRole(Usuario.Role.USUARIO_FINAL);
                         novo.setStatus(Usuario.Status.ATIVO);
+                        novo.setTipoConta(Usuario.TipoConta.APP);
 
                         return usuarioRepository.save(novo);
                         })
@@ -149,6 +161,25 @@ public class AuthController {
         }
         usuario.setNome(nomeFirebase);
         return usuarioRepository.save(usuario);
+    }
+
+
+    private void validarEmailAutorizadoParaTesteFechado(String email) {
+        if (allowedTesterEmails == null || allowedTesterEmails.isBlank()) {
+            return;
+        }
+
+        boolean autorizado = Arrays.stream(allowedTesterEmails.split(","))
+                .map(String::trim)
+                .filter(e -> !e.isBlank())
+                .anyMatch(e -> e.equalsIgnoreCase(email));
+
+        if (!autorizado) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Email não autorizado para o teste fechado"
+            );
+        }
     }
 
     @Operation(summary = "Registrar novo usuario")
@@ -196,6 +227,30 @@ public class AuthController {
                 refreshToken.getToken(),
                 usuario.getEmail(),
                 usuario.getRole().name()
+        );
+    }
+
+
+    @GetMapping("/me")
+    public AuthMeResponse me(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado");
+        }
+
+        String email = authentication.getName();
+
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado"));
+
+        if (usuario.getStatus() != Usuario.Status.ATIVO) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário ainda não aprovado");
+        }
+
+        return new AuthMeResponse(
+                usuario.getEmail(),
+                usuario.getRole().name(),
+                usuario.getStatus().name(),
+                usuario.getTipoConta().name()
         );
     }
 
