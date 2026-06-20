@@ -23,3 +23,5 @@ databaseChangeLog:
       file: db/changelog/changes/017-add-explicacao-questoes.yaml
   - include:
       file: db/changelog/changes/018-add-app-events.yaml
+  - include:
+      file: db/changelog/changes/019-evolve-app-events.yaml

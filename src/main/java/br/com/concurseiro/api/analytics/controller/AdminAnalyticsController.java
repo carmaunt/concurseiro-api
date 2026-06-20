@@ -8,7 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 
 @Tag(name = "Admin Analytics", description = "Métricas agregadas, sem exposição de dados pessoais")
 @RestController
@@ -25,12 +25,16 @@ public class AdminAnalyticsController {
     @Operation(summary = "Consultar dashboard de analytics")
     @GetMapping("/dashboard")
     public AnalyticsDashboardResponse dashboard(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime to,
+            @RequestParam(defaultValue = "7d") String period,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) Long disciplinaId,
             @RequestParam(required = false) Long assuntoId,
-            @RequestParam(required = false) Long subassuntoId
+            @RequestParam(required = false) Long subassuntoId,
+            @RequestParam(required = false) Long bancaId,
+            @RequestParam(required = false) Long instituicaoId,
+            @RequestParam(required = false) Long provaId
     ) {
-        return analyticsService.dashboard(from, to, disciplinaId, assuntoId, subassuntoId);
+        return analyticsService.dashboard(period, startDate, endDate, disciplinaId, assuntoId, subassuntoId, bancaId, instituicaoId, provaId);
     }
 }

@@ -2,6 +2,7 @@ package br.com.concurseiro.api.analytics.service;
 
 import br.com.concurseiro.api.analytics.dto.*;
 import br.com.concurseiro.api.analytics.model.AppEvent;
+import br.com.concurseiro.api.analytics.model.AnalyticsEventName;
 import br.com.concurseiro.api.analytics.repository.AnalyticsQueryRepository;
 import br.com.concurseiro.api.analytics.repository.AnalyticsQueryRepository.AnalyticsFilter;
 import br.com.concurseiro.api.analytics.repository.AppEventRepository;
@@ -65,9 +66,16 @@ public class AnalyticsService {
     @Transactional
     public AnalyticsEventResponse register(AnalyticsEventRequest request, Authentication authentication) {
         Usuario usuario = authenticatedUser(authentication);
+        String anonymousId = clean(request.anonymousId());
         String deviceId = clean(request.deviceId());
-        if (usuario == null && deviceId == null) {
-            throw badRequest("deviceId é obrigatório quando não há usuário autenticado");
+        if (anonymousId == null) anonymousId = deviceId;
+        if (usuario == null && anonymousId == null) {
+            throw badRequest("anonymousId é obrigatório quando não há usuário autenticado");
+        }
+        String eventName = AnalyticsEventName.normalize(request.eventName());
+        String sessionId = clean(request.sessionId());
+        if (AnalyticsEventName.requiresSession(eventName) && sessionId == null) {
+            throw badRequest("sessionId é obrigatório para eventos de uso");
         }
 
         Dimensions dimensions = resolveDimensions(request.disciplinaId(), request.assuntoId(), request.subassuntoId());
@@ -76,8 +84,9 @@ public class AnalyticsService {
         AppEvent event = new AppEvent();
         event.setUsuario(usuario);
         event.setDeviceId(deviceId);
-        event.setSessionId(clean(request.sessionId()));
-        event.setEventName(request.eventName());
+        event.setAnonymousId(anonymousId);
+        event.setSessionId(sessionId);
+        event.setEventName(eventName);
         event.setScreenName(clean(request.screenName()));
         event.setFilterName(clean(request.filterName()));
         event.setQuestionId(clean(request.questionId()));
@@ -88,6 +97,11 @@ public class AnalyticsService {
         event.setInteractionDurationMs(request.interactionDurationMs());
         event.setAppVersion(clean(request.appVersion()));
         event.setPlatform(clean(request.platform()));
+        event.setOsVersion(clean(request.osVersion()));
+        event.setEventSchemaVersion(request.eventSchemaVersion() == null ? 1 : request.eventSchemaVersion());
+        event.setBancaId(request.bancaId());
+        event.setInstituicaoId(request.instituicaoId());
+        event.setProvaId(request.provaId());
         event.setMetadata(metadata);
 
         AppEvent saved = events.save(event);
@@ -96,49 +110,86 @@ public class AnalyticsService {
 
     @Transactional(readOnly = true)
     public AnalyticsDashboardResponse dashboard(
-            OffsetDateTime from,
-            OffsetDateTime to,
+            String period,
+            LocalDate startDate,
+            LocalDate endDate,
             Long disciplinaId,
             Long assuntoId,
-            Long subassuntoId
+            Long subassuntoId,
+            Long bancaId,
+            Long instituicaoId,
+            Long provaId
     ) {
         OffsetDateTime now = OffsetDateTime.now(APP_ZONE);
-        OffsetDateTime resolvedTo = to == null ? now : to;
-        OffsetDateTime resolvedFrom = from == null ? resolvedTo.minusDays(7) : from;
+        DateRange range = resolveRange(period, startDate, endDate, now);
+        OffsetDateTime resolvedFrom = range.from();
+        OffsetDateTime resolvedTo = range.to();
         validateRange(resolvedFrom, resolvedTo);
         Dimensions dimensions = resolveDimensions(disciplinaId, assuntoId, subassuntoId);
 
-        AnalyticsFilter period = filter(resolvedFrom, resolvedTo, dimensions);
+        AnalyticsFilter selected = filter(resolvedFrom, resolvedTo, dimensions, bancaId, instituicaoId, provaId);
         OffsetDateTime todayStart = LocalDate.now(APP_ZONE).atStartOfDay(APP_ZONE).toOffsetDateTime();
-        AnalyticsFilter today = filter(todayStart, now.plusNanos(1), dimensions);
-        AnalyticsFilter online = filter(now.minusMinutes(ONLINE_WINDOW_MINUTES), now.plusNanos(1), dimensions);
-
-        AnalyticsSummaryResponse summary = new AnalyticsSummaryResponse(
-                queries.countDevices(),
-                queries.countActive(today),
-                queries.countActive(period),
-                queries.countActive(online),
-                queries.countEvent("question_answered", today),
-                queries.countEvent("question_answered", period),
-                queries.averageInteractionSeconds(period)
-        );
+        AnalyticsFilter today = filter(todayStart, now.plusNanos(1), dimensions, bancaId, instituicaoId, provaId);
+        AnalyticsFilter online = filter(now.minusMinutes(ONLINE_WINDOW_MINUTES), now.plusNanos(1), dimensions, bancaId, instituicaoId, provaId);
+        AnalyticsFilter last7 = filter(now.minusDays(7), now.plusNanos(1), dimensions, bancaId, instituicaoId, provaId);
+        AnalyticsFilter last24 = filter(now.minusHours(24), now.plusNanos(1), dimensions, bancaId, instituicaoId, provaId);
+        long active = queries.countActive(selected);
+        long opened = queries.countActiveEvent("app_opened", selected);
+        long answered = queries.countActiveEvent("question_answered", selected);
+        long sessions = queries.countSessions(selected);
 
         return new AnalyticsDashboardResponse(
                 resolvedFrom,
                 resolvedTo,
                 ONLINE_WINDOW_MINUTES,
-                summary,
-                queries.topScreens(period, RANKING_LIMIT),
-                queries.topFilters(period, RANKING_LIMIT),
-                queries.topDisciplinas(period, RANKING_LIMIT),
-                queries.topAssuntos(period, RANKING_LIMIT),
-                queries.topSubassuntos(period, RANKING_LIMIT)
+                new AnalyticsDashboardResponse.Overview(queries.countActive(today), active, queries.countRealActive(selected),
+                        queries.countActive(online), sessions, queries.averageSessionSeconds(selected),
+                        queries.countEvent("question_answered", today), queries.countEvent("question_answered", selected),
+                        queries.averageAccuracy(selected), queries.countDevices(), queries.countIdentified(selected)),
+                new AnalyticsDashboardResponse.Activation(queries.countNewIdentities(selected), opened,
+                        queries.countActiveEvent("question_viewed", selected), answered,
+                        percent(answered, opened), queries.averageMinutesToFirstAnswer(selected)),
+                new AnalyticsDashboardResponse.Engagement(ratio(queries.countEvent("question_answered", selected), active),
+                        ratio(sessions, active), queries.identitiesWithAtLeastQuestions(selected, 10),
+                        queries.identitiesWithAtLeastQuestions(selected, 50), queries.countRealActive(last7), queries.inactiveUsers(now)),
+                new AnalyticsDashboardResponse.Retention(queries.retention(1, selected), queries.retention(7, selected),
+                        queries.retention(30, selected), "coorte pela primeira atividade; retorno exato no dia D+N"),
+                new AnalyticsDashboardResponse.Content(queries.topScreens(selected, RANKING_LIMIT), queries.topFilters(selected, RANKING_LIMIT),
+                        queries.dimension("disciplinas", "disciplina_id", "discipline_opened", selected, RANKING_LIMIT), queries.dimension("disciplinas", "disciplina_id", "question_answered", selected, RANKING_LIMIT),
+                        queries.dimension("assuntos", "assunto_id", "subject_opened", selected, RANKING_LIMIT), queries.dimension("assuntos", "assunto_id", "question_answered", selected, RANKING_LIMIT),
+                        queries.dimension("subassuntos", "subassunto_id", "subsubject_opened", selected, RANKING_LIMIT), queries.dimension("subassuntos", "subassunto_id", "question_answered", selected, RANKING_LIMIT),
+                        queries.questionRanking(selected, false, RANKING_LIMIT), queries.questionRanking(selected, true, RANKING_LIMIT),
+                        queries.countMetadataBoolean("filter_applied", "has_results", selected, false), queries.countMetadataBoolean("search_performed", "has_results", selected, false)),
+                new AnalyticsDashboardResponse.DataQuality(queries.countEvent(null, last24), queries.lastEventAt(), queries.eventsByVersion(selected),
+                        queries.countUnknown(selected, AnalyticsEventName.OFFICIAL), queries.missingPercent(selected, "e.session_id IS NULL"),
+                        queries.missingPercent(selected, "e.user_id IS NULL AND NULLIF(e.anonymous_id,'') IS NULL AND NULLIF(e.device_id,'') IS NULL"), queries.recentErrors(selected, RANKING_LIMIT)),
+                queries.dailyTrend(selected)
         );
     }
 
-    private AnalyticsFilter filter(OffsetDateTime from, OffsetDateTime to, Dimensions dimensions) {
-        return new AnalyticsFilter(from, to, dimensions.disciplinaId(), dimensions.assuntoId(), dimensions.subassuntoId());
+    private AnalyticsFilter filter(OffsetDateTime from, OffsetDateTime to, Dimensions dimensions, Long bancaId, Long instituicaoId, Long provaId) {
+        return new AnalyticsFilter(from, to, dimensions.disciplinaId(), dimensions.assuntoId(), dimensions.subassuntoId(), bancaId, instituicaoId, provaId);
     }
+
+    private DateRange resolveRange(String period, LocalDate start, LocalDate end, OffsetDateTime now) {
+        String value = period == null ? "7d" : period;
+        LocalDate today = now.toLocalDate();
+        if ("custom".equals(value)) {
+            if (start == null || end == null || end.isBefore(start)) throw badRequest("startDate e endDate válidos são obrigatórios");
+            return new DateRange(start.atStartOfDay(APP_ZONE).toOffsetDateTime(), end.plusDays(1).atStartOfDay(APP_ZONE).toOffsetDateTime());
+        }
+        OffsetDateTime from = switch (value) {
+            case "today" -> today.atStartOfDay(APP_ZONE).toOffsetDateTime();
+            case "7d" -> today.minusDays(6).atStartOfDay(APP_ZONE).toOffsetDateTime();
+            case "30d" -> today.minusDays(29).atStartOfDay(APP_ZONE).toOffsetDateTime();
+            case "current_month" -> today.withDayOfMonth(1).atStartOfDay(APP_ZONE).toOffsetDateTime();
+            default -> throw badRequest("period deve ser today, 7d, 30d, current_month ou custom");
+        };
+        return new DateRange(from, now.plusNanos(1));
+    }
+
+    private double ratio(long numerator, long denominator) { return denominator == 0 ? 0 : (double) numerator / denominator; }
+    private double percent(long numerator, long denominator) { return ratio(numerator, denominator) * 100; }
 
     private void validateRange(OffsetDateTime from, OffsetDateTime to) {
         if (!from.isBefore(to)) throw badRequest("from deve ser anterior a to");
@@ -227,4 +278,5 @@ public class AnalyticsService {
     }
 
     private record Dimensions(Long disciplinaId, Long assuntoId, Long subassuntoId) {}
+    private record DateRange(OffsetDateTime from, OffsetDateTime to) {}
 }

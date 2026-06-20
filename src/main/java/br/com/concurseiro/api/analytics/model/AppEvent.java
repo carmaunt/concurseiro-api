@@ -23,6 +23,9 @@ public class AppEvent {
     @Column(name = "device_id", length = 160)
     private String deviceId;
 
+    @Column(name = "anonymous_id", length = 160)
+    private String anonymousId;
+
     @Column(name = "session_id", length = 160)
     private String sessionId;
 
@@ -59,6 +62,16 @@ public class AppEvent {
     @Column(name = "platform", length = 40)
     private String platform;
 
+    @Column(name = "os_version", length = 40)
+    private String osVersion;
+
+    @Column(name = "event_schema_version", nullable = false)
+    private Integer eventSchemaVersion = 1;
+
+    @Column(name = "banca_id") private Long bancaId;
+    @Column(name = "instituicao_id") private Long instituicaoId;
+    @Column(name = "prova_id") private Long provaId;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "metadata", nullable = false, columnDefinition = "jsonb")
     private JsonNode metadata;
@@ -71,6 +84,8 @@ public class AppEvent {
     public void setUsuario(Usuario usuario) { this.usuario = usuario; }
     public String getDeviceId() { return deviceId; }
     public void setDeviceId(String deviceId) { this.deviceId = deviceId; }
+    public String getAnonymousId() { return anonymousId; }
+    public void setAnonymousId(String anonymousId) { this.anonymousId = anonymousId; }
     public String getSessionId() { return sessionId; }
     public void setSessionId(String sessionId) { this.sessionId = sessionId; }
     public String getEventName() { return eventName; }
@@ -95,6 +110,16 @@ public class AppEvent {
     public void setAppVersion(String appVersion) { this.appVersion = appVersion; }
     public String getPlatform() { return platform; }
     public void setPlatform(String platform) { this.platform = platform; }
+    public String getOsVersion() { return osVersion; }
+    public void setOsVersion(String osVersion) { this.osVersion = osVersion; }
+    public Integer getEventSchemaVersion() { return eventSchemaVersion; }
+    public void setEventSchemaVersion(Integer eventSchemaVersion) { this.eventSchemaVersion = eventSchemaVersion; }
+    public Long getBancaId() { return bancaId; }
+    public void setBancaId(Long bancaId) { this.bancaId = bancaId; }
+    public Long getInstituicaoId() { return instituicaoId; }
+    public void setInstituicaoId(Long instituicaoId) { this.instituicaoId = instituicaoId; }
+    public Long getProvaId() { return provaId; }
+    public void setProvaId(Long provaId) { this.provaId = provaId; }
     public JsonNode getMetadata() { return metadata; }
     public void setMetadata(JsonNode metadata) { this.metadata = metadata; }
     public OffsetDateTime getCreatedAt() { return createdAt; }

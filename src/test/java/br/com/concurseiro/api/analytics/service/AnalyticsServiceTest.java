@@ -49,7 +49,8 @@ class AnalyticsServiceTest {
 
         var captor = org.mockito.ArgumentCaptor.forClass(AppEvent.class);
         verify(events).save(captor.capture());
-        assertEquals("screen_view", captor.getValue().getEventName());
+        assertEquals("screen_viewed", captor.getValue().getEventName());
+        assertEquals("device-opaque", captor.getValue().getAnonymousId());
         assertEquals("device-opaque", captor.getValue().getDeviceId());
         assertEquals("home", captor.getValue().getMetadata().get("source").asText());
         assertNull(captor.getValue().getUsuario());
@@ -75,8 +76,9 @@ class AnalyticsServiceTest {
 
     private AnalyticsEventRequest request(String eventName, String deviceId, Map<String, Object> metadata) {
         return new AnalyticsEventRequest(
-                eventName, deviceId, "session-1", "home", null, null, null,
-                null, null, null, null, "1.0.0", "android", metadata
+                eventName, null, deviceId, "session-1", "home", null, null, null,
+                null, null, null, null, "1.0.0", "android", "14", 1,
+                null, null, null, metadata
         );
     }
 }

@@ -13,6 +13,7 @@ public record AnalyticsEventRequest(
         @Size(max = 80)
         @Pattern(regexp = "[a-z][a-z0-9_]*", message = "deve usar snake_case minúsculo")
         String eventName,
+        @Size(max = 160) String anonymousId,
         @Size(max = 160) String deviceId,
         @Size(max = 160) String sessionId,
         @Size(max = 120) String screenName,
@@ -25,5 +26,10 @@ public record AnalyticsEventRequest(
         @Min(0) @Max(86_400_000) Long interactionDurationMs,
         @Size(max = 40) String appVersion,
         @Size(max = 40) String platform,
+        @Size(max = 40) String osVersion,
+        @Min(1) @Max(100) Integer eventSchemaVersion,
+        @Min(1) Long bancaId,
+        @Min(1) Long instituicaoId,
+        @Min(1) Long provaId,
         Map<String, Object> metadata
 ) {}

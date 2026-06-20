@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: 019-evolve-app-events
+      author: concurseiro
+      changes:
+        - addColumn:
+            tableName: app_events
+            columns:
+              - column: { name: anonymous_id, type: VARCHAR(160) }
+              - column: { name: os_version, type: VARCHAR(40) }
+              - column: { name: event_schema_version, type: INTEGER, defaultValueNumeric: 1, constraints: { nullable: false } }
+              - column: { name: banca_id, type: BIGINT }
+              - column: { name: instituicao_id, type: BIGINT }
+              - column: { name: prova_id, type: BIGINT }
+        - sql:
+            sql: |
+              UPDATE app_events SET anonymous_id = device_id
+              WHERE anonymous_id IS NULL AND device_id IS NOT NULL;
+              UPDATE app_events SET event_name = CASE event_name
+                WHEN 'app_open' THEN 'app_opened'
+                WHEN 'session_start' THEN 'session_started'
+                WHEN 'session_end' THEN 'session_ended'
+                WHEN 'screen_view' THEN 'screen_viewed'
+                WHEN 'app_error' THEN 'error_occurred'
+                ELSE event_name END;
+        - createIndex:
+            tableName: app_events
+            indexName: idx_app_events_anonymous_created
+            columns:
+              - column: { name: anonymous_id }
+              - column: { name: created_at }
+        - createIndex:
+            tableName: app_events
+            indexName: idx_app_events_session_created
+            columns:
+              - column: { name: session_id }
+              - column: { name: created_at }
+        - createIndex:
+            tableName: app_events
+            indexName: idx_app_events_screen_created
+            columns:
+              - column: { name: screen_name }
+              - column: { name: created_at }
+        - createIndex:
+            tableName: app_events
+            indexName: idx_app_events_catalog_created
+            columns:
+              - column: { name: banca_id }
+              - column: { name: instituicao_id }
+              - column: { name: prova_id }
+              - column: { name: created_at }
