@@ -27,6 +27,7 @@ import java.util.UUID;
 public class R2ImagemStorageService {
 
     private static final long TAMANHO_MAXIMO = 5L * 1024 * 1024;
+    private static final String PREFIXO_TEXTOS_APOIO = "textos-apoio";
     private static final Set<String> TIPOS_PERMITIDOS = Set.of(
             "image/png",
             "image/jpeg",
@@ -53,12 +54,17 @@ public class R2ImagemStorageService {
     }
 
     public ImagemArmazenada enviar(MultipartFile arquivo) {
+        return enviar(arquivo, PREFIXO_TEXTOS_APOIO);
+    }
+
+    public ImagemArmazenada enviar(MultipartFile arquivo, String prefixo) {
         validarArquivo(arquivo);
 
         String contentType = arquivo.getContentType().toLowerCase(Locale.ROOT);
         byte[] bytes = lerBytes(arquivo);
         Dimensoes dimensoes = lerDimensoes(bytes);
-        String chave = "textos-apoio/" + Year.now().getValue() + "/" +
+        String prefixoNormalizado = normalizarPrefixo(prefixo);
+        String chave = prefixoNormalizado + "/" + Year.now().getValue() + "/" +
                 UUID.randomUUID() + "." + EXTENSOES.get(contentType);
 
         PutObjectRequest request = PutObjectRequest.builder()
@@ -138,6 +144,15 @@ public class R2ImagemStorageService {
 
     private static String removerBarraFinal(String valor) {
         return valor == null ? "" : valor.replaceAll("/+$", "");
+    }
+
+    private static String normalizarPrefixo(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return PREFIXO_TEXTOS_APOIO;
+        }
+
+        String normalizado = valor.trim().replaceAll("^/+|/+$", "");
+        return normalizado.isBlank() ? PREFIXO_TEXTOS_APOIO : normalizado;
     }
 
     public record ImagemArmazenada(
