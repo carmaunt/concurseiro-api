@@ -10,6 +10,8 @@ public record ProvaQuestaoRequest(
         @NotBlank @Size(max = 10000) String questao,
         @Size(max = 10000) String alternativas,
         @Size(max = 50000) String explicacao,
+        @Size(max = 500) String questaoImagemConteudo,
+        @Size(max = 50000) String questaoImagemJson,
 
         Long textoApoioId,
         @Size(max = 255) String textoApoioTitulo,
