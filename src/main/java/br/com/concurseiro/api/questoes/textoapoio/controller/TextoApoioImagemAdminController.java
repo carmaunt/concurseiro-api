@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "Textos de apoio", description = "Cadastro e reutilização de textos base para questões")
 @RestController
-@RequestMapping("/api/v1/admin/textos-apoio/imagens")
+@RequestMapping({"/api/v1/admin/textos-apoio/imagens", "/api/v1/admin/questoes/imagens"})
 @Conditional(R2ConfiguredCondition.class)
 public class TextoApoioImagemAdminController {
 
