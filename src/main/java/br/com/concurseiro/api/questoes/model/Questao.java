@@ -42,6 +42,12 @@ public class Questao {
     @Column(columnDefinition = "TEXT")
     private String explicacao;
 
+    @Column(name = "questao_imagem_conteudo", columnDefinition = "TEXT")
+    private String questaoImagemConteudo;
+
+    @Column(name = "questao_imagem_json", columnDefinition = "TEXT")
+    private String questaoImagemJson;
+
     @Column(nullable = false)
     private Integer ano;
 
@@ -101,6 +107,7 @@ public class Questao {
 
         this.textoBusca = normalizarParaBusca(
                 (textoApoioConteudo == null ? "" : textoApoioConteudo) + " " +
+                (questaoImagemConteudo == null ? "" : questaoImagemConteudo) + " " +
                 (getEnunciado() == null ? "" : getEnunciado()) + " " +
                 (questao == null ? "" : questao) + " " +
                 (getAssunto() == null ? "" : getAssunto())
@@ -165,6 +172,12 @@ public class Questao {
 
     public String getExplicacao() { return explicacao; }
     public void setExplicacao(String explicacao) { this.explicacao = explicacao; }
+
+    public String getQuestaoImagemConteudo() { return questaoImagemConteudo; }
+    public void setQuestaoImagemConteudo(String questaoImagemConteudo) { this.questaoImagemConteudo = questaoImagemConteudo; }
+
+    public String getQuestaoImagemJson() { return questaoImagemJson; }
+    public void setQuestaoImagemJson(String questaoImagemJson) { this.questaoImagemJson = questaoImagemJson; }
 
     public String getDisciplina() { return nomeOuNull(disciplinaCatalogo); }
     public void setDisciplina(String disciplina) { }
