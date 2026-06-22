@@ -27,3 +27,16 @@ databaseChangeLog:
       file: db/changelog/changes/019-evolve-app-events.yaml
   - include:
       file: db/changelog/changes/020-add-tipo-conta-usuarios.yaml
+  - changeSet:
+      id: 021-add-questao-imagem
+      author: openai
+      changes:
+        - addColumn:
+            tableName: questoes
+            columns:
+              - column:
+                  name: questao_imagem_conteudo
+                  type: text
+              - column:
+                  name: questao_imagem_json
+                  type: text
