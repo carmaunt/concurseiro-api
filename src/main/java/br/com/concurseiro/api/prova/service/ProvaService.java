@@ -126,6 +126,8 @@ public class ProvaService {
         questao.setQuestao(request.questao());
         questao.setAlternativas(request.alternativas());
         questao.setExplicacao(request.explicacao() == null ? "" : request.explicacao().trim());
+        questao.setQuestaoImagemConteudo(request.questaoImagemConteudo() == null ? "" : request.questaoImagemConteudo().trim());
+        questao.setQuestaoImagemJson(request.questaoImagemJson() == null ? null : request.questaoImagemJson().trim());
         questao.setTextoApoio(textoApoio);
         questao.setAno(prova.getAno());
         questao.setCargo(prova.getCargo());
