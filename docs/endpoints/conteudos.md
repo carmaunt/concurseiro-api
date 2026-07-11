@@ -155,3 +155,8 @@ As respostas mantêm `categoria` como texto de compatibilidade e também retorna
 ```
 
 O campo `tags`, anteriormente textual, agora é uma lista estruturada. Os clientes web e admin foram atualizados junto com a API.
+# Upload de imagem de capa
+
+`POST /api/v1/admin/conteudos/imagens` envia o campo multipart `arquivo` para o armazenamento configurado e retorna a URL pública da capa. O endpoint exige perfil `ADMIN`.
+
+São aceitos PNG, JPEG e WebP de até 5 MB. A URL retornada deve ser usada no campo `imagemCapa` ao salvar o conteúdo.
