@@ -16,6 +16,12 @@ As rotas do módulo estão divididas em dois grupos:
 /api/v1/questoes
 ```
 
+## Rotas funcionais da web
+
+```http
+/api/v1/questoes/web
+```
+
 ## Rotas administrativas
 
 ```http
@@ -31,6 +37,8 @@ As rotas principais permitem:
 * cadastrar uma nova questão
 * buscar uma questão pelo identificador `idQuestion`
 * listar questões com filtros e paginação
+
+As rotas funcionais da web permitem listar e buscar questões para resolução no navegador sem expor `gabarito` ou `explicacao` no payload.
 
 As rotas administrativas permitem:
 
@@ -340,6 +348,98 @@ Lista paginada retornada com sucesso. fileciteturn24file0
 ### 400 — Bad Request
 
 Parâmetros de paginação inválidos ou `sort` inválido. fileciteturn24file0 fileciteturn29file0
+
+---
+
+# GET /api/v1/questoes/web
+
+Lista questões para a área funcional da web sem expor campos de correção.
+
+## Descrição
+
+Este endpoint deve ser usado pela rota privada `/questoes` do frontend web.
+
+Ele aceita os mesmos filtros e regras de paginação de `GET /api/v1/questoes`, mas retorna `QuestaoWebResponse`, que não possui:
+
+* `gabarito`
+* `explicacao`
+
+Isso evita que o navegador receba a resposta correta antes do envio da resposta pelo usuário.
+
+## Segurança
+
+Exige autenticação com usuário `ADMIN`, `VISITANTE` ou `USUARIO_FINAL`.
+
+## Exemplo
+
+```http
+GET /api/v1/questoes/web?page=0&size=10&sort=criadoEm,desc
+```
+
+---
+
+# GET /api/v1/questoes/web/{idQuestion}
+
+Busca uma questão específica para resolução na web sem expor `gabarito` ou `explicacao`.
+
+## Segurança
+
+Exige autenticação com usuário `ADMIN`, `VISITANTE` ou `USUARIO_FINAL`.
+
+## Exemplo
+
+```http
+GET /api/v1/questoes/web/Q123ABC456XYZ789
+```
+
+---
+
+# POST /api/v1/questoes/web/{idQuestion}/respostas
+
+Registra a resposta do usuário autenticado para uma questão da web.
+
+## Descrição
+
+Recebe a alternativa selecionada, compara com o gabarito no backend, grava histórico em `respostas_questoes_usuario` e só então retorna o resultado com `gabarito` e `explicacao`.
+
+## Body
+
+```json
+{
+  "respostaSelecionada": "A"
+}
+```
+
+Para questões certo/errado, aceita `C`, `E`, `CERTO` ou `ERRADO`.
+
+## Segurança
+
+Exige autenticação com usuário `ADMIN`, `VISITANTE` ou `USUARIO_FINAL`.
+
+## Resposta
+
+```json
+{
+  "id": 1,
+  "idQuestion": "Q123ABC456XYZ789",
+  "disciplina": "Direito Constitucional",
+  "respostaSelecionada": "A",
+  "gabarito": "C",
+  "acertou": false,
+  "explicacao": "Comentário da questão quando cadastrado.",
+  "respondidaEm": "2026-07-09T08:00:00Z"
+}
+```
+
+---
+
+# GET /api/v1/questoes/web/{idQuestion}/respostas/ultima
+
+Retorna a última resposta do usuário autenticado para a questão informada.
+
+## Segurança
+
+Exige autenticação com usuário `ADMIN`, `VISITANTE` ou `USUARIO_FINAL`.
 
 ---
 

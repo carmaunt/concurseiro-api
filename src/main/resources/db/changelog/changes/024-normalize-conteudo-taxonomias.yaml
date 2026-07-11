@@ -1,0 +1,202 @@
+databaseChangeLog:
+  - changeSet:
+      id: 024-normalize-conteudo-taxonomias
+      author: codex
+      changes:
+        - createTable:
+            tableName: categorias_editoriais
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints: { primaryKey: true, nullable: false }
+              - column:
+                  name: nome
+                  type: varchar(120)
+                  constraints: { nullable: false }
+              - column:
+                  name: slug
+                  type: varchar(140)
+                  constraints: { nullable: false }
+              - column:
+                  name: descricao
+                  type: varchar(500)
+              - column:
+                  name: status
+                  type: varchar(20)
+                  defaultValue: ATIVA
+                  constraints: { nullable: false }
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints: { nullable: false }
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints: { nullable: false }
+
+        - createTable:
+            tableName: tags_editoriais
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints: { primaryKey: true, nullable: false }
+              - column:
+                  name: nome
+                  type: varchar(100)
+                  constraints: { nullable: false }
+              - column:
+                  name: slug
+                  type: varchar(120)
+                  constraints: { nullable: false }
+              - column:
+                  name: status
+                  type: varchar(20)
+                  defaultValue: ATIVA
+                  constraints: { nullable: false }
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints: { nullable: false }
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints: { nullable: false }
+
+        - addColumn:
+            tableName: conteudos_portal
+            columns:
+              - column:
+                  name: categoria_id
+                  type: bigint
+
+        - createTable:
+            tableName: conteudos_portal_tags
+            columns:
+              - column:
+                  name: conteudo_id
+                  type: bigint
+                  constraints: { nullable: false }
+              - column:
+                  name: tag_id
+                  type: bigint
+                  constraints: { nullable: false }
+
+        - sql:
+            splitStatements: false
+            sql: |
+              WITH nomes AS (
+                SELECT DISTINCT ON (lower(trim(categoria))) trim(categoria) AS nome
+                FROM conteudos_portal
+                WHERE categoria IS NOT NULL AND trim(categoria) <> ''
+                ORDER BY lower(trim(categoria)), trim(categoria)
+              ), bases AS (
+                SELECT nome,
+                       trim(both '-' from regexp_replace(
+                         translate(lower(nome), 'áàãâäéèêëíìîïóòõôöúùûüç', 'aaaaaeeeeiiiiooooouuuuc'),
+                         '[^a-z0-9]+', '-', 'g')) AS base_slug
+                FROM nomes
+              ), ordenadas AS (
+                SELECT nome, COALESCE(NULLIF(base_slug, ''), 'categoria') AS base_slug,
+                       row_number() OVER (PARTITION BY COALESCE(NULLIF(base_slug, ''), 'categoria') ORDER BY lower(nome)) AS posicao
+                FROM bases
+              )
+              INSERT INTO categorias_editoriais (nome, slug, status, created_at, updated_at)
+              SELECT nome,
+                     CASE WHEN posicao = 1 THEN base_slug ELSE base_slug || '-' || posicao END,
+                     'ATIVA', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              FROM ordenadas;
+
+              WITH nomes AS (
+                SELECT DISTINCT ON (lower(trim(valor))) trim(valor) AS nome
+                FROM conteudos_portal c
+                CROSS JOIN LATERAL regexp_split_to_table(COALESCE(c.tags, ''), ',') valor
+                WHERE trim(valor) <> ''
+                ORDER BY lower(trim(valor)), trim(valor)
+              ), bases AS (
+                SELECT nome,
+                       trim(both '-' from regexp_replace(
+                         translate(lower(nome), 'áàãâäéèêëíìîïóòõôöúùûüç', 'aaaaaeeeeiiiiooooouuuuc'),
+                         '[^a-z0-9]+', '-', 'g')) AS base_slug
+                FROM nomes
+              ), ordenadas AS (
+                SELECT nome, COALESCE(NULLIF(base_slug, ''), 'tag') AS base_slug,
+                       row_number() OVER (PARTITION BY COALESCE(NULLIF(base_slug, ''), 'tag') ORDER BY lower(nome)) AS posicao
+                FROM bases
+              )
+              INSERT INTO tags_editoriais (nome, slug, status, created_at, updated_at)
+              SELECT nome,
+                     CASE WHEN posicao = 1 THEN base_slug ELSE base_slug || '-' || posicao END,
+                     'ATIVA', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              FROM ordenadas;
+
+              UPDATE conteudos_portal c
+              SET categoria_id = ce.id
+              FROM categorias_editoriais ce
+              WHERE c.categoria IS NOT NULL
+                AND lower(trim(c.categoria)) = lower(ce.nome);
+
+              INSERT INTO conteudos_portal_tags (conteudo_id, tag_id)
+              SELECT DISTINCT c.id, te.id
+              FROM conteudos_portal c
+              CROSS JOIN LATERAL regexp_split_to_table(COALESCE(c.tags, ''), ',') valor
+              JOIN tags_editoriais te ON lower(trim(valor)) = lower(te.nome)
+              WHERE trim(valor) <> '';
+
+        - addUniqueConstraint:
+            tableName: conteudos_portal_tags
+            columnNames: conteudo_id, tag_id
+            constraintName: uk_conteudos_portal_tags
+        - addForeignKeyConstraint:
+            baseTableName: conteudos_portal
+            baseColumnNames: categoria_id
+            referencedTableName: categorias_editoriais
+            referencedColumnNames: id
+            constraintName: fk_conteudos_portal_categoria
+            onDelete: SET NULL
+        - addForeignKeyConstraint:
+            baseTableName: conteudos_portal_tags
+            baseColumnNames: conteudo_id
+            referencedTableName: conteudos_portal
+            referencedColumnNames: id
+            constraintName: fk_conteudos_portal_tags_conteudo
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: conteudos_portal_tags
+            baseColumnNames: tag_id
+            referencedTableName: tags_editoriais
+            referencedColumnNames: id
+            constraintName: fk_conteudos_portal_tags_tag
+            onDelete: CASCADE
+        - createIndex:
+            tableName: conteudos_portal
+            indexName: idx_conteudos_portal_categoria_id
+            columns:
+              - column: { name: categoria_id }
+        - createIndex:
+            tableName: conteudos_portal_tags
+            indexName: idx_conteudos_portal_tags_tag_id
+            columns:
+              - column: { name: tag_id }
+        - sql:
+            sql: |
+              CREATE UNIQUE INDEX uk_categorias_editoriais_nome_ci ON categorias_editoriais (lower(nome));
+              CREATE UNIQUE INDEX uk_categorias_editoriais_slug_ci ON categorias_editoriais (lower(slug));
+              CREATE UNIQUE INDEX uk_tags_editoriais_nome_ci ON tags_editoriais (lower(nome));
+              CREATE UNIQUE INDEX uk_tags_editoriais_slug_ci ON tags_editoriais (lower(slug));
+
+      rollback:
+        - dropTable:
+            tableName: conteudos_portal_tags
+        - dropColumn:
+            tableName: conteudos_portal
+            columnName: categoria_id
+        - dropTable:
+            tableName: tags_editoriais
+        - dropTable:
+            tableName: categorias_editoriais

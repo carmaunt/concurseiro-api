@@ -115,6 +115,14 @@ Lista instituições cadastradas.
 GET /api/v1/catalogo/instituicoes
 ```
 
+# GET /api/v1/catalogo/anos
+
+Lista, em ordem decrescente, os anos que possuem questões cadastradas. É usado pelos filtros de resolução da web e do app.
+
+```http
+GET /api/v1/catalogo/anos
+```
+
 ## Resposta esperada
 
 ```json

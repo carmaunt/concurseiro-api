@@ -12,6 +12,7 @@ import br.com.concurseiro.api.catalogo.subassunto.model.SubAssunto;
 import br.com.concurseiro.api.catalogo.subassunto.repository.SubAssuntoRepository;
 import br.com.concurseiro.api.questoes.dto.QuestaoRequest;
 import br.com.concurseiro.api.questoes.dto.QuestaoResponse;
+import br.com.concurseiro.api.questoes.dto.QuestaoWebResponse;
 import br.com.concurseiro.api.questoes.enunciado.model.Enunciado;
 import br.com.concurseiro.api.questoes.enunciado.service.EnunciadoService;
 import br.com.concurseiro.api.questoes.model.Questao;
@@ -156,6 +157,20 @@ public class QuestaoService {
 
     @Transactional(readOnly = true)
     public Page<QuestaoResponse> listarFiltradoPaginado(String texto, Long disciplinaId, Long assuntoId, Long subassuntoId, Long bancaId, Long instituicaoId, Integer ano, String cargo, String nivel, String modalidade, int page, int size, String sort) {
+        return listarEntidadesFiltradasPaginadas(texto, disciplinaId, assuntoId, subassuntoId, bancaId, instituicaoId, ano, cargo, nivel, modalidade, page, size, sort).map(QuestaoResponse::fromEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<QuestaoWebResponse> listarParaWeb(String texto, Long disciplinaId, Long assuntoId, Long subassuntoId, Long bancaId, Long instituicaoId, Integer ano, String cargo, String nivel, String modalidade, int page, int size, String sort) {
+        return listarEntidadesFiltradasPaginadas(texto, disciplinaId, assuntoId, subassuntoId, bancaId, instituicaoId, ano, cargo, nivel, modalidade, page, size, sort).map(QuestaoWebResponse::fromEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public QuestaoWebResponse buscarParaWeb(String idQuestion) {
+        return QuestaoWebResponse.fromEntity(buscarPorIdQuestion(idQuestion));
+    }
+
+    private Page<Questao> listarEntidadesFiltradasPaginadas(String texto, Long disciplinaId, Long assuntoId, Long subassuntoId, Long bancaId, Long instituicaoId, Integer ano, String cargo, String nivel, String modalidade, int page, int size, String sort) {
         Specification<Questao> spec = Specification.where(QuestaoSpecifications.textoContains(texto))
                 .and(QuestaoSpecifications.disciplinaIdEquals(disciplinaId))
                 .and(QuestaoSpecifications.assuntoIdEquals(assuntoId))
@@ -167,7 +182,7 @@ public class QuestaoService {
                 .and(QuestaoSpecifications.nivelEquals(nivel))
                 .and(QuestaoSpecifications.modalidadeEquals(modalidade));
 
-        return repository.findAll(spec, buildPageRequest(page, size, sort)).map(QuestaoResponse::fromEntity);
+        return repository.findAll(spec, buildPageRequest(page, size, sort));
     }
 
     private TextoApoio resolverTextoApoio(Long textoApoioId, String titulo, String tipo, String conteudo, String conteudoJson) {

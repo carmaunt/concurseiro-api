@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface QuestaoRepository extends JpaRepository<Questao, Long>, JpaSpecificationExecutor<Questao> {
 
@@ -26,4 +27,7 @@ public interface QuestaoRepository extends JpaRepository<Questao, Long>, JpaSpec
     Optional<Questao> findDetalhadaByIdQuestion(String idQuestion);
 
     long countByProvaId(Long provaId);
+
+    @Query("select distinct q.ano from Questao q where q.ano is not null order by q.ano desc")
+    List<Integer> findAnosDisponiveis();
 }

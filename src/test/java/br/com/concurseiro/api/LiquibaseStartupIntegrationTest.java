@@ -8,19 +8,27 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 @SpringBootTest
 @Testcontainers
+@AutoConfigureMockMvc
 class LiquibaseStartupIntegrationTest {
 
     @Autowired JdbcTemplate jdbc;
     @Autowired AnalyticsQueryRepository analyticsQueries;
     @Autowired AnalyticsInsightsService analyticsInsights;
+    @Autowired MockMvc mockMvc;
 
     @SuppressWarnings("resource")
     @Container
@@ -53,6 +61,146 @@ class LiquibaseStartupIntegrationTest {
 
     @Test
     void contextLoads() {
+        org.junit.jupiter.api.Assertions.assertEquals(1, jdbc.queryForObject(
+                "SELECT count(*) FROM information_schema.tables WHERE table_name = 'categorias_editoriais'", Integer.class));
+        org.junit.jupiter.api.Assertions.assertEquals(1, jdbc.queryForObject(
+                "SELECT count(*) FROM information_schema.tables WHERE table_name = 'tags_editoriais'", Integer.class));
+        org.junit.jupiter.api.Assertions.assertEquals(1, jdbc.queryForObject(
+                "SELECT count(*) FROM information_schema.tables WHERE table_name = 'conteudos_portal_tags'", Integer.class));
+    }
+
+    @Test
+    void taxonomiasAdminRecusamUsuarioNaoAutenticado() throws Exception {
+        mockMvc.perform(get("/api/v1/admin/categorias-editoriais")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void taxonomiasAdminRecusamUsuarioSemPermissao() throws Exception {
+        mockMvc.perform(get("/api/v1/admin/categorias-editoriais")
+                .with(user("estudante").authorities(() -> "ROLE_USUARIO_FINAL")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void taxonomiasAdminPermitemAdministrador() throws Exception {
+        mockMvc.perform(get("/api/v1/admin/categorias-editoriais")
+                .with(user("admin").authorities(() -> "ROLE_ADMIN")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void conteudosPublicosFiltramPorCategoriaSlug() throws Exception {
+        seedConteudosComTaxonomias();
+        mockMvc.perform(get("/api/v1/conteudos").param("tipo", "NOTICIA").param("category", "seguranca-publica"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.page.totalElements").value(3))
+                .andExpect(jsonPath("$.data.content[*].category.slug").value(org.hamcrest.Matchers.everyItem(org.hamcrest.Matchers.is("seguranca-publica"))));
+    }
+
+    @Test
+    void conteudosPublicosFiltramPorTagEConteudoComMultiplasTags() throws Exception {
+        seedConteudosComTaxonomias();
+        mockMvc.perform(get("/api/v1/conteudos").param("tipo", "NOTICIA").param("tag", "policia-federal"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.page.totalElements").value(3))
+                .andExpect(jsonPath("$.data.content[?(@.slug == 'concurso-policia-federal')].tags.length()").value(2));
+    }
+
+    @Test
+    void conteudosPublicosCombinamCategoriaTagEBusca() throws Exception {
+        seedConteudosComTaxonomias();
+        mockMvc.perform(get("/api/v1/conteudos")
+                        .param("tipo", "NOTICIA")
+                        .param("search", "polícia")
+                        .param("category", "seguranca-publica")
+                        .param("tag", "policia-federal"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.page.totalElements").value(1))
+                .andExpect(jsonPath("$.data.content[0].slug").value("concurso-policia-federal"));
+    }
+
+    @Test
+    void conteudosPublicosPreservamFiltrosNaPaginacaoReal() throws Exception {
+        seedConteudosComTaxonomias();
+        mockMvc.perform(get("/api/v1/conteudos")
+                        .param("tipo", "NOTICIA").param("category", "seguranca-publica")
+                        .param("page", "1").param("limit", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.page.number").value(1))
+                .andExpect(jsonPath("$.data.page.size").value(1))
+                .andExpect(jsonPath("$.data.page.totalElements").value(3))
+                .andExpect(jsonPath("$.data.content.length()").value(1));
+    }
+
+    @Test
+    void conteudosPublicosRetornamVazioParaSlugsInexistentesOuArquivados() throws Exception {
+        seedConteudosComTaxonomias();
+        mockMvc.perform(get("/api/v1/conteudos").param("tipo", "NOTICIA").param("category", "inexistente"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.page.totalElements").value(0));
+        mockMvc.perform(get("/api/v1/conteudos").param("tipo", "NOTICIA").param("category", "categoria-arquivada"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.page.totalElements").value(0));
+        mockMvc.perform(get("/api/v1/conteudos").param("tipo", "NOTICIA").param("tag", "tag-arquivada"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.page.totalElements").value(0));
+    }
+
+    @Test
+    void conteudosPublicosExcluemRascunhosEFuturosMesmoComFiltro() throws Exception {
+        seedConteudosComTaxonomias();
+        mockMvc.perform(get("/api/v1/conteudos").param("tipo", "NOTICIA").param("category", "seguranca-publica"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content[?(@.slug == 'rascunho-seguranca')]").isEmpty())
+                .andExpect(jsonPath("$.data.content[?(@.slug == 'noticia-futura')]").isEmpty());
+    }
+
+    @Test
+    void opcoesPublicasRetornamSomenteAtivasComConteudoPublicadoDoTipo() throws Exception {
+        seedConteudosComTaxonomias();
+        mockMvc.perform(get("/api/v1/categorias/publicas").param("tipo", "NOTICIA"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[*].slug", org.hamcrest.Matchers.containsInAnyOrder("seguranca-publica", "metodos-de-estudo")));
+        mockMvc.perform(get("/api/v1/tags/publicas").param("tipo", "NOTICIA"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[*].slug", org.hamcrest.Matchers.containsInAnyOrder("policia-federal", "edital")));
+    }
+
+    private void seedConteudosComTaxonomias() {
+        jdbc.update("DELETE FROM conteudos_portal_tags");
+        jdbc.update("DELETE FROM conteudos_portal");
+        jdbc.update("DELETE FROM tags_editoriais");
+        jdbc.update("DELETE FROM categorias_editoriais");
+        jdbc.update("""
+                INSERT INTO categorias_editoriais (nome, slug, status) VALUES
+                  ('Segurança Pública', 'seguranca-publica', 'ATIVA'),
+                  ('Métodos de estudo', 'metodos-de-estudo', 'ATIVA'),
+                  ('Categoria arquivada', 'categoria-arquivada', 'ARQUIVADA')
+                """);
+        jdbc.update("""
+                INSERT INTO tags_editoriais (nome, slug, status) VALUES
+                  ('Polícia Federal', 'policia-federal', 'ATIVA'),
+                  ('Edital', 'edital', 'ATIVA'),
+                  ('Tag arquivada', 'tag-arquivada', 'ARQUIVADA')
+                """);
+        jdbc.update("""
+                INSERT INTO conteudos_portal
+                  (titulo, slug, resumo, conteudo, status, tipo, destaque, publicado_em, created_at, updated_at, categoria_id)
+                VALUES
+                  ('Concurso da Polícia Federal', 'concurso-policia-federal', 'Resumo polícia', 'Conteúdo polícia', 'PUBLICADO', 'NOTICIA', false, CURRENT_TIMESTAMP - interval '2 days', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, (SELECT id FROM categorias_editoriais WHERE slug='seguranca-publica')),
+                  ('Novo edital de segurança', 'edital-seguranca', 'Resumo edital', 'Conteúdo edital', 'PUBLICADO', 'NOTICIA', false, CURRENT_TIMESTAMP - interval '1 day', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, (SELECT id FROM categorias_editoriais WHERE slug='seguranca-publica')),
+                  ('Revisão para concursos', 'revisao-concursos', 'Resumo revisão', 'Conteúdo revisão', 'PUBLICADO', 'NOTICIA', false, CURRENT_TIMESTAMP - interval '3 days', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, (SELECT id FROM categorias_editoriais WHERE slug='metodos-de-estudo')),
+                  ('Rascunho segurança', 'rascunho-seguranca', 'Resumo', 'Conteúdo', 'RASCUNHO', 'NOTICIA', false, null, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, (SELECT id FROM categorias_editoriais WHERE slug='seguranca-publica')),
+                  ('Notícia futura', 'noticia-futura', 'Resumo', 'Conteúdo', 'PUBLICADO', 'NOTICIA', false, CURRENT_TIMESTAMP + interval '5 days', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, (SELECT id FROM categorias_editoriais WHERE slug='seguranca-publica')),
+                  ('Conteúdo antigo', 'conteudo-categoria-arquivada', 'Resumo', 'Conteúdo', 'PUBLICADO', 'NOTICIA', false, CURRENT_TIMESTAMP - interval '4 days', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, (SELECT id FROM categorias_editoriais WHERE slug='categoria-arquivada')),
+                  ('Segurança com tag antiga', 'seguranca-tag-arquivada', 'Resumo', 'Conteúdo', 'PUBLICADO', 'NOTICIA', false, CURRENT_TIMESTAMP - interval '5 days', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, (SELECT id FROM categorias_editoriais WHERE slug='seguranca-publica'))
+                """);
+        jdbc.update("""
+                INSERT INTO conteudos_portal_tags (conteudo_id, tag_id)
+                SELECT c.id, t.id FROM conteudos_portal c CROSS JOIN tags_editoriais t
+                WHERE (c.slug='concurso-policia-federal' AND t.slug IN ('policia-federal','edital'))
+                   OR (c.slug='edital-seguranca' AND t.slug='edital')
+                   OR (c.slug='revisao-concursos' AND t.slug='policia-federal')
+                   OR (c.slug='conteudo-categoria-arquivada' AND t.slug='policia-federal')
+                   OR (c.slug='seguranca-tag-arquivada' AND t.slug='tag-arquivada')
+                """);
     }
 
     @Test

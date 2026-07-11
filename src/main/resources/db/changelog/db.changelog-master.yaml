@@ -40,3 +40,9 @@ databaseChangeLog:
               - column:
                   name: questao_imagem_json
                   type: text
+  - include:
+      file: db/changelog/changes/022-add-conteudos-portal.yaml
+  - include:
+      file: db/changelog/changes/023-add-respostas-questoes-usuario.yaml
+  - include:
+      file: db/changelog/changes/024-normalize-conteudo-taxonomias.yaml

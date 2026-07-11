@@ -1,0 +1,94 @@
+databaseChangeLog:
+  - changeSet:
+      id: 023-add-respostas-questoes-usuario
+      author: codex
+      changes:
+        - createTable:
+            tableName: respostas_questoes_usuario
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: usuario_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: questao_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: id_question
+                  type: varchar(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: disciplina
+                  type: varchar(160)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: resposta_selecionada
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: gabarito
+                  type: varchar(8)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: acertou
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: respondida_em
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: respostas_questoes_usuario
+            baseColumnNames: usuario_id
+            referencedTableName: usuarios
+            referencedColumnNames: id
+            constraintName: fk_respostas_questoes_usuario_usuario
+
+        - addForeignKeyConstraint:
+            baseTableName: respostas_questoes_usuario
+            baseColumnNames: questao_id
+            referencedTableName: questoes
+            referencedColumnNames: id
+            constraintName: fk_respostas_questoes_usuario_questao
+
+        - createIndex:
+            tableName: respostas_questoes_usuario
+            indexName: idx_respostas_usuario_respondida
+            columns:
+              - column:
+                  name: usuario_id
+              - column:
+                  name: respondida_em
+
+        - createIndex:
+            tableName: respostas_questoes_usuario
+            indexName: idx_respostas_questao_usuario
+            columns:
+              - column:
+                  name: questao_id
+              - column:
+                  name: usuario_id
+
+        - createIndex:
+            tableName: respostas_questoes_usuario
+            indexName: idx_respostas_disciplina
+            columns:
+              - column:
+                  name: disciplina

@@ -70,7 +70,24 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/analytics/events").permitAll()
 
+                        // leitura funcional da web exige login e não expõe gabarito
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes/web")
+                            .hasAnyAuthority(
+                                    Usuario.Role.ADMIN.authority(),
+                                    Usuario.Role.VISITANTE.authority(),
+                                    Usuario.Role.USUARIO_FINAL.authority()
+                            )
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes/web/*")
+                            .hasAnyAuthority(
+                                    Usuario.Role.ADMIN.authority(),
+                                    Usuario.Role.VISITANTE.authority(),
+                                    Usuario.Role.USUARIO_FINAL.authority()
+                            )
+
                         // leitura pública
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/conteudos/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/categorias/publicas").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/tags/publicas").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes/*").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/catalogo/**").permitAll()

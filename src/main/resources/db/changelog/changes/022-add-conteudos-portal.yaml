@@ -1,0 +1,110 @@
+databaseChangeLog:
+  - changeSet:
+      id: 022-add-conteudos-portal
+      author: codex
+      changes:
+        - createTable:
+            tableName: conteudos_portal
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: titulo
+                  type: varchar(180)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: slug
+                  type: varchar(220)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: resumo
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: conteudo
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: imagem_capa
+                  type: varchar(1000)
+              - column:
+                  name: categoria
+                  type: varchar(120)
+              - column:
+                  name: tags
+                  type: text
+              - column:
+                  name: status
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tipo
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: destaque
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: publicado_em
+                  type: timestamp with time zone
+              - column:
+                  name: seo_titulo
+                  type: varchar(180)
+              - column:
+                  name: seo_descricao
+                  type: varchar(300)
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: conteudos_portal
+            columnNames: tipo, slug
+            constraintName: uk_conteudos_portal_tipo_slug
+
+        - createIndex:
+            tableName: conteudos_portal
+            indexName: idx_conteudos_portal_tipo_status_publicado
+            columns:
+              - column:
+                  name: tipo
+              - column:
+                  name: status
+              - column:
+                  name: publicado_em
+
+        - createIndex:
+            tableName: conteudos_portal
+            indexName: idx_conteudos_portal_slug
+            columns:
+              - column:
+                  name: slug
+
+        - createIndex:
+            tableName: conteudos_portal
+            indexName: idx_conteudos_portal_destaque
+            columns:
+              - column:
+                  name: destaque
