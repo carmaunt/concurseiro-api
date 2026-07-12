@@ -4,6 +4,7 @@ import br.com.concurseiro.api.conteudo.dto.ConteudoPortalRequest;
 import br.com.concurseiro.api.conteudo.dto.ConteudoPortalResponse;
 import br.com.concurseiro.api.conteudo.model.ConteudoPortal;
 import br.com.concurseiro.api.conteudo.service.ConteudoPortalService;
+import br.com.concurseiro.api.conteudo.service.ConteudoInstagramService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.*;
 public class AdminConteudoPortalController {
 
     private final ConteudoPortalService service;
+    private final ConteudoInstagramService instagramService;
 
-    public AdminConteudoPortalController(ConteudoPortalService service) {
+    public AdminConteudoPortalController(ConteudoPortalService service, ConteudoInstagramService instagramService) {
         this.service = service;
+        this.instagramService = instagramService;
     }
 
     @GetMapping
@@ -49,6 +52,11 @@ public class AdminConteudoPortalController {
     @PatchMapping("/{id}/status")
     public ConteudoPortalResponse alterarStatus(@PathVariable Long id, @RequestParam ConteudoPortal.Status status) {
         return service.alterarStatus(id, status);
+    }
+
+    @PostMapping("/{id}/instagram/publicar")
+    public ConteudoPortalResponse publicarNoInstagram(@PathVariable Long id) {
+        return instagramService.publicar(id);
     }
 
     @DeleteMapping("/{id}")

@@ -67,6 +67,24 @@ public class ConteudoPortal {
     @Column(name = "instagram_hashtags", length = 1000)
     private String instagramHashtags;
 
+    public enum InstagramStatus { NAO_PUBLICADO, EM_PROCESSAMENTO, PUBLICADO, FALHOU }
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "instagram_status", nullable = false, length = 30)
+    private InstagramStatus instagramStatus = InstagramStatus.NAO_PUBLICADO;
+
+    @Column(name = "instagram_container_id", length = 120)
+    private String instagramContainerId;
+
+    @Column(name = "instagram_media_id", length = 120)
+    private String instagramMediaId;
+
+    @Column(name = "instagram_publicado_em")
+    private OffsetDateTime instagramPublicadoEm;
+
+    @Column(name = "instagram_ultima_falha", length = 500)
+    private String instagramUltimaFalha;
+
     @Column(name = "autor_nome", length = 160)
     private String autorNome;
 
@@ -127,6 +145,7 @@ public class ConteudoPortal {
         updatedAt = OffsetDateTime.now();
         if (createdAt == null) createdAt = updatedAt;
         if (status == null) status = Status.RASCUNHO;
+        if (instagramStatus == null) instagramStatus = InstagramStatus.NAO_PUBLICADO;
         if (slug == null || slug.isBlank()) slug = gerarSlug(titulo);
         slug = gerarSlug(slug);
         if (status == Status.PUBLICADO && publicadoEm == null) {
@@ -175,6 +194,16 @@ public class ConteudoPortal {
     public void setInstagramLegenda(String instagramLegenda) { this.instagramLegenda = instagramLegenda; }
     public String getInstagramHashtags() { return instagramHashtags; }
     public void setInstagramHashtags(String instagramHashtags) { this.instagramHashtags = instagramHashtags; }
+    public InstagramStatus getInstagramStatus() { return instagramStatus; }
+    public void setInstagramStatus(InstagramStatus instagramStatus) { this.instagramStatus = instagramStatus; }
+    public String getInstagramContainerId() { return instagramContainerId; }
+    public void setInstagramContainerId(String instagramContainerId) { this.instagramContainerId = instagramContainerId; }
+    public String getInstagramMediaId() { return instagramMediaId; }
+    public void setInstagramMediaId(String instagramMediaId) { this.instagramMediaId = instagramMediaId; }
+    public OffsetDateTime getInstagramPublicadoEm() { return instagramPublicadoEm; }
+    public void setInstagramPublicadoEm(OffsetDateTime instagramPublicadoEm) { this.instagramPublicadoEm = instagramPublicadoEm; }
+    public String getInstagramUltimaFalha() { return instagramUltimaFalha; }
+    public void setInstagramUltimaFalha(String instagramUltimaFalha) { this.instagramUltimaFalha = instagramUltimaFalha; }
     public String getAutorNome() { return autorNome; }
     public void setAutorNome(String autorNome) { this.autorNome = autorNome; }
     public String getRevisadoPor() { return revisadoPor; }

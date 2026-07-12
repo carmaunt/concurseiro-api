@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 028-add-instagram-publicacao-status
+      author: codex
+      changes:
+        - addColumn:
+            tableName: conteudos_portal
+            columns:
+              - column: { name: instagram_status, type: varchar(30), defaultValue: NAO_PUBLICADO, constraints: { nullable: false } }
+              - column: { name: instagram_container_id, type: varchar(120) }
+              - column: { name: instagram_media_id, type: varchar(120) }
+              - column: { name: instagram_publicado_em, type: timestamp with time zone }
+              - column: { name: instagram_ultima_falha, type: varchar(500) }
