@@ -17,6 +17,11 @@ import br.com.concurseiro.api.questoes.model.Questao;
 import br.com.concurseiro.api.questoes.repository.QuestaoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -156,6 +161,21 @@ class QuestaoServiceTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
         assertTrue(ex.getReason().contains("sort inválido"));
+    }
+
+    @Test
+    void listarParaWeb_deveUsarDesempateEstavelPorIdQuestion() {
+        when(questaoRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Questao>>any(), any(Pageable.class))).thenReturn(Page.empty());
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+
+        service.listarParaWeb(null, null, null, null, null, null, null, null, null, null, 2, 10, "criadoEm,desc");
+
+        verify(questaoRepository).findAll(org.mockito.ArgumentMatchers.<Specification<Questao>>any(), pageableCaptor.capture());
+        var orders = pageableCaptor.getValue().getSort().stream().toList();
+
+        assertEquals(2, orders.size());
+        assertEquals(new Sort.Order(Sort.Direction.DESC, "criadoEm"), orders.get(0));
+        assertEquals(new Sort.Order(Sort.Direction.ASC, "idQuestion"), orders.get(1));
     }
 
     @Test

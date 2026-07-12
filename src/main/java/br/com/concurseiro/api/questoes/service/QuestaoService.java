@@ -228,6 +228,13 @@ public class QuestaoService {
         String property = parts[0].trim();
         if (!SORT_FIELDS_ALLOWED.contains(property)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "sort inválido. Permitidos: " + String.join(", ", SORT_FIELDS_ALLOWED));
         Sort.Direction direction = parts.length == 2 && parts[1].trim().equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        return PageRequest.of(page, size, Sort.by(direction, property));
+        // Importações em lote podem compartilhar o mesmo criadoEm. O segundo
+        // critério evita que o banco alterne a ordem de registros empatados e
+        // faça uma questão reaparecer em outra página.
+        return PageRequest.of(
+                page,
+                size,
+                Sort.by(direction, property).and(Sort.by(Sort.Direction.ASC, "idQuestion"))
+        );
     }
 }
