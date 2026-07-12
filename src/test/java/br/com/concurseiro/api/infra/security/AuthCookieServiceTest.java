@@ -25,7 +25,7 @@ class AuthCookieServiceTest {
                         .contains("SameSite=None"))
                 .anySatisfy(cookie -> assertThat(cookie)
                         .contains("refresh_token=refresh-token")
-                        .contains("Path=/api/v1/auth/refresh")
+                        .contains("Path=/")
                         .contains("HttpOnly")
                         .contains("Secure")
                         .contains("SameSite=None"));
@@ -58,6 +58,7 @@ class AuthCookieServiceTest {
                         .contains("Max-Age=0"))
                 .anySatisfy(cookie -> assertThat(cookie)
                         .contains("refresh_token=")
+                        .contains("Path=/")
                         .contains("Max-Age=0"));
     }
 }

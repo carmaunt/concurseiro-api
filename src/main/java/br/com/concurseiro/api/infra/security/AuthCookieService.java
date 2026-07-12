@@ -36,12 +36,15 @@ public class AuthCookieService {
 
     public void addAuthCookies(HttpServletResponse response, String accessToken, String refreshToken) {
         response.addHeader("Set-Cookie", buildCookie(ACCESS_TOKEN_COOKIE, accessToken, "/", accessTokenMaxAgeSeconds).toString());
-        response.addHeader("Set-Cookie", buildCookie(REFRESH_TOKEN_COOKIE, refreshToken, "/api/v1/auth/refresh", refreshTokenMaxAgeSeconds).toString());
+        // O portal acessa a API por /api/backend. Com escopo restrito a
+        // /api/v1/auth/refresh, o navegador não enviaria este cookie à rota
+        // pública reescrita pelo Next e a renovação de sessão falharia.
+        response.addHeader("Set-Cookie", buildCookie(REFRESH_TOKEN_COOKIE, refreshToken, "/", refreshTokenMaxAgeSeconds).toString());
     }
 
     public void clearAuthCookies(HttpServletResponse response) {
         response.addHeader("Set-Cookie", buildCookie(ACCESS_TOKEN_COOKIE, "", "/", 0).toString());
-        response.addHeader("Set-Cookie", buildCookie(REFRESH_TOKEN_COOKIE, "", "/api/v1/auth/refresh", 0).toString());
+        response.addHeader("Set-Cookie", buildCookie(REFRESH_TOKEN_COOKIE, "", "/", 0).toString());
     }
 
     public Optional<String> getAccessToken(HttpServletRequest request) {
