@@ -55,6 +55,12 @@ public class ConteudoPortal {
     @Column(name = "imagem_capa_alt", length = 500)
     private String imagemCapaAlt;
 
+    @Column(name = "imagem_secundaria", length = 1000)
+    private String imagemSecundaria;
+
+    @Column(name = "imagem_secundaria_alt", length = 500)
+    private String imagemSecundariaAlt;
+
     @Column(name = "autor_nome", length = 160)
     private String autorNome;
 
@@ -155,6 +161,10 @@ public class ConteudoPortal {
     public void setImagemCapa(String imagemCapa) { this.imagemCapa = imagemCapa; }
     public String getImagemCapaAlt() { return imagemCapaAlt; }
     public void setImagemCapaAlt(String imagemCapaAlt) { this.imagemCapaAlt = imagemCapaAlt; }
+    public String getImagemSecundaria() { return imagemSecundaria; }
+    public void setImagemSecundaria(String imagemSecundaria) { this.imagemSecundaria = imagemSecundaria; }
+    public String getImagemSecundariaAlt() { return imagemSecundariaAlt; }
+    public void setImagemSecundariaAlt(String imagemSecundariaAlt) { this.imagemSecundariaAlt = imagemSecundariaAlt; }
     public String getAutorNome() { return autorNome; }
     public void setAutorNome(String autorNome) { this.autorNome = autorNome; }
     public String getRevisadoPor() { return revisadoPor; }

@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 026-add-imagem-secundaria-conteudo
+      author: codex
+      changes:
+        - addColumn:
+            tableName: conteudos_portal
+            columns:
+              - column: { name: imagem_secundaria, type: varchar(1000) }
+              - column: { name: imagem_secundaria_alt, type: varchar(500) }

@@ -137,6 +137,8 @@ public class ConteudoPortalService {
         conteudo.setConteudo(request.conteudo().trim());
         conteudo.setImagemCapa(normalizarOpcional(request.imagemCapa()));
         conteudo.setImagemCapaAlt(normalizarOpcional(request.imagemCapaAlt()));
+        conteudo.setImagemSecundaria(normalizarOpcional(request.imagemSecundaria()));
+        conteudo.setImagemSecundariaAlt(normalizarOpcional(request.imagemSecundariaAlt()));
         conteudo.setAutorNome(normalizarOpcional(request.autorNome()));
         conteudo.setRevisadoPor(normalizarOpcional(request.revisadoPor()));
         conteudo.setFontesOficiais(serializarFontes(request.fontesOficiais()));

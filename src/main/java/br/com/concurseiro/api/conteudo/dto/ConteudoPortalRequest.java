@@ -14,6 +14,8 @@ public record ConteudoPortalRequest(
         @NotBlank String conteudo,
         @Size(max = 1000) String imagemCapa,
         @Size(max = 500) String imagemCapaAlt,
+        @Size(max = 1000) String imagemSecundaria,
+        @Size(max = 500) String imagemSecundariaAlt,
         @Size(max = 160) String autorNome,
         @Size(max = 160) String revisadoPor,
         List<@jakarta.validation.Valid FonteEditorial> fontesOficiais,

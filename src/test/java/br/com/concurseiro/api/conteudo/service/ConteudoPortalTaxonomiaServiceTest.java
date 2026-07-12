@@ -59,7 +59,7 @@ class ConteudoPortalTaxonomiaServiceTest {
     private ConteudoPortalService service() { return new ConteudoPortalService(repository, categoriaRepository, tagRepository, mock(org.springframework.context.ApplicationEventPublisher.class)); }
 
     private ConteudoPortalRequest request(Long categoriaId, Set<Long> tagIds) {
-        return new ConteudoPortalRequest("Título", "titulo", "Resumo", "Conteúdo", null, null, null, null, List.of(), categoriaId, tagIds,
+        return new ConteudoPortalRequest("Título", "titulo", "Resumo", "Conteúdo", null, null, null, null, null, null, List.of(), categoriaId, tagIds,
                 ConteudoPortal.Status.RASCUNHO, ConteudoPortal.Tipo.NOTICIA, false, null, null);
     }
 
