@@ -3,6 +3,8 @@ package br.com.concurseiro.api.conteudo.dto;
 import br.com.concurseiro.api.conteudo.model.ConteudoPortal;
 import java.time.OffsetDateTime;
 import java.util.List;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public record ConteudoPortalResponse(
         Long id,
@@ -11,6 +13,10 @@ public record ConteudoPortalResponse(
         String resumo,
         String conteudo,
         String imagemCapa,
+        String imagemCapaAlt,
+        String autorNome,
+        String revisadoPor,
+        List<FonteEditorial> fontesOficiais,
         String categoria,
         TaxonomiaResumoResponse category,
         List<TaxonomiaResumoResponse> tags,
@@ -31,6 +37,10 @@ public record ConteudoPortalResponse(
                 conteudo.getResumo(),
                 conteudo.getConteudo(),
                 conteudo.getImagemCapa(),
+                conteudo.getImagemCapaAlt(),
+                conteudo.getAutorNome(),
+                conteudo.getRevisadoPor(),
+                fontes(conteudo.getFontesOficiais()),
                 conteudo.getCategoria() != null ? conteudo.getCategoria().getNome() : conteudo.getCategoriaLegada(),
                 conteudo.getCategoria() == null ? null : new TaxonomiaResumoResponse(
                         conteudo.getCategoria().getId(), conteudo.getCategoria().getNome(), conteudo.getCategoria().getSlug()),
@@ -46,5 +56,11 @@ public record ConteudoPortalResponse(
                 conteudo.getCreatedAt(),
                 conteudo.getUpdatedAt()
         );
+    }
+
+    private static List<FonteEditorial> fontes(String json) {
+        if (json == null || json.isBlank()) return List.of();
+        try { return new ObjectMapper().readValue(json, new TypeReference<List<FonteEditorial>>() {}); }
+        catch (Exception ignored) { return List.of(); }
     }
 }

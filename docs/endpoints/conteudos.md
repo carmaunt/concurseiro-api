@@ -160,3 +160,5 @@ O campo `tags`, anteriormente textual, agora é uma lista estruturada. Os client
 `POST /api/v1/admin/conteudos/imagens` envia o campo multipart `arquivo` para o armazenamento configurado e retorna a URL pública da capa. O endpoint exige perfil `ADMIN`.
 
 São aceitos PNG, JPEG e WebP de até 5 MB. A URL retornada deve ser usada no campo `imagemCapa` ao salvar o conteúdo.
+
+Após alterações que afetam conteúdo publicado, a API agenda revalidação pós-commit do portal. Configure `PORTAL_REVALIDATE_URL` e `PORTAL_REVALIDATE_SECRET` apenas no ambiente de execução.

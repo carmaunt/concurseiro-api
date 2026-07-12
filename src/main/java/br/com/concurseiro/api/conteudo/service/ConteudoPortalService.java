@@ -2,6 +2,9 @@ package br.com.concurseiro.api.conteudo.service;
 
 import br.com.concurseiro.api.conteudo.dto.ConteudoPortalRequest;
 import br.com.concurseiro.api.conteudo.dto.ConteudoPortalResponse;
+import br.com.concurseiro.api.conteudo.dto.FonteEditorial;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import br.com.concurseiro.api.conteudo.event.ConteudoPublicoAlteradoEvent;
 import br.com.concurseiro.api.conteudo.model.ConteudoPortal;
 import br.com.concurseiro.api.conteudo.model.StatusTaxonomia;
 import br.com.concurseiro.api.conteudo.model.TagEditorial;
@@ -16,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -33,13 +37,16 @@ public class ConteudoPortalService {
     private final ConteudoPortalRepository repository;
     private final CategoriaEditorialRepository categoriaRepository;
     private final TagEditorialRepository tagRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ConteudoPortalService(ConteudoPortalRepository repository,
                                  CategoriaEditorialRepository categoriaRepository,
-                                 TagEditorialRepository tagRepository) {
+                                 TagEditorialRepository tagRepository,
+                                 ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
         this.categoriaRepository = categoriaRepository;
         this.tagRepository = tagRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional(readOnly = true)
@@ -84,27 +91,38 @@ public class ConteudoPortalService {
         ConteudoPortal conteudo = new ConteudoPortal();
         aplicarRequest(conteudo, request);
         validarSlugUnico(conteudo.getTipo(), conteudo.getSlug(), null);
-        return ConteudoPortalResponse.fromEntity(repository.save(conteudo));
+        ConteudoPortal salvo = repository.save(conteudo);
+        if (salvo.getStatus() == ConteudoPortal.Status.PUBLICADO) publicarRevalidacao(salvo, "criação");
+        return ConteudoPortalResponse.fromEntity(salvo);
     }
 
     @Transactional
     public ConteudoPortalResponse atualizar(Long id, ConteudoPortalRequest request) {
         ConteudoPortal conteudo = buscarEntidade(id);
+        boolean eraPublicado = conteudo.getStatus() == ConteudoPortal.Status.PUBLICADO;
         aplicarRequest(conteudo, request);
         validarSlugUnico(conteudo.getTipo(), conteudo.getSlug(), id);
-        return ConteudoPortalResponse.fromEntity(repository.save(conteudo));
+        ConteudoPortal salvo = repository.save(conteudo);
+        if (eraPublicado || salvo.getStatus() == ConteudoPortal.Status.PUBLICADO) publicarRevalidacao(salvo, "atualização");
+        return ConteudoPortalResponse.fromEntity(salvo);
     }
 
     @Transactional
     public ConteudoPortalResponse alterarStatus(Long id, ConteudoPortal.Status status) {
         ConteudoPortal conteudo = buscarEntidade(id);
+        boolean eraPublicado = conteudo.getStatus() == ConteudoPortal.Status.PUBLICADO;
         conteudo.setStatus(status);
-        return ConteudoPortalResponse.fromEntity(repository.save(conteudo));
+        ConteudoPortal salvo = repository.save(conteudo);
+        if (eraPublicado || status == ConteudoPortal.Status.PUBLICADO) publicarRevalidacao(salvo, "status");
+        return ConteudoPortalResponse.fromEntity(salvo);
     }
 
     @Transactional
     public void excluir(Long id) {
-        repository.delete(buscarEntidade(id));
+        ConteudoPortal conteudo = buscarEntidade(id);
+        boolean eraPublicado = conteudo.getStatus() == ConteudoPortal.Status.PUBLICADO;
+        repository.delete(conteudo);
+        if (eraPublicado) publicarRevalidacao(conteudo, "exclusão");
     }
 
     private ConteudoPortal buscarEntidade(Long id) {
@@ -118,6 +136,10 @@ public class ConteudoPortalService {
         conteudo.setResumo(request.resumo().trim());
         conteudo.setConteudo(request.conteudo().trim());
         conteudo.setImagemCapa(normalizarOpcional(request.imagemCapa()));
+        conteudo.setImagemCapaAlt(normalizarOpcional(request.imagemCapaAlt()));
+        conteudo.setAutorNome(normalizarOpcional(request.autorNome()));
+        conteudo.setRevisadoPor(normalizarOpcional(request.revisadoPor()));
+        conteudo.setFontesOficiais(serializarFontes(request.fontesOficiais()));
         aplicarCategoria(conteudo, request.categoriaId());
         aplicarTags(conteudo, request.tagIds());
         conteudo.setStatus(request.status());
@@ -235,5 +257,15 @@ public class ConteudoPortalService {
     private String normalizarOpcional(String valor) {
         if (valor == null || valor.isBlank()) return null;
         return valor.trim();
+    }
+
+    private String serializarFontes(List<FonteEditorial> fontes) {
+        if (fontes == null || fontes.isEmpty()) return null;
+        try { return new ObjectMapper().writeValueAsString(fontes); }
+        catch (Exception ex) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fontes oficiais inválidas"); }
+    }
+
+    private void publicarRevalidacao(ConteudoPortal conteudo, String operacao) {
+        eventPublisher.publishEvent(new ConteudoPublicoAlteradoEvent(conteudo.getId(), operacao));
     }
 }

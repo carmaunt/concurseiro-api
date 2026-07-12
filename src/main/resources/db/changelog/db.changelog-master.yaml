@@ -46,3 +46,5 @@ databaseChangeLog:
       file: db/changelog/changes/023-add-respostas-questoes-usuario.yaml
   - include:
       file: db/changelog/changes/024-normalize-conteudo-taxonomias.yaml
+  - include:
+      file: db/changelog/changes/025-add-seo-editorial-fields.yaml

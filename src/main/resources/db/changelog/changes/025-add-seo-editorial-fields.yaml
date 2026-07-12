@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 025-add-seo-editorial-fields
+      author: codex
+      changes:
+        - addColumn:
+            tableName: conteudos_portal
+            columns:
+              - column: { name: imagem_capa_alt, type: varchar(500) }
+              - column: { name: autor_nome, type: varchar(160) }
+              - column: { name: revisado_por, type: varchar(160) }
+              - column: { name: fontes_oficiais, type: text }

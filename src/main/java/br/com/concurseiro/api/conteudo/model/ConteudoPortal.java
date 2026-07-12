@@ -52,6 +52,18 @@ public class ConteudoPortal {
     @Column(name = "imagem_capa", length = 1000)
     private String imagemCapa;
 
+    @Column(name = "imagem_capa_alt", length = 500)
+    private String imagemCapaAlt;
+
+    @Column(name = "autor_nome", length = 160)
+    private String autorNome;
+
+    @Column(name = "revisado_por", length = 160)
+    private String revisadoPor;
+
+    @Column(name = "fontes_oficiais", columnDefinition = "TEXT")
+    private String fontesOficiais;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id")
     private CategoriaEditorial categoria;
@@ -141,6 +153,14 @@ public class ConteudoPortal {
 
     public String getImagemCapa() { return imagemCapa; }
     public void setImagemCapa(String imagemCapa) { this.imagemCapa = imagemCapa; }
+    public String getImagemCapaAlt() { return imagemCapaAlt; }
+    public void setImagemCapaAlt(String imagemCapaAlt) { this.imagemCapaAlt = imagemCapaAlt; }
+    public String getAutorNome() { return autorNome; }
+    public void setAutorNome(String autorNome) { this.autorNome = autorNome; }
+    public String getRevisadoPor() { return revisadoPor; }
+    public void setRevisadoPor(String revisadoPor) { this.revisadoPor = revisadoPor; }
+    public String getFontesOficiais() { return fontesOficiais; }
+    public void setFontesOficiais(String fontesOficiais) { this.fontesOficiais = fontesOficiais; }
 
     public CategoriaEditorial getCategoria() { return categoria; }
     public void setCategoria(CategoriaEditorial categoria) { this.categoria = categoria; }
