@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 027-add-instagram-conteudo-fields
+      author: codex
+      changes:
+        - addColumn:
+            tableName: conteudos_portal
+            columns:
+              - column: { name: instagram_legenda, type: varchar(2200) }
+              - column: { name: instagram_hashtags, type: varchar(1000) }

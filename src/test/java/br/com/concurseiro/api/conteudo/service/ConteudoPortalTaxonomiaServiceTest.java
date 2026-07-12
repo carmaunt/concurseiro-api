@@ -56,10 +56,27 @@ class ConteudoPortalTaxonomiaServiceTest {
         assertEquals(400, error.getStatusCode().value());
     }
 
+    @Test
+    void criarPreservaKitDePublicacaoDoInstagram() {
+        when(repository.save(any())).thenAnswer(invocation -> {
+            ConteudoPortal item = invocation.getArgument(0);
+            ReflectionTestUtils.setField(item, "id", 1L);
+            return item;
+        });
+        var request = new ConteudoPortalRequest("Título", "titulo", "Resumo", "Conteúdo", null, null, null, null,
+                "Legenda para o Instagram", "concurso estudo", null, null, List.of(), null, Set.of(),
+                ConteudoPortal.Status.RASCUNHO, ConteudoPortal.Tipo.NOTICIA, false, null, null);
+
+        var response = service().criar(request);
+
+        assertEquals("Legenda para o Instagram", response.instagramLegenda());
+        assertEquals("concurso estudo", response.instagramHashtags());
+    }
+
     private ConteudoPortalService service() { return new ConteudoPortalService(repository, categoriaRepository, tagRepository, mock(org.springframework.context.ApplicationEventPublisher.class)); }
 
     private ConteudoPortalRequest request(Long categoriaId, Set<Long> tagIds) {
-        return new ConteudoPortalRequest("Título", "titulo", "Resumo", "Conteúdo", null, null, null, null, null, null, List.of(), categoriaId, tagIds,
+        return new ConteudoPortalRequest("Título", "titulo", "Resumo", "Conteúdo", null, null, null, null, null, null, null, null, List.of(), categoriaId, tagIds,
                 ConteudoPortal.Status.RASCUNHO, ConteudoPortal.Tipo.NOTICIA, false, null, null);
     }
 

@@ -16,6 +16,8 @@ public record ConteudoPortalRequest(
         @Size(max = 500) String imagemCapaAlt,
         @Size(max = 1000) String imagemSecundaria,
         @Size(max = 500) String imagemSecundariaAlt,
+        @Size(max = 2200) String instagramLegenda,
+        @Size(max = 1000) String instagramHashtags,
         @Size(max = 160) String autorNome,
         @Size(max = 160) String revisadoPor,
         List<@jakarta.validation.Valid FonteEditorial> fontesOficiais,

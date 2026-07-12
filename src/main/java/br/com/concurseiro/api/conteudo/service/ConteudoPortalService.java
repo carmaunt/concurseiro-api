@@ -139,6 +139,8 @@ public class ConteudoPortalService {
         conteudo.setImagemCapaAlt(normalizarOpcional(request.imagemCapaAlt()));
         conteudo.setImagemSecundaria(normalizarOpcional(request.imagemSecundaria()));
         conteudo.setImagemSecundariaAlt(normalizarOpcional(request.imagemSecundariaAlt()));
+        conteudo.setInstagramLegenda(normalizarOpcional(request.instagramLegenda()));
+        conteudo.setInstagramHashtags(normalizarOpcional(request.instagramHashtags()));
         conteudo.setAutorNome(normalizarOpcional(request.autorNome()));
         conteudo.setRevisadoPor(normalizarOpcional(request.revisadoPor()));
         conteudo.setFontesOficiais(serializarFontes(request.fontesOficiais()));

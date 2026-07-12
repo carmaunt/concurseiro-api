@@ -61,6 +61,12 @@ public class ConteudoPortal {
     @Column(name = "imagem_secundaria_alt", length = 500)
     private String imagemSecundariaAlt;
 
+    @Column(name = "instagram_legenda", length = 2200)
+    private String instagramLegenda;
+
+    @Column(name = "instagram_hashtags", length = 1000)
+    private String instagramHashtags;
+
     @Column(name = "autor_nome", length = 160)
     private String autorNome;
 
@@ -165,6 +171,10 @@ public class ConteudoPortal {
     public void setImagemSecundaria(String imagemSecundaria) { this.imagemSecundaria = imagemSecundaria; }
     public String getImagemSecundariaAlt() { return imagemSecundariaAlt; }
     public void setImagemSecundariaAlt(String imagemSecundariaAlt) { this.imagemSecundariaAlt = imagemSecundariaAlt; }
+    public String getInstagramLegenda() { return instagramLegenda; }
+    public void setInstagramLegenda(String instagramLegenda) { this.instagramLegenda = instagramLegenda; }
+    public String getInstagramHashtags() { return instagramHashtags; }
+    public void setInstagramHashtags(String instagramHashtags) { this.instagramHashtags = instagramHashtags; }
     public String getAutorNome() { return autorNome; }
     public void setAutorNome(String autorNome) { this.autorNome = autorNome; }
     public String getRevisadoPor() { return revisadoPor; }

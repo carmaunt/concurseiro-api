@@ -50,3 +50,5 @@ databaseChangeLog:
       file: db/changelog/changes/025-add-seo-editorial-fields.yaml
   - include:
       file: db/changelog/changes/026-add-imagem-secundaria-conteudo.yaml
+  - include:
+      file: db/changelog/changes/027-add-instagram-conteudo-fields.yaml
