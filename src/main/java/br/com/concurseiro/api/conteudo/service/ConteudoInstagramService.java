@@ -38,9 +38,14 @@ public class ConteudoInstagramService {
         }
 
         try {
+            boolean repetirAposFalha = conteudo.getInstagramStatus() == ConteudoPortal.InstagramStatus.FALHOU;
             conteudo.setInstagramStatus(ConteudoPortal.InstagramStatus.EM_PROCESSAMENTO);
             conteudo.setInstagramUltimaFalha(null);
             String containerId = conteudo.getInstagramContainerId();
+            if (repetirAposFalha) {
+                containerId = null;
+                conteudo.setInstagramContainerId(null);
+            }
             if (containerId == null || containerId.isBlank()) {
                 containerId = instagramClient.criarContainer(conteudo.getImagemCapa(), montarLegenda(conteudo));
                 conteudo.setInstagramContainerId(containerId);
