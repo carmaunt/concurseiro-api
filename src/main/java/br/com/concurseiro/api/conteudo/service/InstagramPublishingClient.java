@@ -48,7 +48,46 @@ public class InstagramPublishingClient {
 
     public String publicarContainer(String containerId) {
         validarConfiguracao();
+        aguardarContainerPronto(containerId);
         return enviar("/" + accountId + "/media_publish", Map.of("creation_id", containerId));
+    }
+
+    private void aguardarContainerPronto(String containerId) {
+        for (int tentativa = 0; tentativa < 12; tentativa++) {
+            String status = consultarStatusContainer(containerId);
+            if ("FINISHED".equalsIgnoreCase(status)) return;
+
+            if ("ERROR".equalsIgnoreCase(status) || "EXPIRED".equalsIgnoreCase(status)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O Instagram não conseguiu processar a imagem. Envie outra capa e tente novamente.");
+            }
+
+            try {
+                Thread.sleep(2_000);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "A publicação no Instagram foi interrompida. Tente novamente.");
+            }
+        }
+
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "O Instagram ainda está processando a imagem. Aguarde alguns segundos e tente novamente.");
+    }
+
+    private String consultarStatusContainer(String containerId) {
+        try {
+            String query = "fields=status_code&access_token=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
+            HttpRequest request = HttpRequest.newBuilder(URI.create(apiBaseUrl + "/" + containerId + "?" + query))
+                    .timeout(Duration.ofSeconds(20))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            JsonNode json = objectMapper.readTree(response.body());
+            if (response.statusCode() < 200 || response.statusCode() >= 300) throw falhaResposta(response.statusCode(), json);
+            return json.path("status_code").asText();
+        } catch (ResponseStatusException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Não foi possível verificar o processamento da imagem no Instagram.");
+        }
     }
 
     private String enviar(String path, Map<String, String> parametros) {
