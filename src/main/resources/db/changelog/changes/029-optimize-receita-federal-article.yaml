@@ -1,0 +1,110 @@
+databaseChangeLog:
+  - changeSet:
+      id: 029-optimize-receita-federal-article
+      author: codex
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - sqlCheck:
+            expectedResult: "1"
+            sql: |
+              SELECT COUNT(*)
+              FROM conteudos_portal
+              WHERE tipo = 'NOTICIA'
+                AND slug = 'governo-autoriza-concursos-receita-federal-banco-central-316-vagas'
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            stripComments: false
+            sql: |
+              UPDATE conteudos_portal
+              SET titulo = 'Concurso da Receita Federal 2026 é autorizado com 146 vagas',
+                  slug = 'concurso-receita-federal-2026-146-vagas',
+                  resumo = 'O concurso da Receita Federal 2026 foi autorizado com 146 vagas para Analista-Tributário e Auditor-Fiscal. O edital deve sair até o início de janeiro de 2027.',
+                  conteudo = $article$
+              O Ministério da Gestão e da Inovação em Serviços Públicos autorizou oficialmente o **concurso da Receita Federal 2026**, com 146 vagas para Analista-Tributário e Auditor-Fiscal. O edital deve ser publicado em até seis meses, prazo que termina no início de janeiro de 2027. Este é o momento de organizar os estudos: veja a distribuição das vagas, os salários iniciais, os prazos e como começar a preparação.
+
+              A autorização consta na [Portaria MGI nº 5.505/2026, publicada no Diário Oficial da União em 3 de julho de 2026](https://pesquisa.in.gov.br/imprensa/jsp/visualiza/index.jsp?data=03%2F07%2F2026&jornal=613&pagina=11). Ainda não há banca organizadora, cronograma de inscrições ou data de prova definidos.
+
+              ## O que foi autorizado no concurso da Receita Federal 2026
+
+              O governo federal autorizou **146 vagas de nível superior** para a Carreira Tributária e Aduaneira da Receita Federal do Brasil. A maior parte das oportunidades será destinada ao cargo de Analista-Tributário.
+
+              | Cargo | Vagas | Requisito informado |
+              |---|---:|---|
+              | Analista-Tributário da Receita Federal | **116** | Nível superior |
+              | Auditor-Fiscal da Receita Federal | **30** | Nível superior |
+              | **Total** | **146** | — |
+
+              O provimento dos cargos dependerá da homologação do resultado final e da disponibilidade orçamentária, conforme informa o [comunicado oficial do Ministério da Gestão](https://www.gov.br/gestao/pt-br/assuntos/editoria-2013-defeso-eleitoral/publicadas-portarias-que-autorizam-concurso-na-receita-federal-e-no-banco-central).
+
+              ## Cargos, vagas e requisitos
+
+              As duas carreiras exigem diploma de graduação. A área de formação aceita, as atribuições detalhadas, a jornada, a lotação e os documentos necessários serão confirmados no edital. Por isso, o candidato não deve tratar como definitiva qualquer exigência que ainda não conste no novo documento.
+
+              O **Analista-Tributário** terá 116 vagas e atua no apoio às atividades tributárias e aduaneiras. O **Auditor-Fiscal** terá 30 vagas e exerce atribuições de fiscalização, tributação, controle aduaneiro e combate a ilícitos, dentro das competências legais do cargo.
+
+              ## Prazo do edital e previsão das provas
+
+              A Receita Federal tem até seis meses, contados da publicação da autorização, para divulgar o edital. Como a portaria foi publicada em 3 de julho de 2026, o limite fica no início de janeiro de 2027. Se o edital não for publicado nesse período, a autorização perde efeito.
+
+              A primeira prova deverá respeitar um intervalo mínimo de dois meses após a publicação do edital. Isso não significa que a prova já esteja marcada para março de 2027: ela pode ocorrer antes ou depois, dependendo da data efetiva do edital. Se o órgão usar todo o prazo de seis meses, então as provas só poderão começar a partir de março de 2027.
+
+              Enquanto o cronograma não sai, acompanhe a página de [editais previstos](/editais-previstos) e os canais oficiais da [Receita Federal](https://www.gov.br/receitafederal/pt-br). Inscrições, banca e datas divulgadas fora dessas fontes devem ser tratadas como especulação.
+
+              ## Salários de Analista-Tributário e Auditor-Fiscal
+
+              De acordo com a tabela legal vigente desde abril de 2026, o vencimento básico no padrão inicial é de **R$ 12.735,99 para Analista-Tributário** e **R$ 22.921,71 para Auditor-Fiscal**. A carreira também possui Bônus de Eficiência e Produtividade, calculado conforme regras próprias e tempo no cargo.
+
+              | Cargo | Vencimento básico inicial |
+              |---|---:|
+              | Analista-Tributário | **R$ 12.735,99** |
+              | Auditor-Fiscal | **R$ 22.921,71** |
+
+              Os valores acima não representam uma promessa de remuneração total. Benefícios, bônus, descontos e eventuais atualizações deverão ser conferidos no edital e na legislação vigente na data da posse. A referência oficial é a [Lei nº 15.367/2026](https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2026/lei/l15367.htm).
+
+              ## Como se preparar para o concurso da Receita Federal
+
+              Esperar a publicação do edital reduz o tempo disponível para estudar. Uma preparação prudente pode começar pelo edital anterior, sem presumir que o novo conteúdo programático será idêntico.
+
+              - Consulte o [concurso da Receita Federal de 2022](https://www.gov.br/receitafederal/pt-br/acesso-a-informacao/servidores/concurso-publico-2022) e compare as disciplinas cobradas para cada cargo.
+              - Faça um diagnóstico do seu nível nas matérias básicas e específicas antes de montar o cronograma.
+              - Reserve tempo para teoria, revisão e resolução de [questões](/questoes).
+              - Acompanhe a definição da banca, porque o estilo das provas influencia a estratégia de treino.
+              - Use a página de [concursos abertos](/concursos-abertos) para não perder outros processos seletivos compatíveis com seu objetivo.
+
+              Comece com uma rotina sustentável e aumente a carga de estudo gradualmente. O objetivo nesta fase é construir base e consistência, não tentar adivinhar todos os detalhes do futuro edital.
+
+              ## Como foi o último concurso da Receita Federal
+
+              O concurso anterior foi lançado em **2022**, com organização da Fundação Getulio Vargas (FGV) e **699 vagas**: 469 para Analista-Tributário e 230 para Auditor-Fiscal. Esse histórico é uma referência útil para conhecer a estrutura das carreiras e das provas, mas o novo edital poderá trazer mudanças.
+
+              Essa informação corrige referências antigas a 2014 ou 2015: para fins de preparação, o documento mais recente é o Edital nº 1/2022 da Receita Federal.
+
+              ## E as vagas do Banco Central?
+
+              O Banco Central apareceu na mesma divulgação oficial porque a Portaria MGI nº 5.508/2026 autorizou outras **170 vagas**: 100 para Auditor, 50 para Técnico e 20 para Procurador. Somadas às 146 vagas da Receita Federal, as duas autorizações chegam a 316 oportunidades.
+
+              Este artigo concentra a análise no concurso da Receita Federal para responder com clareza às dúvidas de quem busca esse certame. As informações do Banco Central serão acompanhadas separadamente quando houver novidades sobre edital, banca e inscrições.
+
+              ## Próximos passos do concurso
+
+              1. Formação da comissão e preparação do edital.
+              2. Escolha e contratação da banca organizadora.
+              3. Publicação do edital até o início de janeiro de 2027.
+              4. Abertura das inscrições e divulgação do cronograma.
+              5. Aplicação das provas após o intervalo mínimo de dois meses.
+              6. Resultado, homologação e nomeações, observadas as condições orçamentárias.
+
+              Salve esta página e acompanhe as atualizações. Quando a banca ou o edital forem divulgados, o conteúdo deverá ser revisado com as datas, requisitos e etapas oficiais.
+
+              Leia também: [Concurso PC MA publica editais para 1.303 oportunidades](/noticias/concurso-pc-ma-editais-1303-oportunidades).
+              $article$,
+                  imagem_capa_alt = 'Fachada da Receita Federal em arte sobre os concursos autorizados para a Receita Federal e o Banco Central.',
+                  fontes_oficiais = $sources$[{"nome":"Ministério da Gestão — autorização dos concursos","url":"https://www.gov.br/gestao/pt-br/assuntos/editoria-2013-defeso-eleitoral/publicadas-portarias-que-autorizam-concurso-na-receita-federal-e-no-banco-central"},{"nome":"Diário Oficial da União — Portaria MGI nº 5.505/2026","url":"https://pesquisa.in.gov.br/imprensa/jsp/visualiza/index.jsp?data=03%2F07%2F2026&jornal=613&pagina=11"},{"nome":"Receita Federal — concurso público de 2022","url":"https://www.gov.br/receitafederal/pt-br/acesso-a-informacao/servidores/concurso-publico-2022"},{"nome":"Presidência da República — Lei nº 15.367/2026","url":"https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2026/lei/l15367.htm"}]$sources$,
+                  seo_titulo = 'Concurso Receita Federal 2026: 146 vagas',
+                  seo_descricao = 'Concurso Receita Federal 2026 tem 146 vagas para Analista e Auditor. Veja salários, prazo do edital e como iniciar sua preparação.',
+                  updated_at = CURRENT_TIMESTAMP
+              WHERE tipo = 'NOTICIA'
+                AND slug = 'governo-autoriza-concursos-receita-federal-banco-central-316-vagas';

@@ -3,8 +3,10 @@ package br.com.concurseiro.api;
 import br.com.concurseiro.api.analytics.repository.AnalyticsQueryRepository;
 import br.com.concurseiro.api.analytics.repository.AnalyticsQueryRepository.AnalyticsFilter;
 import br.com.concurseiro.api.analytics.service.AnalyticsInsightsService;
+import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -67,6 +69,73 @@ class LiquibaseStartupIntegrationTest {
                 "SELECT count(*) FROM information_schema.tables WHERE table_name = 'tags_editoriais'", Integer.class));
         org.junit.jupiter.api.Assertions.assertEquals(1, jdbc.queryForObject(
                 "SELECT count(*) FROM information_schema.tables WHERE table_name = 'conteudos_portal_tags'", Integer.class));
+    }
+
+    @Test
+    void migracaoEditorialAtualizaSomenteArtigoDaReceitaFederal() throws Exception {
+        var schema = "editorial_migration_test";
+        jdbc.execute("DROP SCHEMA IF EXISTS " + schema + " CASCADE");
+        jdbc.execute("CREATE SCHEMA " + schema);
+
+        try {
+            var separator = postgres.getJdbcUrl().contains("?") ? "&" : "?";
+            var dataSource = new DriverManagerDataSource(
+                    postgres.getJdbcUrl() + separator + "currentSchema=" + schema,
+                    postgres.getUsername(),
+                    postgres.getPassword());
+            var isolatedJdbc = new JdbcTemplate(dataSource);
+
+            isolatedJdbc.execute("""
+                    CREATE TABLE conteudos_portal (
+                      titulo varchar(180) NOT NULL,
+                      slug varchar(220) NOT NULL,
+                      resumo varchar(500) NOT NULL,
+                      conteudo text NOT NULL,
+                      imagem_capa_alt varchar(500),
+                      fontes_oficiais text,
+                      seo_titulo varchar(180),
+                      seo_descricao varchar(300),
+                      updated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                      tipo varchar(40) NOT NULL
+                    )
+                    """);
+            isolatedJdbc.update("""
+                    INSERT INTO conteudos_portal (titulo, slug, resumo, conteudo, tipo)
+                    VALUES (?, ?, ?, ?, 'NOTICIA')
+                    """,
+                    "Governo autoriza concursos da Receita Federal e do Banco Central com 316 vagas",
+                    "governo-autoriza-concursos-receita-federal-banco-central-316-vagas",
+                    "Resumo anterior",
+                    "Conteúdo anterior");
+
+            var migration = new SpringLiquibase();
+            migration.setDataSource(dataSource);
+            migration.setDefaultSchema(schema);
+            migration.setChangeLog("classpath:db/changelog/changes/029-optimize-receita-federal-article.yaml");
+            migration.afterPropertiesSet();
+
+            var migrated = isolatedJdbc.queryForMap("""
+                    SELECT titulo, slug, resumo, conteudo, imagem_capa_alt,
+                           fontes_oficiais, seo_titulo, seo_descricao
+                    FROM conteudos_portal
+                    WHERE tipo = 'NOTICIA'
+                    """);
+
+            org.junit.jupiter.api.Assertions.assertEquals(
+                    "Concurso da Receita Federal 2026 é autorizado com 146 vagas", migrated.get("titulo"));
+            org.junit.jupiter.api.Assertions.assertEquals(
+                    "concurso-receita-federal-2026-146-vagas", migrated.get("slug"));
+            org.junit.jupiter.api.Assertions.assertTrue(
+                    migrated.get("conteudo").toString().contains("## Salários de Analista-Tributário e Auditor-Fiscal"));
+            org.junit.jupiter.api.Assertions.assertTrue(
+                    migrated.get("fontes_oficiais").toString().contains("Portaria MGI nº 5.505/2026"));
+            org.junit.jupiter.api.Assertions.assertEquals(
+                    "Concurso Receita Federal 2026: 146 vagas", migrated.get("seo_titulo"));
+            org.junit.jupiter.api.Assertions.assertTrue(
+                    migrated.get("seo_descricao").toString().contains("Veja salários"));
+        } finally {
+            jdbc.execute("DROP SCHEMA IF EXISTS " + schema + " CASCADE");
+        }
     }
 
     @Test
