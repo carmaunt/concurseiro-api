@@ -10,6 +10,7 @@ public record AnalyticsDashboardResponse(
         OffsetDateTime to,
         int onlineWindowMinutes,
         Overview overview,
+        AcquisitionFunnel acquisitionFunnel,
         Activation activation,
         Engagement engagement,
         Retention retention,
@@ -21,6 +22,25 @@ public record AnalyticsDashboardResponse(
                            long sessions, double averageSessionSeconds, long questionsToday,
                            long questionsPeriod, double averageAccuracy, long devices,
                            long identifiedUsers) {}
+    public record AcquisitionFunnel(
+            long portalVisitors,
+            long storeClicks,
+            long attributedInstalls,
+            long activatedUsers,
+            long eligibleForRetentionDay7,
+            long retainedDay7,
+            double portalToStoreRate,
+            double storeToInstallRate,
+            double installToActivationRate,
+            double portalToActivationRate,
+            double retentionDay7Rate,
+            long totalInstallEvents,
+            long linkedInstallEvents,
+            double attributionCoverageRate,
+            String status,
+            String activationDefinition,
+            String retentionDefinition
+    ) {}
     public record Activation(long newIdentities, long appOpened, long firstQuestionViewed,
                              long firstQuestionAnswered, double activationRate,
                              double averageMinutesToFirstAnswer) {}

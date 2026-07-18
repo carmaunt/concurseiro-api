@@ -137,6 +137,7 @@ public class AnalyticsService {
         long opened = queries.countActiveEvent("app_opened", selected);
         long answered = queries.countActiveEvent("question_answered", selected);
         long sessions = queries.countSessions(selected);
+        var funnel = acquisitionFunnel(queries.acquisitionFunnel(resolvedFrom, resolvedTo, now.plusNanos(1)));
 
         return new AnalyticsDashboardResponse(
                 resolvedFrom,
@@ -146,6 +147,7 @@ public class AnalyticsService {
                         queries.countActive(online), sessions, queries.averageSessionSeconds(selected),
                         queries.countEvent("question_answered", today), queries.countEvent("question_answered", selected),
                         queries.averageAccuracy(selected), queries.countDevices(), queries.countIdentified(selected)),
+                funnel,
                 new AnalyticsDashboardResponse.Activation(queries.countNewIdentities(selected), opened,
                         queries.countActiveEvent("question_viewed", selected), answered,
                         percent(answered, opened), queries.averageMinutesToFirstAnswer(selected)),
@@ -164,6 +166,37 @@ public class AnalyticsService {
                         queries.countUnknown(selected, AnalyticsEventName.OFFICIAL), queries.missingPercent(selected, "e.session_id IS NULL"),
                         queries.missingPercent(selected, "e.user_id IS NULL AND NULLIF(e.anonymous_id,'') IS NULL AND NULLIF(e.device_id,'') IS NULL"), queries.recentErrors(selected, RANKING_LIMIT)),
                 queries.dailyTrend(selected)
+        );
+    }
+
+    AnalyticsDashboardResponse.AcquisitionFunnel acquisitionFunnel(
+            AnalyticsQueryRepository.AcquisitionFunnelSnapshot snapshot
+    ) {
+        double coverage = percent(snapshot.linkedInstallEvents(), snapshot.totalInstallEvents());
+        String status = snapshot.portalVisitors() == 0
+                ? "SEM_DADOS"
+                : coverage < 80 && snapshot.totalInstallEvents() > 0
+                    ? "ATRIBUICAO_PARCIAL"
+                    : "MEDINDO";
+
+        return new AnalyticsDashboardResponse.AcquisitionFunnel(
+                snapshot.portalVisitors(),
+                snapshot.storeClicks(),
+                snapshot.attributedInstalls(),
+                snapshot.activatedUsers(),
+                snapshot.eligibleForRetentionDay7(),
+                snapshot.retainedDay7(),
+                percent(snapshot.storeClicks(), snapshot.portalVisitors()),
+                percent(snapshot.attributedInstalls(), snapshot.storeClicks()),
+                percent(snapshot.activatedUsers(), snapshot.attributedInstalls()),
+                percent(snapshot.activatedUsers(), snapshot.portalVisitors()),
+                percent(snapshot.retainedDay7(), snapshot.eligibleForRetentionDay7()),
+                snapshot.totalInstallEvents(),
+                snapshot.linkedInstallEvents(),
+                coverage,
+                status,
+                "primeira questão respondida no Android após uma instalação atribuída ao portal",
+                "retorno com atividade no Android exatamente no dia D+7 após a ativação, entre usuários já elegíveis"
         );
     }
 

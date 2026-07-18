@@ -35,7 +35,10 @@ public class RespostaQuestaoUsuarioService {
     public RespostaQuestaoResponse responder(String emailUsuario, String idQuestion, RespostaQuestaoRequest request) {
         Usuario usuario = buscarUsuario(emailUsuario);
         Questao questao = questaoService.buscarPorIdQuestion(idQuestion);
-        String respostaNormalizada = normalizarResposta(questao.getModalidade(), request.respostaSelecionada());
+        String respostaNormalizada = QuestaoValidationHelper.normalizarRespostaSelecionada(
+                questao.getModalidade(),
+                request.respostaSelecionada()
+        );
         String gabarito = questao.getGabarito();
 
         RespostaQuestaoUsuario resposta = new RespostaQuestaoUsuario();
@@ -66,14 +69,4 @@ public class RespostaQuestaoUsuarioService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado"));
     }
 
-    private String normalizarResposta(String modalidade, String resposta) {
-        String valor = resposta == null ? "" : resposta.trim().toUpperCase();
-
-        if (valor.length() > 1 && valor.charAt(1) == ')') {
-            valor = valor.substring(0, 1);
-        }
-
-        QuestaoValidationHelper.validarGabaritoPorModalidade(modalidade, valor);
-        return QuestaoValidationHelper.normalizarGabarito(modalidade, valor);
-    }
 }

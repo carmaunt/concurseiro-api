@@ -29,6 +29,122 @@ public class AnalyticsQueryRepository {
     public long countIdentified(AnalyticsFilter f) { return count("COUNT(DISTINCT e.user_id)", f, null); }
     public long countEvent(String event, AnalyticsFilter f) { return count("COUNT(*)", f, event); }
     public long countSessions(AnalyticsFilter f) { return count("COUNT(DISTINCT e.session_id)", f, null); }
+    public AcquisitionFunnelSnapshot acquisitionFunnel(OffsetDateTime cohortFrom, OffsetDateTime cohortTo, OffsetDateTime asOf) {
+        var params = new MapSqlParameterSource()
+                .addValue("cohortFrom", cohortFrom)
+                .addValue("cohortTo", cohortTo)
+                .addValue("asOf", asOf);
+        return jdbc.queryForObject("""
+                WITH attributed_events AS (
+                    SELECT NULLIF(metadata->>'acquisition_id', '') AS acquisition_id,
+                           event_name,
+                           platform,
+                           created_at
+                    FROM app_events
+                    WHERE NULLIF(metadata->>'acquisition_id', '') IS NOT NULL
+                      AND created_at <= :asOf
+                ),
+                cohort AS (
+                    SELECT acquisition_id, MIN(created_at) AS landing_at
+                    FROM attributed_events
+                    WHERE event_name = 'portal_landing_viewed'
+                      AND platform = 'web'
+                    GROUP BY acquisition_id
+                    HAVING MIN(created_at) >= :cohortFrom AND MIN(created_at) < :cohortTo
+                ),
+                click_stages AS (
+                    SELECT c.acquisition_id,
+                           c.landing_at,
+                           MIN(a.created_at) FILTER (
+                               WHERE a.event_name = 'store_cta_clicked'
+                                 AND a.platform = 'web'
+                                 AND a.created_at >= c.landing_at
+                           ) AS store_clicked_at
+                    FROM cohort c
+                    LEFT JOIN attributed_events a ON a.acquisition_id = c.acquisition_id
+                    GROUP BY c.acquisition_id, c.landing_at
+                ),
+                install_stages AS (
+                    SELECT c.acquisition_id,
+                           c.landing_at,
+                           c.store_clicked_at,
+                           MIN(a.created_at) FILTER (
+                               WHERE a.event_name = 'app_install_attributed'
+                                 AND a.platform = 'android'
+                                 AND c.store_clicked_at IS NOT NULL
+                                 AND a.created_at >= c.store_clicked_at
+                           ) AS installed_at
+                    FROM click_stages c
+                    LEFT JOIN attributed_events a ON a.acquisition_id = c.acquisition_id
+                    GROUP BY c.acquisition_id, c.landing_at, c.store_clicked_at
+                ),
+                stages AS (
+                    SELECT p.acquisition_id,
+                           p.landing_at,
+                           p.store_clicked_at,
+                           p.installed_at,
+                           MIN(a.created_at) FILTER (
+                               WHERE a.event_name = 'question_answered'
+                                 AND a.platform = 'android'
+                                 AND p.installed_at IS NOT NULL
+                                 AND a.created_at >= p.installed_at
+                           ) AS activated_at
+                    FROM install_stages p
+                    LEFT JOIN attributed_events a ON a.acquisition_id = p.acquisition_id
+                    GROUP BY p.acquisition_id, p.landing_at, p.store_clicked_at, p.installed_at
+                ),
+                summarized AS (
+                    SELECT s.*,
+                           EXISTS (
+                               SELECT 1
+                               FROM attributed_events r
+                               WHERE r.acquisition_id = s.acquisition_id
+                                 AND r.event_name IN ('app_opened', 'session_started', 'question_answered')
+                                 AND r.platform = 'android'
+                                 AND (r.created_at AT TIME ZONE 'America/Sao_Paulo')::date
+                                     = (s.activated_at AT TIME ZONE 'America/Sao_Paulo')::date + 7
+                           ) AS retained_day_7
+                    FROM stages s
+                ),
+                install_coverage AS (
+                    SELECT COUNT(*) FILTER (WHERE event_name = 'app_install_attributed') AS total_installs,
+                           COUNT(*) FILTER (
+                               WHERE event_name = 'app_install_attributed'
+                                 AND NULLIF(metadata->>'acquisition_id', '') IS NOT NULL
+                           ) AS linked_installs
+                    FROM app_events
+                    WHERE created_at >= :cohortFrom AND created_at < :cohortTo
+                )
+                SELECT COUNT(*) AS portal_visitors,
+                       COUNT(*) FILTER (WHERE store_clicked_at IS NOT NULL) AS store_clicks,
+                       COUNT(*) FILTER (WHERE installed_at IS NOT NULL) AS attributed_installs,
+                       COUNT(*) FILTER (WHERE activated_at IS NOT NULL) AS activated_users,
+                       COUNT(*) FILTER (
+                           WHERE activated_at IS NOT NULL
+                             AND (:asOf AT TIME ZONE 'America/Sao_Paulo')::date
+                                 > (activated_at AT TIME ZONE 'America/Sao_Paulo')::date + 7
+                       ) AS eligible_day_7,
+                       COUNT(*) FILTER (
+                           WHERE activated_at IS NOT NULL
+                             AND (:asOf AT TIME ZONE 'America/Sao_Paulo')::date
+                                 > (activated_at AT TIME ZONE 'America/Sao_Paulo')::date + 7
+                             AND retained_day_7
+                       ) AS retained_day_7,
+                       MAX(ic.total_installs) AS total_install_events,
+                       MAX(ic.linked_installs) AS linked_install_events
+                FROM summarized
+                CROSS JOIN install_coverage ic
+                """, params, (rs, rowNum) -> new AcquisitionFunnelSnapshot(
+                rs.getLong("portal_visitors"),
+                rs.getLong("store_clicks"),
+                rs.getLong("attributed_installs"),
+                rs.getLong("activated_users"),
+                rs.getLong("eligible_day_7"),
+                rs.getLong("retained_day_7"),
+                rs.getLong("total_install_events"),
+                rs.getLong("linked_install_events")
+        ));
+    }
     public double averageAccuracy(AnalyticsFilter f) { return scalar("AVG(CASE WHEN e.answer_correct THEN 1.0 ELSE 0.0 END)", f, "question_answered") * 100; }
     public double averageSessionSeconds(AnalyticsFilter f) {
         QueryParts p = where(f, "session_ended", "jsonb_exists(e.metadata, 'duration_seconds')");
@@ -90,5 +206,15 @@ public class AnalyticsQueryRepository {
             this(from, to, disciplinaId, assuntoId, subassuntoId, null, null, null);
         }
     }
+    public record AcquisitionFunnelSnapshot(
+            long portalVisitors,
+            long storeClicks,
+            long attributedInstalls,
+            long activatedUsers,
+            long eligibleForRetentionDay7,
+            long retainedDay7,
+            long totalInstallEvents,
+            long linkedInstallEvents
+    ) {}
     private record QueryParts(String sql,MapSqlParameterSource params){}
 }

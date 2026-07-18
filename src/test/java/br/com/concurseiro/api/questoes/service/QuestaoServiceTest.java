@@ -11,6 +11,7 @@ import br.com.concurseiro.api.catalogo.instituicao.repository.InstituicaoReposit
 import br.com.concurseiro.api.catalogo.subassunto.model.SubAssunto;
 import br.com.concurseiro.api.catalogo.subassunto.repository.SubAssuntoRepository;
 import br.com.concurseiro.api.questoes.dto.QuestaoRequest;
+import br.com.concurseiro.api.questoes.resposta.dto.RespostaQuestaoRequest;
 import br.com.concurseiro.api.questoes.enunciado.model.Enunciado;
 import br.com.concurseiro.api.questoes.enunciado.service.EnunciadoService;
 import br.com.concurseiro.api.questoes.model.Questao;
@@ -176,6 +177,28 @@ class QuestaoServiceTest {
         assertEquals(2, orders.size());
         assertEquals(new Sort.Order(Sort.Direction.DESC, "criadoEm"), orders.get(0));
         assertEquals(new Sort.Order(Sort.Direction.ASC, "idQuestion"), orders.get(1));
+    }
+
+    @Test
+    void responderAmostra_deveCorrigirSemPersistirResposta() {
+        Questao questao = new Questao();
+        questao.setIdQuestion("QAMOSTRA1");
+        questao.setModalidade("CERTO_ERRADO");
+        questao.setGabarito("C");
+        questao.setExplicacao("A afirmação corresponde à regra aplicável.");
+        when(questaoRepository.findDetalhadaByIdQuestion("QAMOSTRA1")).thenReturn(Optional.of(questao));
+
+        var resposta = service.responderAmostra(
+                "QAMOSTRA1",
+                new RespostaQuestaoRequest("Certo")
+        );
+
+        assertEquals("QAMOSTRA1", resposta.idQuestion());
+        assertEquals("C", resposta.respostaSelecionada());
+        assertEquals("C", resposta.gabarito());
+        assertTrue(resposta.acertou());
+        assertEquals("A afirmação corresponde à regra aplicável.", resposta.explicacao());
+        verify(questaoRepository, never()).save(any());
     }
 
     @Test

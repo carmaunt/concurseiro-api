@@ -3,6 +3,7 @@ package br.com.concurseiro.api.analytics.service;
 import br.com.concurseiro.api.analytics.dto.AnalyticsEventRequest;
 import br.com.concurseiro.api.analytics.model.AppEvent;
 import br.com.concurseiro.api.analytics.repository.AnalyticsQueryRepository;
+import br.com.concurseiro.api.analytics.repository.AnalyticsQueryRepository.AcquisitionFunnelSnapshot;
 import br.com.concurseiro.api.analytics.repository.AppEventRepository;
 import br.com.concurseiro.api.catalogo.assunto.repository.AssuntoRepository;
 import br.com.concurseiro.api.catalogo.disciplina.repository.DisciplinaRepository;
@@ -72,6 +73,50 @@ class AnalyticsServiceTest {
 
         assertEquals(400, error.getStatusCode().value());
         verify(events, never()).save(any());
+    }
+
+    @Test
+    void deveAceitarAtribuicaoDeInstalacaoAntesDeExistirSessao() {
+        when(events.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        AnalyticsEventRequest request = new AnalyticsEventRequest(
+                "app_install_attributed", "android-anonimo", null, null,
+                null, null, null, null, null, null, null, null,
+                "2.0.4", "android", "15", 1,
+                null, null, null, Map.of("acquisition_id", "web-session-1")
+        );
+
+        assertDoesNotThrow(() -> service.register(request, null));
+        verify(events).save(any(AppEvent.class));
+    }
+
+    @Test
+    void deveCalcularFunilComDenominadoresCorretos() {
+        var result = service.acquisitionFunnel(new AcquisitionFunnelSnapshot(
+                100, 40, 20, 10, 8, 3, 25, 20
+        ));
+
+        assertEquals(40.0, result.portalToStoreRate());
+        assertEquals(50.0, result.storeToInstallRate());
+        assertEquals(50.0, result.installToActivationRate());
+        assertEquals(10.0, result.portalToActivationRate());
+        assertEquals(37.5, result.retentionDay7Rate());
+        assertEquals(80.0, result.attributionCoverageRate());
+        assertEquals("MEDINDO", result.status());
+    }
+
+    @Test
+    void deveSinalizarAtribuicaoParcialSemDividirPorZero() {
+        var parcial = service.acquisitionFunnel(new AcquisitionFunnelSnapshot(
+                12, 4, 1, 0, 0, 0, 10, 3
+        ));
+        var vazio = service.acquisitionFunnel(new AcquisitionFunnelSnapshot(
+                0, 0, 0, 0, 0, 0, 0, 0
+        ));
+
+        assertEquals("ATRIBUICAO_PARCIAL", parcial.status());
+        assertEquals(30.0, parcial.attributionCoverageRate());
+        assertEquals("SEM_DADOS", vazio.status());
+        assertEquals(0.0, vazio.retentionDay7Rate());
     }
 
     private AnalyticsEventRequest request(String eventName, String deviceId, Map<String, Object> metadata) {

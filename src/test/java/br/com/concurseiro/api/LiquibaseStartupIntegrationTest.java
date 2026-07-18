@@ -231,6 +231,51 @@ class LiquibaseStartupIntegrationTest {
     }
 
     @Test
+    void analyticsFunnelConnectsPortalInstallActivationAndRetention() {
+        jdbc.update("""
+                INSERT INTO app_events (anonymous_id, session_id, event_name, platform, metadata, created_at)
+                VALUES
+                  ('web-a', 'acq-a', 'portal_landing_viewed', 'web', '{"acquisition_id":"acq-a"}'::jsonb, CURRENT_TIMESTAMP - interval '10 days 4 hours'),
+                  ('web-a', 'acq-a', 'store_cta_clicked', 'web', '{"acquisition_id":"acq-a"}'::jsonb, CURRENT_TIMESTAMP - interval '10 days 3 hours'),
+                  ('app-a', null, 'app_install_attributed', 'android', '{"acquisition_id":"acq-a"}'::jsonb, CURRENT_TIMESTAMP - interval '10 days 2 hours'),
+                  ('app-a', 'session-a1', 'question_answered', 'android', '{"acquisition_id":"acq-a"}'::jsonb, CURRENT_TIMESTAMP - interval '10 days'),
+                  ('app-a', 'session-a2', 'session_started', 'android', '{"acquisition_id":"acq-a"}'::jsonb, CURRENT_TIMESTAMP - interval '3 days'),
+
+                  ('web-b', 'acq-b', 'portal_landing_viewed', 'web', '{"acquisition_id":"acq-b"}'::jsonb, CURRENT_TIMESTAMP - interval '10 days 4 hours'),
+                  ('web-b', 'acq-b', 'store_cta_clicked', 'web', '{"acquisition_id":"acq-b"}'::jsonb, CURRENT_TIMESTAMP - interval '10 days 3 hours'),
+                  ('app-b', null, 'app_install_attributed', 'android', '{"acquisition_id":"acq-b"}'::jsonb, CURRENT_TIMESTAMP - interval '10 days 2 hours'),
+                  ('app-b', 'session-b1', 'question_answered', 'android', '{"acquisition_id":"acq-b"}'::jsonb, CURRENT_TIMESTAMP - interval '10 days'),
+                  ('web-b', 'acq-b', 'session_started', 'web', '{"acquisition_id":"acq-b"}'::jsonb, CURRENT_TIMESTAMP - interval '3 days'),
+
+                  ('web-c', 'acq-c', 'portal_landing_viewed', 'web', '{"acquisition_id":"acq-c"}'::jsonb, CURRENT_TIMESTAMP - interval '2 days'),
+                  ('web-c', 'acq-c', 'store_cta_clicked', 'web', '{"acquisition_id":"acq-c"}'::jsonb, CURRENT_TIMESTAMP - interval '1 day'),
+
+                  ('web-d', 'acq-d', 'portal_landing_viewed', 'web', '{"acquisition_id":"acq-d"}'::jsonb, CURRENT_TIMESTAMP - interval '9 days'),
+                  ('app-d', null, 'app_install_attributed', 'android', '{"acquisition_id":"acq-d"}'::jsonb, CURRENT_TIMESTAMP - interval '8 days'),
+
+                  ('web-e', 'acq-e', 'portal_landing_viewed', 'web', '{"acquisition_id":"acq-e"}'::jsonb, CURRENT_TIMESTAMP - interval '9 days'),
+                  ('web-e', 'acq-e', 'store_cta_clicked', 'web', '{"acquisition_id":"acq-e"}'::jsonb, CURRENT_TIMESTAMP - interval '8 days 23 hours'),
+                  ('app-e', null, 'app_install_attributed', 'android', '{"acquisition_id":"acq-e"}'::jsonb, CURRENT_TIMESTAMP - interval '8 days 22 hours'),
+                  ('web-e', 'acq-e', 'question_answered', 'web', '{"acquisition_id":"acq-e"}'::jsonb, CURRENT_TIMESTAMP - interval '8 days'),
+
+                  ('app-organic', null, 'app_install_attributed', 'android', '{}'::jsonb, CURRENT_TIMESTAMP - interval '5 days')
+                """);
+
+        var from = java.time.OffsetDateTime.now().minusDays(15);
+        var to = java.time.OffsetDateTime.now().plusMinutes(1);
+        var result = analyticsQueries.acquisitionFunnel(from, to, java.time.OffsetDateTime.now());
+
+        org.junit.jupiter.api.Assertions.assertEquals(5, result.portalVisitors());
+        org.junit.jupiter.api.Assertions.assertEquals(4, result.storeClicks());
+        org.junit.jupiter.api.Assertions.assertEquals(3, result.attributedInstalls());
+        org.junit.jupiter.api.Assertions.assertEquals(2, result.activatedUsers());
+        org.junit.jupiter.api.Assertions.assertEquals(2, result.eligibleForRetentionDay7());
+        org.junit.jupiter.api.Assertions.assertEquals(1, result.retainedDay7());
+        org.junit.jupiter.api.Assertions.assertEquals(5, result.totalInstallEvents());
+        org.junit.jupiter.api.Assertions.assertEquals(4, result.linkedInstallEvents());
+    }
+
+    @Test
     void analyticsInsightsRunsAllQueriesAgainstPostgres() {
         jdbc.update("""
                 INSERT INTO app_events (anonymous_id, device_id, session_id, event_name, screen_name, app_version, metadata)
