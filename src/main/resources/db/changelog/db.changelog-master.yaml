@@ -54,3 +54,5 @@ databaseChangeLog:
       file: db/changelog/changes/027-add-instagram-conteudo-fields.yaml
   - include:
       file: db/changelog/changes/028-add-instagram-publicacao-status.yaml
+  - include:
+      file: db/changelog/changes/029-optimize-receita-federal-article.yaml
