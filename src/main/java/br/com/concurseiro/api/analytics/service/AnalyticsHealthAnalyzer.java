@@ -1,6 +1,5 @@
 package br.com.concurseiro.api.analytics.service;
 
-import br.com.concurseiro.api.analytics.dto.AnalyticsInsightsResponse;
 import br.com.concurseiro.api.analytics.dto.AnalyticsInsightsResponse.*;
 import org.springframework.stereotype.Component;
 

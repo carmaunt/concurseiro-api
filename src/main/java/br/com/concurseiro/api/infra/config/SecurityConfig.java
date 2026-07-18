@@ -70,6 +70,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/analytics/events").permitAll()
 
+                        // experimentação pública: questão sem gabarito e correção sem persistência
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes/amostra").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/questoes/amostra/*/respostas").permitAll()
+
                         // leitura funcional da web exige login e não expõe gabarito
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/questoes/web")
                             .hasAnyAuthority(

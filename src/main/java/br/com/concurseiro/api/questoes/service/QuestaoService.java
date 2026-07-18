@@ -13,6 +13,8 @@ import br.com.concurseiro.api.catalogo.subassunto.repository.SubAssuntoRepositor
 import br.com.concurseiro.api.questoes.dto.QuestaoRequest;
 import br.com.concurseiro.api.questoes.dto.QuestaoResponse;
 import br.com.concurseiro.api.questoes.dto.QuestaoWebResponse;
+import br.com.concurseiro.api.questoes.dto.RespostaQuestaoAmostraResponse;
+import br.com.concurseiro.api.questoes.resposta.dto.RespostaQuestaoRequest;
 import br.com.concurseiro.api.questoes.enunciado.model.Enunciado;
 import br.com.concurseiro.api.questoes.enunciado.service.EnunciadoService;
 import br.com.concurseiro.api.questoes.model.Questao;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -168,6 +171,35 @@ public class QuestaoService {
     @Transactional(readOnly = true)
     public QuestaoWebResponse buscarParaWeb(String idQuestion) {
         return QuestaoWebResponse.fromEntity(buscarPorIdQuestion(idQuestion));
+    }
+
+    @Transactional(readOnly = true)
+    public List<QuestaoWebResponse> listarAmostra(int size) {
+        return listarParaWeb(
+                null, null, null, null, null, null, null, null, null, null,
+                0, size, "criadoEm,desc"
+        ).getContent();
+    }
+
+    @Transactional(readOnly = true)
+    public RespostaQuestaoAmostraResponse responderAmostra(
+            String idQuestion,
+            RespostaQuestaoRequest request
+    ) {
+        Questao questao = buscarPorIdQuestion(idQuestion);
+        String resposta = QuestaoValidationHelper.normalizarRespostaSelecionada(
+                questao.getModalidade(),
+                request.respostaSelecionada()
+        );
+        String gabarito = questao.getGabarito();
+
+        return new RespostaQuestaoAmostraResponse(
+                questao.getIdQuestion(),
+                resposta,
+                gabarito,
+                resposta.equals(gabarito),
+                questao.getExplicacao()
+        );
     }
 
     private Page<Questao> listarEntidadesFiltradasPaginadas(String texto, Long disciplinaId, Long assuntoId, Long subassuntoId, Long bancaId, Long instituicaoId, Integer ano, String cargo, String nivel, String modalidade, int page, int size, String sort) {

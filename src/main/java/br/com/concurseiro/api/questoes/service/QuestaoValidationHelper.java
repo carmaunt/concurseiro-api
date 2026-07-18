@@ -79,6 +79,17 @@ public final class QuestaoValidationHelper {
         };
     }
 
+    public static String normalizarRespostaSelecionada(String modalidade, String resposta) {
+        String valor = resposta == null ? "" : resposta.trim().toUpperCase();
+
+        if (valor.length() > 1 && valor.charAt(1) == ')') {
+            valor = valor.substring(0, 1);
+        }
+
+        validarGabaritoPorModalidade(modalidade, valor);
+        return normalizarGabarito(modalidade, valor);
+    }
+
     private static boolean isGabaritoAnulada(String gabarito) {
         return GABARITO_ANULADA.equals(gabarito) || "ANULADA".equals(gabarito) || "ANULADO".equals(gabarito);
     }

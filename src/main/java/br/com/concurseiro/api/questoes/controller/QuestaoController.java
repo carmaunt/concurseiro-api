@@ -3,6 +3,7 @@ package br.com.concurseiro.api.questoes.controller;
 import br.com.concurseiro.api.questoes.dto.QuestaoRequest;
 import br.com.concurseiro.api.questoes.dto.QuestaoResponse;
 import br.com.concurseiro.api.questoes.dto.QuestaoWebResponse;
+import br.com.concurseiro.api.questoes.dto.RespostaQuestaoAmostraResponse;
 import br.com.concurseiro.api.questoes.resposta.dto.RespostaQuestaoRequest;
 import br.com.concurseiro.api.questoes.resposta.dto.RespostaQuestaoResponse;
 import br.com.concurseiro.api.questoes.resposta.service.RespostaQuestaoUsuarioService;
@@ -22,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class QuestaoController {
 
     private static final int MAX_PAGE_SIZE = 50;
+    private static final int MAX_SAMPLE_SIZE = 10;
 
     private final QuestaoService service;
     private final RespostaQuestaoUsuarioService respostaService;
@@ -140,6 +142,30 @@ public class QuestaoController {
     @GetMapping("/web/{idQuestion}")
     public QuestaoWebResponse buscarParaWeb(@PathVariable String idQuestion) {
         return service.buscarParaWeb(idQuestion);
+    }
+
+    @Operation(summary = "Listar amostra pública de questões sem expor gabarito")
+    @GetMapping("/amostra")
+    public java.util.List<QuestaoWebResponse> listarAmostra(
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        if (size < 1 || size > MAX_SAMPLE_SIZE) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "size da amostra deve estar entre 1 e " + MAX_SAMPLE_SIZE
+            );
+        }
+
+        return service.listarAmostra(size);
+    }
+
+    @Operation(summary = "Responder questão da amostra sem registrar histórico")
+    @PostMapping("/amostra/{idQuestion}/respostas")
+    public RespostaQuestaoAmostraResponse responderAmostra(
+            @PathVariable String idQuestion,
+            @RequestBody @Valid RespostaQuestaoRequest request
+    ) {
+        return service.responderAmostra(idQuestion, request);
     }
 
     @Operation(summary = "Responder questao na web e registrar historico do usuario")
